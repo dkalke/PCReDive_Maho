@@ -16,4 +16,4 @@ https://discord.com/oauth2/authorize?client_id=806421470368104449&scope=bot
 
 # 外部連結
 - [使用者說明書](https://hackmd.io/7xSl9FBESkqW20sAv0SHPA)  
-
+- [TOPGG](https://top.gg/bot/806421470368104449)
