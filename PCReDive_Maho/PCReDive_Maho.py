@@ -1,37 +1,26 @@
 import os
-import discord
-from discord import Embed
-from discord.ext import tasks
-from dotenv import load_dotenv
 import datetime
-import csv
 import gc
-import dbl
+import csv
+from dotenv import load_dotenv
 
-# mariaDB
 import mysql.connector
 from mysql.connector import Error
 
+import discord
+from discord import Embed
+from discord.ext import tasks
+
+import TopGG
+import Discord_client
+from Discord_client import client
+
 load_dotenv()
 
-client = discord.Client()
 global people_list
 people_list = dict() # 放nickname
 
-
-# This example uses tasks provided by discord.ext to create a task that posts guild count to top.gg every 30 minutes.
-dbl_token = os.getenv('TOPGG_TOKEN')  # set this to your bot's top.gg token
-client.dblpy = dbl.DBLClient(client, dbl_token)
-
-
-@tasks.loop(minutes=30)
-async def update_stats():
-  # This function runs every 30 minutes to automatically update your server count."""
-  try:
-    await client.dblpy.post_guild_count()
-    print('Posted server count=' + str(client.dblpy.guild_count()))
-  except Exception as e:
-    print('Failed to post server count\n{}: {}'.format(type(e).__name__, e))
+TopGG.init()
 
 @tasks.loop(hours=12)
 async def clear_list():
@@ -40,7 +29,6 @@ async def clear_list():
   gc.collect()
   print('已重置雜湊表')
 
-update_stats.start()
 clear_list.start()
 
 
