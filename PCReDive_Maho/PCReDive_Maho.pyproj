@@ -24,6 +24,9 @@
     <Compile Include="Discord_client.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Name_manager.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="PCReDive_Maho.py" />
     <Compile Include="Topgg.py">
       <SubType>Code</SubType>

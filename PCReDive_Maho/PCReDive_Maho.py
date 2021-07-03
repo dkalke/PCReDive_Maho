@@ -1,6 +1,5 @@
 import os
 import datetime
-import gc
 import csv
 from dotenv import load_dotenv
 
@@ -9,27 +8,17 @@ from mysql.connector import Error
 
 import discord
 from discord import Embed
-from discord.ext import tasks
 
 import TopGG
 import Discord_client
 from Discord_client import client
+import Name_manager
+from Name_manager import people_list
+
 
 load_dotenv()
-
-global people_list
-people_list = dict() # 放nickname
-
 TopGG.init()
-
-@tasks.loop(hours=12)
-async def clear_list():
-  # 重設雜湊表
-  people_list = dict()
-  gc.collect()
-  print('已重置雜湊表')
-
-clear_list.start()
+Name_manager.init()
 
 
 
