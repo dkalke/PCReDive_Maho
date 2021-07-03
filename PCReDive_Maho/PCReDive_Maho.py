@@ -14,6 +14,7 @@ import Discord_client
 from Discord_client import client
 import Name_manager
 from Name_manager import people_list
+import Event.Ready
 
 
 load_dotenv()
@@ -21,12 +22,6 @@ TopGG.init()
 Name_manager.init()
 
 
-
-# 機器人上線事件
-@client.event
-async def on_ready():
-  await client.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="!h 查看更多資訊!"))
-  print('We have logged in as {0.user}'.format(client))
 
 # 全形轉半形
 def full2half(s):

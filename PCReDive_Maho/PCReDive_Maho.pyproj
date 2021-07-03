@@ -24,6 +24,12 @@
     <Compile Include="Discord_client.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Event\Ready.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Event\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Name_manager.py">
       <SubType>Code</SubType>
     </Compile>
@@ -31,6 +37,9 @@
     <Compile Include="Topgg.py">
       <SubType>Code</SubType>
     </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Event\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
