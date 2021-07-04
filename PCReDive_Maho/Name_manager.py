@@ -8,7 +8,7 @@ from Discord_client import client
 
 
 
-@tasks.loop(seconds=10)
+@tasks.loop(hours=6)
 async def clear_list():
   global people_list
   # 重設雜湊表

@@ -24,6 +24,9 @@
     <Compile Include="Discord_client.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Event\Command.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Event\Ready.py">
       <SubType>Code</SubType>
     </Compile>
