@@ -30,7 +30,25 @@
     <Compile Include="Event\Ready.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Event\Slash_command.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Event\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Module\Authentication.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Module\DB_control.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Module\Offset_manager.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Module\Update.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Module\__init__.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Name_manager.py">
@@ -43,6 +61,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Event\" />
+    <Folder Include="Module\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in

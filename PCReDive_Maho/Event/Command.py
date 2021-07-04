@@ -7,7 +7,11 @@ from mysql.connector import Error
 import discord
 from discord import Embed
 from Discord_client import client
-from Name_manager import people_list
+import Name_manager
+import Module.DB_control
+import Module.Authentication
+import Module.Update
+import Module.Offset_manager
 
 
 # 全形轉半形
@@ -29,36 +33,6 @@ async def on_message(message):
   if message.author == client.user:
     return
 
-  # 獲取使用者nick(若無則為本名)
-  async def get_nick_name(member_id):
-    # 新增一個映射表來加速 str(message.guild.id)+str(member_id)
-    key = str(message.guild.id) + str(member_id)
-
-    if key in people_list:
-      return people_list[key]
-    else:
-      try:
-        user = await client.get_guild(message.guild.id).fetch_member(member_id)
-        if user.nick == None:
-          people_list[key] = str(user.name)
-          return user.name
-        else:
-          people_list[key] = str(user.nick)
-          return user.nick
-      except:
-        print("get_nick_name查無此人!")
-        return "[N/A]"
-        
-
-  async def get_mention(member_id):
-    try:
-      user = await client.get_guild(message.guild.id).fetch_member(member_id)
-      return user.mention
-    except:
-          print("get_mention查無此人!")
-          return "[N/A]"
-    
-
   def Check_week(group_progress, week): # (now_week,now_boss,week_offset), week
     if week >= group_progress[0] and week <= group_progress[0] + group_progress[2]: # 檢查週目
       return True
@@ -73,325 +47,6 @@ async def on_message(message):
       else:
         return True
     else:
-      return False
-
-  async def Update(server_id, group_serial):
-    connection = mysql.connector.connect(host=os.getenv('SQLHOST'), database=os.getenv('SQLDB'), user=os.getenv('SQLID'), password=os.getenv('SQLPW'))
-    if connection.is_connected():
-      cursor = connection.cursor(prepared=True)
-      sql = "SELECT table_style FROM princess_connect.group WHERE server_id = ? and group_serial = ? LIMIT 0, 1"
-      data = (server_id, group_serial)
-      cursor.execute(sql, data)
-      row = cursor.fetchone()
-      cursor.close
-      if row:
-        if row[0] == 0:
-          await UpdateEmbed(server_id, group_serial)
-        else:
-          await UpdateTraditional(server_id, group_serial)
-      else:
-        await message.channel.send(content='查無戰隊資料!')
-      connection.close # 關閉連線
-  
-  async def UpdateEmbed(server_id, group_serial): # 更新刀表
-    try:
-      # 查詢當前周目、王、刀表訊息、保留刀訊息
-      connection = mysql.connector.connect(host=os.getenv('SQLHOST'), database=os.getenv('SQLDB'), user=os.getenv('SQLID'), password=os.getenv('SQLPW'))
-      if connection.is_connected():
-        cursor = connection.cursor(prepared=True)
-        sql = "SELECT now_week, week_offset, now_boss, table_channel_id, table_message_id, knife_pool_message_id FROM princess_connect.group WHERE server_id = ? and group_serial = ? LIMIT 0, 1"
-        data = (server_id, group_serial)
-        cursor.execute(sql, data)
-        row = cursor.fetchone()
-        cursor.close
-        if row:
-          now_week = row[0]
-          week_offset = row[1]
-          now_boss = row[2]
-          table_channel_id = row[3]
-          table_message_id = row[4]
-          knife_pool_message_id = row[5]
-
-          if table_message_id:
-            embed_msg = Embed(title='第' + str(group_serial) + '戰隊刀表', color=0xD98B99)
-            # 刀表部分，從當前週目開始印
-            send_msg = ''
-            index_boss = now_boss # 僅第一個週目由此王開始
-            for i in range(now_week, now_week + week_offset + 1):
-              kinfe_msg_name = ''
-              for j in range(index_boss,6):              
-                if i == now_week and j == now_boss:
-                  kinfe_msg_name = kinfe_msg_name + '**'+ str(j) + '王(現在進度)**\n'  # TODO
-                else:
-                  kinfe_msg_name = kinfe_msg_name + '**'+ str(j) + '王**\n'  # TODO
-  
-                # 刀表SQL
-                cursor = connection.cursor(prepared=True)
-                sql = "SELECT member_id, comment FROM princess_connect.knifes WHERE server_id = ? and group_serial = ? and week = ? and boss = ? order by serial_number"
-                data = (server_id, group_serial,i ,j)
-                cursor.execute(sql, data)
-                row = cursor.fetchone()
-                index = 1
-                while row:
-                  nick_name = await get_nick_name(row[0])
-                  kinfe_msg_name = kinfe_msg_name + '　{' +str(index) + '} ' + nick_name + '\n　　' +row[1] + '\n'
-                  row = cursor.fetchone()
-                  index = index +1
-                cursor.close()
-              index_boss = 1
-              embed_msg.add_field(name='\u200b', value='-   -   -   -   -   -   -   -   ', inline=False)
-              embed_msg.add_field(name='第' + str(i) + '週目', value=kinfe_msg_name , inline=False)
-            
-  
-          
-            try:
-              guild = client.get_guild(server_id)
-              channel = guild.get_channel(table_channel_id)
-              message_obj = await channel.fetch_message(table_message_id)
-              await message_obj.edit(embed=embed_msg)
-            except:
-              await message.channel.send(content='刀表訊息已被移除，請重新設定刀表頻道!')
-
-            # 保留刀部分
-            # 從一王印到五王
-            # 刀表SQL
-            cursor = connection.cursor(prepared=True)
-            sql = "SELECT boss, member_id, comment FROM princess_connect.keep_knifes WHERE server_id = ? and group_serial = ? order by boss"
-            data = (server_id, group_serial)
-            cursor.execute(sql, data)
-            msg = ''
-            index = 1
-            row = cursor.fetchone()
-            while row:  
-              # {index} ?王 nickname\tcomment\n
-              name = await get_nick_name(row[1])
-              msg = msg + '{' +str(index) + '} ' + str(row[0]) + '王 ' + name + '\n　' + row[2] + '\n'
-              index = index + 1
-              row = cursor.fetchone()
-            cursor.close
-  
-            # 修改保留刀表
-            if msg == '':
-              msg = '尚無保留刀資訊!'
-            else:
-              pass
-            embed_msg = Embed(title='保留刀', color=0xD9ACA3)
-            embed_msg.add_field(name='\u200b', value=msg , inline=False)
-            
-
-            # 取得訊息物件
-            try:
-              guild = client.get_guild(server_id)
-              channel = guild.get_channel(table_channel_id)
-              message_obj = await channel.fetch_message(knife_pool_message_id)
-              await message_obj.edit(embed=embed_msg)
-            except:
-              await message.channel.send(content='保留區訊息已被移除，請重新設定刀表頻道!')
-
-          else:
-            await message.channel.send(content='請戰隊隊長設定刀表頻道!')
-        else:
-          await message.channel.send(content='查無戰隊資料!')
-        connection.close # 關閉連線
-      else:
-        await message.channel.send(content='資料庫連線失敗!')
-    except Error as e:
-      print("資料庫連接失敗：", e)
-    finally:
-      if (connection.is_connected()):
-          cursor.close()
-          connection.close()
-          print("資料庫連線已關閉")
-
-  async def UpdateTraditional(server_id, group_serial): # 更新刀表
-    try:
-      # 查詢當前周目、王、刀表訊息、保留刀訊息
-      connection = mysql.connector.connect(host=os.getenv('SQLHOST'), database=os.getenv('SQLDB'), user=os.getenv('SQLID'), password=os.getenv('SQLPW'))
-      if connection.is_connected():
-        cursor = connection.cursor(prepared=True)
-        sql = "SELECT now_week, week_offset, now_boss, table_channel_id, table_message_id, knife_pool_message_id FROM princess_connect.group WHERE server_id = ? and group_serial = ? LIMIT 0, 1"
-        data = (server_id, group_serial)
-        cursor.execute(sql, data)
-        row = cursor.fetchone()
-        cursor.close
-        if row:
-          now_week = row[0]
-          week_offset = row[1]
-          now_boss = row[2]
-          table_channel_id = row[3]
-          table_message_id = row[4]
-          knife_pool_message_id = row[5]
-
-          if table_message_id:
-            # 刀表部分，從當前週目開始印
-            send_msg = '```asciidoc\n'
-            index_boss = now_boss # 僅第一個週目由此王開始
-            for i in range(now_week, now_week + week_offset + 1):
-              send_msg = send_msg + '第' + str(i) + '週目:\n'
-              for j in range(index_boss,6):
-                msg = ''
-
-                # 刀表SQL
-                cursor = connection.cursor(prepared=True)
-                sql = "SELECT member_id, comment FROM princess_connect.knifes WHERE server_id = ? and group_serial = ? and week = ? and boss = ? order by serial_number"
-                data = (server_id, group_serial,i ,j)
-                cursor.execute(sql, data)
-                row = cursor.fetchone()
-                index = 1
-                while row:
-                  nick_name = await get_nick_name(row[0])
-                  msg = msg + '  {' +str(index) + '}' + nick_name + '(' + row[1] + '),\n'
-                  row = cursor.fetchone()
-                  index = index +1
-                cursor.close()
-                if i == now_week and j == now_boss:
-                  if msg == '':
-                    send_msg = send_msg + ' ' + str(j) + '王(當前周目)\n'
-                  else:
-                    send_msg = send_msg + ' ' + str(j) + '王(當前周目)\n' + msg + '\n'  
-                else:
-                  if msg == '':
-                    send_msg = send_msg + ' ' + str(j) + '王\n'
-                  else:
-                    send_msg = send_msg + ' ' + str(j) + '王\n' + msg + '\n'  
-              index_boss = 1
-
-          
-            send_msg = send_msg + '```'
-            
-            # 取得訊息物件
-            try:
-              guild = client.get_guild(server_id)
-              channel = guild.get_channel(table_channel_id)
-              message_obj = await channel.fetch_message(table_message_id)
-              await message_obj.edit(content = send_msg)
-            except:
-              await message.channel.send(content='刀表訊息已被移除，請重新設定刀表頻道!')
-
-            # 保留刀部分
-            # 從一王印到五王
-            # 刀表SQL
-            cursor = connection.cursor(prepared=True)
-            sql = "SELECT boss, member_id, comment FROM princess_connect.keep_knifes WHERE server_id = ? and group_serial = ? order by boss"
-            data = (server_id, group_serial)
-            cursor.execute(sql, data)
-            msg = '```asciidoc\n保留刀:\n'
-            index = 1
-            row = cursor.fetchone()
-            while row:  
-              # {index} ?王 nickname\tcomment\n
-              name = await get_nick_name(row[1])
-              msg = msg + '{' +str(index) + '} ' + str(row[0]) + '王 ' + name + '\t' + row[2] + '\n'
-              index = index + 1
-              row = cursor.fetchone()
-            cursor.close
-
-            # 取得訊息物件
-            try:
-              guild = client.get_guild(server_id)
-              channel = guild.get_channel(table_channel_id)
-              message_obj = await channel.fetch_message(knife_pool_message_id)
-              if msg == '```asciidoc\n保留刀:\n':
-                await message_obj.edit(content = '尚無保留刀資訊!')
-              else:
-                msg = msg + '```'
-                await message_obj.edit(content = msg)
-            except:
-              await message.channel.send(content='保留區訊息已被移除，請重新設定刀表頻道!')
-
-          else:
-            await message.channel.send(content='請戰隊隊長設定刀表頻道!')
-        else:
-          await message.channel.send(content='查無戰隊資料!')
-
-        connection.close # 關閉連線
-      else:
-        await message.channel.send(content='資料庫連線失敗!')
-    except Error as e:
-      print("資料庫連接失敗：", e)
-    finally:
-      if (connection.is_connected()):
-          cursor.close()
-          connection.close()
-          print("資料庫連線已關閉")
-
-  async def IsAdmin(command):
-    if message.author.guild_permissions.administrator:  
-      return True
-    else:
-      await message.channel.send(command+ ' 您的權限不足!')
-      return False
-
-  async def IsCaptain(command, connection, server_id, member_id):
-    cursor = connection.cursor(prepared=True)
-    sql = "SELECT group_serial FROM princess_connect.group_captain WHERE server_id = ? and member_id = ?  LIMIT 0, 1"
-    data = (server_id, member_id)
-    cursor.execute(sql, data)
-    row = cursor.fetchone()
-    cursor.close
-    if row:
-      return row
-    else:
-      await message.channel.send(command+ ' 您的權限不足!')
-
-  async def IsController(command, connection, server_id):
-    group_serial = 0
-    now_week = 0
-    now_boss = 0
-    week_offset = 0
-    cursor = connection.cursor(prepared=True)
-    sql = "SELECT now_week, now_boss, week_offset, group_serial, controller_role_id FROM princess_connect.group WHERE server_id = ? order by group_serial"
-    data = (server_id,)
-    cursor.execute(sql, data) # 認證身分
-    row = cursor.fetchone()
-    while row and group_serial == 0:
-      for role in message.author.roles:
-        if role.id == row[4]:
-          now_week = row[0]
-          now_boss = row[1]
-          week_offset = row[2]
-          group_serial = row[3]
-          # TODO 如果一個人多個戰隊的控刀手權限，目前僅會執行編號最小的戰隊
-          break
-      row = cursor.fetchone()
-
-    try:
-      cursor.fetchall()  # fetch (and discard) remaining rows
-    except mysql.connector.errors.InterfaceError as ie:
-        if ie.msg == 'No result set to fetch from.':
-            # no problem, we were just at the end of the result set
-            pass
-        else:
-            raise
-    cursor.close
-    if group_serial == 0: # 如果是控刀手
-      await message.channel.send(command + ' 發生錯誤，您沒有控刀手權限!')
-
-    return ( now_week, now_boss, week_offset, group_serial )
-
-  def IsExistGroup(connection, server_id, group_serial):
-    cursor = connection.cursor(prepared=True)
-    sql = "SELECT * FROM princess_connect.group WHERE server_id = ? and group_serial = ? limit 0, 1"
-    data = (server_id, group_serial)
-    cursor.execute(sql, data)
-    row = cursor.fetchone()
-    cursor.close
-    return row
-
-  async def OpenConnection():
-    connection = mysql.connector.connect(host=os.getenv('SQLHOST'), database=os.getenv('SQLDB'), user=os.getenv('SQLID'), password=os.getenv('SQLPW'))
-    if connection.is_connected():
-      return connection
-    else:
-      await message.channel.send('資料庫連線失敗!')
-      return None
-
-  async def CloseConnection(connection):
-    if connection.is_connected():
-      connection.close
-      return True
-    else:
-      await message.channel.send('連線不存在!!')
       return False
 
   async def RemindUpdate(connection, server_id):
@@ -421,23 +76,23 @@ async def on_message(message):
       tokens[0] = full2half(tokens[0])
 
       if tokens[0][0] == '!': # 檢查有無更新訊息
-        connection = await OpenConnection()
+        connection = await Module.DB_control.OpenConnection(message)
         if connection:
           await RemindUpdate(connection, message.guild.id)
 
     # --------------------------------------------------------------------分盟管理 僅限管理者使用------------------------------------------------------------------------------------------------------
     # !建立戰隊  [編號]  ([隊長])
       if tokens[0] == '!建立戰隊' or tokens[0] == '!建立战队' or tokens[0] == '!cg':
-        if await IsAdmin(tokens[0]):
+        if await Module.Authentication.IsAdmin(message ,tokens[0]):
           if len(tokens) >= 2:
             if tokens[1].isdigit():
-              connection = await OpenConnection()
+              connection = await Module.DB_control.OpenConnection(message)
               if connection:
                 group_serial = int(tokens[1])
                 if group_serial > 0:
 
                   # 尋找戰隊有無存在
-                  row = IsExistGroup(connection, message.guild.id, group_serial)
+                  row = Module.Authentication.IsExistGroup(message ,connection, message.guild.id, group_serial)
                 
                   # 查無該戰隊資料，新增一筆，預設1週目1王，除當前週目外，可往後預約4週目
                   if not row: 
@@ -494,7 +149,7 @@ async def on_message(message):
                 else:
                   await message.channel.send('[編號] 只能是正整數!')
 
-                await CloseConnection(connection)
+                await Module.DB_control.CloseConnection(connection, message)
             else:
               await message.channel.send('[編號] 請使用阿拉伯數字!')
           else:
@@ -503,15 +158,15 @@ async def on_message(message):
             
       # !刪除戰隊  [編號]
       elif tokens[0] == '!刪除戰隊' or tokens[0] == '!删除战队' or tokens[0] == '!dg':
-        if await IsAdmin(tokens[0]):
+        if await Module.Authentication.IsAdmin(message ,tokens[0]):
           if len(tokens) == 2:
             if tokens[1].isdigit():
               group_serial = int(tokens[1])
               if group_serial > 0:
                 # 尋找戰隊有無存在
-                connection = await OpenConnection()
+                connection = await Module.DB_control.OpenConnection(message)
                 if connection:
-                  row = IsExistGroup(connection, message.guild.id, group_serial)
+                  row = Module.Authentication.IsExistGroup(message ,connection, message.guild.id, group_serial)
                   if row: # 找到該戰隊資料，刪除之!
                     # 刪除保留刀表
                     cursor = connection.cursor(prepared=True)
@@ -547,7 +202,7 @@ async def on_message(message):
                   else: 
                     await message.channel.send('第' + str(group_serial) + '戰隊不存在!')
 
-                  await CloseConnection(connection)
+                  await Module.DB_control.CloseConnection(connection, message)
               else:
                 await message.channel.send('[編號] 只能是正整數!')
             else:
@@ -558,15 +213,15 @@ async def on_message(message):
 
       # !戰隊隊長 [編號] [@成員]
       elif tokens[0] == '!戰隊隊長' or tokens[0] == '!战队队长' or tokens[0] == '!gc':
-        if await IsAdmin(tokens[0]):
+        if await Module.Authentication.IsAdmin(message ,tokens[0]):
           if len(tokens) >= 2:
             if tokens[1].isdigit():
               group_serial = int(tokens[1])
               if group_serial > 0:
                 # 尋找戰隊有無存在
-                connection = await OpenConnection()
+                connection = await Module.DB_control.OpenConnection(message)
                 if connection:
-                  row = IsExistGroup(connection, message.guild.id, group_serial)
+                  row = Module.Authentication.IsExistGroup(message ,connection, message.guild.id, group_serial)
                   if row: # 先刪除現有的隊長，再進行新增
                     # 刪除
                     cursor = connection.cursor(prepared=True)
@@ -617,7 +272,7 @@ async def on_message(message):
                   else: # 查無該戰隊資料，提示錯誤訊息 
                     await message.channel.send('第' + str(group_serial) + '戰隊不存在!')
 
-                  await CloseConnection(connection)
+                  await Module.DB_control.CloseConnection(connection, message)
               else:
                 await message.channel.send('[編號] 只能是正整數!')
             else: 
@@ -628,12 +283,12 @@ async def on_message(message):
 
       # !戰隊列表
       elif tokens[0] == '!戰隊列表' or tokens[0] == '!战队列表' or tokens[0] == '!gl':
-        if await IsAdmin(tokens[0]):
+        if await Module.Authentication.IsAdmin(message ,tokens[0]):
           if len(tokens) == 1:
             # 找出該伺服器戰隊
-            connection = await OpenConnection()
+            connection = await Module.DB_control.OpenConnection(message)
             if connection:
-              connection2 = await OpenConnection()
+              connection2 = await Module.DB_control.OpenConnection(message)
               if connection2:
                 # 列出所有戰隊
                 cursor = connection.cursor(prepared=True)
@@ -697,7 +352,7 @@ async def on_message(message):
                   inner_row = cursor2.fetchone()
                   captain_msg = ''
                   while inner_row:
-                    member_name = await get_nick_name(inner_row[0])
+                    member_name = await Name_manager.get_nick_name(message, inner_row[0])
                     captain_msg = captain_msg + member_name + ', '
                     inner_row = cursor2.fetchone()
                   cursor2.close
@@ -735,7 +390,7 @@ async def on_message(message):
 
                 await CloseConnection(connection2)
 
-              await CloseConnection(connection)
+              await Module.DB_control.CloseConnection(connection, message)
           else:
             await message.channel.send('!戰隊列表 格式錯誤，應為 !戰隊列表')     
 
@@ -744,9 +399,9 @@ async def on_message(message):
       # !設定控刀手身分組 [身分組]
       elif tokens[0] == '!控刀手身分組' or tokens[0] == '!控刀手身分组' or tokens[0] == '!cr':
         if len(tokens) == 2:
-          connection = await OpenConnection()
+          connection = await Module.DB_control.OpenConnection(message)
           if connection:
-            row = await IsCaptain(tokens[0], connection, message.guild.id, message.author.id)
+            row = await Module.Authentication.IsCaptain(message ,tokens[0], connection, message.guild.id, message.author.id)
             if row:
               group_serial = int(row[0])
               if len(message.role_mentions) == 1:
@@ -775,7 +430,7 @@ async def on_message(message):
               else:
                 await message.channel.send('只能指派一個身分組，設定失敗!')
             
-            await CloseConnection(connection)
+            await Module.DB_control.CloseConnection(connection, message)
         else:
           await message.channel.send('!控刀手身分组 格式錯誤，應為 !控刀手身分组 [@身分組]')
     
@@ -783,9 +438,9 @@ async def on_message(message):
       #  !刀表在此
       elif tokens[0] == '!刀表在此' or tokens[0] == '!刀表在此' or tokens[0] == '!tc':
         if len(tokens) == 1:
-          connection = await OpenConnection()
+          connection = await Module.DB_control.OpenConnection(message)
           if connection:
-            row = await IsCaptain(tokens[0], connection, message.guild.id, message.author.id)
+            row = await Module.Authentication.IsCaptain(message ,tokens[0], connection, message.guild.id, message.author.id)
             if row:
               group_serial = int(row[0])
               cursor = connection.cursor(prepared=True)
@@ -820,13 +475,13 @@ async def on_message(message):
                   cursor.execute(sql, data)
                   cursor.close
                   connection.commit()
-                  await Update(message.guild.id, group_serial)
+                  await Module.Update.Update(message, message.guild.id, group_serial)
                 else:
                   await message.channel.send('查無戰隊資料!') 
               else:
                 await message.channel.send('這裡是第'+ str(row[0]) +'戰隊的刀表頻道，請重新選擇!')
 
-            await CloseConnection(connection)
+            await Module.DB_control.CloseConnection(connection, message)
         else:
           await message.channel.send('!刀表在此 格式錯誤，應為 !刀表在此')
 
@@ -834,9 +489,9 @@ async def on_message(message):
       #  !報刀在此
       elif tokens[0] == '!報刀在此' or tokens[0] == '!报刀在此' or tokens[0] == '!sc':
         if len(tokens) == 1:
-          connection = await OpenConnection()
+          connection = await Module.DB_control.OpenConnection(message)
           if connection:
-            row = await IsCaptain(tokens[0], connection, message.guild.id, message.author.id)
+            row = await Module.Authentication.IsCaptain(message, tokens[0], connection, message.guild.id, message.author.id)
             if row:
               group_serial = int(row[0])
               cursor = connection.cursor(prepared=True)
@@ -857,16 +512,16 @@ async def on_message(message):
               else:
                 await message.channel.send('這裡是第'+ str(row[0]) +'戰隊的報刀頻道，請重新選擇!')
             
-            await CloseConnection(connection)
+            await Module.DB_control.CloseConnection(connection, message)
         else:
           await message.channel.send('!報刀在此 格式錯誤，應為 !報刀在此')
 
 
       #  !預約週目控制 [幾週]
       elif tokens[0] == '!提前週目' or tokens[0] == '!提前周目' or tokens[0] == '!wo':
-        connection = await OpenConnection()
+        connection = await Module.DB_control.OpenConnection(message)
         if connection:
-          row = await IsCaptain(tokens[0], connection, message.guild.id, message.author.id)
+          row = await Module.Authentication.IsCaptain(message ,tokens[0], connection, message.guild.id, message.author.id)
           if row:
             if len(tokens) == 2:
               if tokens[1].isdigit():
@@ -880,7 +535,7 @@ async def on_message(message):
                   cursor.close
                   connection.commit()
                   await message.channel.send('現在可以往後預約'+ str(week_offset) +'個週目囉!')
-                  await Update(message.guild.id, row[0])
+                  await Module.Update.Update(message, message.guild.id, row[0])
                 elif week_offset < 0:
                   await message.channel.send('[幾週目]只能是正整數喔!')
                 else:
@@ -890,15 +545,15 @@ async def on_message(message):
             else:
               await message.channel.send('!提前週目 格式錯誤，應為 !提前週目 [幾週目]')
 
-          await CloseConnection(connection)
+          await Module.DB_control.CloseConnection(connection, message)
 
 
       #  !清除刀表 [幾週]
       elif tokens[0] == '!清除刀表' or tokens[0] == '!清除刀表' or tokens[0] == '!ct':
         if len(tokens) == 1:
-          connection = await OpenConnection()
+          connection = await Module.DB_control.OpenConnection(message)
           if connection:
-            row = await IsCaptain(tokens[0], connection, message.guild.id, message.author.id)
+            row = await Module.Authentication.IsCaptain(message ,tokens[0], connection, message.guild.id, message.author.id)
             if row:
               group_serial = row[0]
               # 刪除保留刀表
@@ -923,18 +578,19 @@ async def on_message(message):
               cursor.close
               connection.commit()
               await message.channel.send('第'+ str(group_serial) +'戰隊刀表被真步吃光光拉!')
-              await Update(message.guild.id, group_serial) # 更新刀表
+              Module.Offset_manager.AutoOffset(connection, message.guild.id, group_serial) # 自動周目控制
+              await Module.Update.Update(message, message.guild.id, group_serial) # 更新刀表
 
-            await CloseConnection(connection)
+            await Module.DB_control.CloseConnection(connection, message)
         else:
           await message.channel.send('!清除刀表 格式錯誤，應為 !清除刀表')
 
 
       elif tokens[0] == '!匯出刀表' or tokens[0] == '!汇出刀表' or tokens[0] == '!e':
         if len(tokens) == 1:
-          connection = await OpenConnection()
+          connection = await Module.DB_control.OpenConnection(message)
           if connection:
-            row = await IsCaptain(tokens[0], connection, message.guild.id, message.author.id)
+            row = await Module.Authentication.IsCaptain(message ,tokens[0], connection, message.guild.id, message.author.id)
             if row:
               group_serial = row[0]
               server_id = message.guild.id
@@ -949,7 +605,7 @@ async def on_message(message):
               row = cursor.fetchone()
               index = 1
               while row:
-                nick_name = await get_nick_name(row[0])
+                nick_name = await Name_manager.get_nick_name(message, row[0])
                 msg.append([index,row[1] ,row[2] ,row[0] ,nick_name, row[3], row[4]])
                 row = cursor.fetchone()
                 index = index +1
@@ -969,16 +625,16 @@ async def on_message(message):
 
               os.remove(filename) # 移除檔案
 
-            await CloseConnection(connection)
+            await Module.DB_control.CloseConnection(connection, message)
         else:
           await message.channel.send('!匯出刀表 格式錯誤，應為 !匯出刀表')
 
 
       elif tokens[0] == '!刀表樣式' or tokens[0] == '!刀表样式' or tokens[0] == '!ts':
-        connection = await OpenConnection()
+        connection = await Module.DB_control.OpenConnection(message)
         if connection:
           server_id = message.guild.id
-          row = await IsCaptain(tokens[0], connection, server_id, message.author.id)
+          row = await Module.Authentication.IsCaptain(message ,tokens[0], connection, server_id, message.author.id)
           if row:
             group_serial = row[0]
             if len(tokens) == 2:
@@ -1029,7 +685,7 @@ async def on_message(message):
                       cursor.execute(sql, data)
                       cursor.close
                       connection.commit()
-                      await Update(message.guild.id, group_serial)
+                      await Module.Update.Update(message, message.guild.id, group_serial)
                     except:
                       await message.channel.send('刀表訊息已被移除，請重新設定刀表頻道!')
                   else:
@@ -1041,7 +697,7 @@ async def on_message(message):
             else:
               await message.channel.send('!刀表樣式 格式錯誤，應為 !刀表樣式 [樣式代號]')
          
-          await CloseConnection(connection)
+          await Module.DB_control.CloseConnection(connection, message)
       
 
       # --------------------------------------------------------------------出刀管理 僅限控刀手使用------------------------------------------------------------------------------------------------------
@@ -1051,9 +707,9 @@ async def on_message(message):
         now_week = 0
         now_boss = 0
         week_offset = 0
-        connection = await OpenConnection()
+        connection = await Module.DB_control.OpenConnection(message)
         if connection:
-          ( now_week, now_boss, week_offset, group_serial ) = await IsController(tokens[0], connection, message.guild.id) # check身分，並找出所屬組別
+          ( now_week, now_boss, week_offset, group_serial ) = await Module.Authentication.IsController(message, tokens[0], connection, message.guild.id) # check身分，並找出所屬組別
           if not group_serial == 0: # 如果是控刀手
             if len(tokens) == 6:
               if tokens[1].isdigit() and tokens[2].isdigit() and tokens[3].isdigit() and tokens[4].isdigit() and tokens[5].isdigit():
@@ -1089,7 +745,7 @@ async def on_message(message):
                       cursor.close()
                       connection.commit()
                       await message.channel.send('第' + str(source_week) + '週目' + str(source_boss) + '王，移動完成!')
-                      await Update(message.guild.id, group_serial) # 更新刀表
+                      await Module.Update.Update(message, message.guild.id, group_serial) # 更新刀表
                     else:
                       await message.channel.send('該刀不存在喔!')
                   else:
@@ -1114,9 +770,9 @@ async def on_message(message):
         now_week = 0
         now_boss = 0
         week_offset = 0
-        connection = await OpenConnection()
+        connection = await Module.DB_control.OpenConnection(message)
         if connection:
-          ( now_week, now_boss, week_offset, group_serial ) = await IsController(tokens[0], connection, message.guild.id)
+          ( now_week, now_boss, week_offset, group_serial ) = await Module.Authentication.IsController(message ,tokens[0], connection, message.guild.id)
           if not group_serial == 0: # 如果是是控刀手
             if len(tokens) == 4:
               if tokens[1].isdigit() and tokens[2].isdigit() and tokens[3].isdigit():
@@ -1142,7 +798,7 @@ async def on_message(message):
                       cursor.close()
                       connection.commit()
                       await message.channel.send('刪除成功!')
-                      await Update(message.guild.id, group_serial) # 更新刀表
+                      await Module.Update.Update(message, message.guild.id, group_serial) # 更新刀表
                     else:
                       await message.channel.send('該刀不存在喔!')
                   else:
@@ -1167,9 +823,9 @@ async def on_message(message):
         now_week = 0
         now_boss = 0
         week_offset = 0
-        connection = await OpenConnection()
+        connection = await Module.DB_control.OpenConnection(message)
         if connection:
-          ( now_week, now_boss, week_offset, group_serial ) = await IsController(tokens[0], connection, message.guild.id)
+          ( now_week, now_boss, week_offset, group_serial ) = await Module.Authentication.IsController(message ,tokens[0], connection, message.guild.id)
           if not group_serial == 0: # 如果是是控刀手
             if len(tokens) == 5:
               if tokens[1].isdigit() and tokens[2].isdigit():
@@ -1187,7 +843,7 @@ async def on_message(message):
                       cursor.close
                       connection.commit()
                       await message.channel.send('幫報完成! 第' + str(week) + '週目' + str(boss) + '王，備註:' + comment + '。')
-                      await Update(message.guild.id, group_serial) # 更新刀表
+                      await Module.Update.Update(message, message.guild.id, group_serial) # 更新刀表
                     else:
                       await message.channel.send('該王不存在喔!')
                   else:
@@ -1212,9 +868,9 @@ async def on_message(message):
         now_week = 0
         now_boss = 0
         week_offset = 0
-        connection = await OpenConnection()
+        connection = await Module.DB_control.OpenConnection(message)
         if connection:
-          ( now_week, now_boss, week_offset, group_serial ) = await IsController(tokens[0], connection, message.guild.id)
+          ( now_week, now_boss, week_offset, group_serial ) = await Module.Authentication.IsController(message ,tokens[0], connection, message.guild.id)
           if not group_serial == 0: # 如果是是控刀手
             if len(tokens) == 4:
               if tokens[1].isdigit():
@@ -1228,7 +884,7 @@ async def on_message(message):
                     cursor.close()
                     connection.commit()
                     await message.channel.send(tokens[1] + '王，備註:' + tokens[2] + '，**保留刀**報刀成功!')
-                    await Update(message.guild.id, group_serial) # 更新刀表
+                    await Module.Update.Update(message, message.guild.id, group_serial) # 更新刀表
                   else:
                     await message.channel.send('請mention你要幫報**保留刀**的人喔!')
                 else:
@@ -1251,9 +907,9 @@ async def on_message(message):
         now_week = 0
         now_boss = 0
         week_offset = 0
-        connection = await OpenConnection()
+        connection = await Module.DB_control.OpenConnection(message)
         if connection:
-          ( now_week, now_boss, week_offset, group_serial ) = await IsController(tokens[0], connection, message.guild.id)
+          ( now_week, now_boss, week_offset, group_serial ) = await Module.Authentication.IsController(message ,tokens[0], connection, message.guild.id)
           if not group_serial == 0: # 如果是是控刀手
             if len(tokens) == 2:
               if tokens[1].isdigit():
@@ -1274,7 +930,7 @@ async def on_message(message):
                   cursor.close()
                   connection.commit()
                   await message.channel.send('刪除保留刀成功!')
-                  await Update(message.guild.id, group_serial) # 更新刀表   
+                  await Module.Update.Update(message, message.guild.id, group_serial) # 更新刀表   
                 else:
                   await message.channel.send('該保留刀不存在喔!') 
               else:
@@ -1294,9 +950,9 @@ async def on_message(message):
         now_week = 0
         now_boss = 0
         week_offset = 0
-        connection = await OpenConnection()
+        connection = await Module.DB_control.OpenConnection(message)
         if connection:
-          ( now_week, now_boss, week_offset, group_serial ) = await IsController(tokens[0], connection, message.guild.id)
+          ( now_week, now_boss, week_offset, group_serial ) = await Module.Authentication.IsController(message ,tokens[0], connection, message.guild.id)
           if not group_serial == 0: # 如果是是控刀手
             if len(tokens) == 3:
               if tokens[1].isdigit() and tokens[2].isdigit():
@@ -1308,7 +964,8 @@ async def on_message(message):
                   cursor.close
                   connection.commit()
                   await message.channel.send('已切換至' + tokens[1] + '週目' + tokens[2] + '王!')
-                  await Update(message.guild.id, group_serial) # 更新刀表
+                  Module.Offset_manager.AutoOffset(connection, message.guild.id, group_serial)
+                  await Module.Update.Update(message, message.guild.id, group_serial) # 更新刀表
                 else:
                   await message.channel.send('週目或王的數字打錯囉!')
               else:
@@ -1328,7 +985,7 @@ async def on_message(message):
         # check頻道，並找出所屬組別
         group_serial = 0
         
-        connection = await OpenConnection()
+        connection = await Module.DB_control.OpenConnection(message)
         if connection:
           cursor = connection.cursor(prepared=True)
           sql = "SELECT now_week, now_boss, week_offset, group_serial FROM princess_connect.group WHERE server_id = ? and sign_channel_id = ? order by group_serial limit 0, 1"
@@ -1353,7 +1010,7 @@ async def on_message(message):
                     cursor.close
                     connection.commit()
                     await message.channel.send('第' + str(week) + '週目' + str(boss) + '王，備註:' + comment + '，報刀成功!')
-                    await Update(message.guild.id, group_serial) # 更新刀表
+                    await Module.Update.Update(message, message.guild.id, group_serial) # 更新刀表
                   else:
                     await message.channel.send('該王不存在喔!')
                 else:
@@ -1364,13 +1021,13 @@ async def on_message(message):
               await message.channel.send('!預約 格式錯誤，應為 !預約 [週目] [王] [註解]')
           else:
             pass #非指定頻道 不反應
-          await CloseConnection(connection)
+          await Module.DB_control.CloseConnection(connection, message)
 
 
       #!取消報刀  !取消預約 [周目] [幾王] [第幾刀]
       elif tokens[0] == '!取消預約' or tokens[0] == '!取消预约' or tokens[0] == '!cp':
         group_serial = 0
-        connection = await OpenConnection()
+        connection = await Module.DB_control.OpenConnection(message)
         if connection:
           cursor = connection.cursor(prepared=True)
           sql = "SELECT now_week, now_boss, week_offset, group_serial FROM princess_connect.group WHERE server_id = ? and sign_channel_id = ? order by group_serial limit 0, 1"
@@ -1404,7 +1061,7 @@ async def on_message(message):
                         cursor.close()
                         connection.commit()
                         await message.channel.send('取消成功!')
-                        await Update(message.guild.id, group_serial) # 更新刀表
+                        await Module.Update.Update(message, message.guild.id, group_serial) # 更新刀表
                       else:
                         await message.channel.send('您並非該刀主人喔!')
                     else:
@@ -1419,13 +1076,13 @@ async def on_message(message):
               await message.channel.send('!取消預約 格式錯誤，應為 !取消預約 [週目] [王] [第幾刀]')
           else:
             pass #非指定頻道 不反應
-          await CloseConnection(connection)
+          await Module.DB_control.CloseConnection(connection, message)
         
       
       elif tokens[0] == '!報保留刀' or tokens[0] == '!报保留刀' or tokens[0] == '!kp':
         # check頻道，並找出所屬組別
         group_serial = 0
-        connection = await OpenConnection()
+        connection = await Module.DB_control.OpenConnection(message)
         if connection:
           cursor = connection.cursor(prepared=True)
           sql = "SELECT group_serial FROM princess_connect.group WHERE server_id = ? and sign_channel_id = ? order by group_serial limit 0, 1"
@@ -1446,7 +1103,7 @@ async def on_message(message):
                   cursor.close()
                   connection.commit()
                   await message.channel.send(tokens[1] + '王，備註:' + tokens[2] + '，**保留刀**報刀成功!')
-                  await Update(message.guild.id, group_serial) # 更新刀表
+                  await Module.Update.Update(message, message.guild.id, group_serial) # 更新刀表
                 else:
                   await message.channel.send('該王不存在喔!')
               else:
@@ -1455,12 +1112,12 @@ async def on_message(message):
               await message.channel.send('!報保留刀 格式錯誤，應為 !報保留刀 [王] [註解]')
           else:
             pass #非指定頻道 不反應
-          await CloseConnection(connection)
+          await Module.DB_control.CloseConnection(connection, message)
         
       #!使用保留刀 [第幾刀] [週目] [boss]
       elif tokens[0] == '!使用保留刀' or tokens[0] == '!使用保留刀' or tokens[0] == '!ukp':
         group_serial = 0
-        connection = await OpenConnection()
+        connection = await Module.DB_control.OpenConnection(message)
         if connection:
           cursor = connection.cursor(prepared=True)
           sql = "SELECT  now_week, now_boss, week_offset, group_serial FROM princess_connect.group WHERE server_id = ? and sign_channel_id = ? order by group_serial limit 0, 1"
@@ -1501,7 +1158,7 @@ async def on_message(message):
 
                         connection.commit()
                         await message.channel.send('第' + str(week) + '週目' + str(boss) + '王，備註:' + row[2] + '，報刀成功!')
-                        await Update(message.guild.id, group_serial) # 更新刀表
+                        await Module.Update.Update(message, message.guild.id, group_serial) # 更新刀表
                       else:
                         await message.channel.send('您並非該刀主人喔!')
                     else:
@@ -1516,13 +1173,13 @@ async def on_message(message):
               await message.channel.send('!使用保留刀 格式錯誤，應為 !使用保留刀 [第幾刀] [週目] [boss]')
           else:
             pass #非指定頻道 不反應
-          await CloseConnection(connection)
+          await Module.DB_control.CloseConnection(connection, message)
 
 
       #!取消保留刀 [第幾刀]
       elif tokens[0] == '!取消保留刀' or tokens[0] == '!取消保留刀' or tokens[0] == '!ckp':
         group_serial = 0
-        connection = await OpenConnection()
+        connection = await Module.DB_control.OpenConnection(message)
         if connection:
           cursor = connection.cursor(prepared=True)
           sql = "SELECT  now_week, now_boss, week_offset, group_serial FROM princess_connect.group WHERE server_id = ? and sign_channel_id = ? order by group_serial limit 0, 1"
@@ -1552,7 +1209,7 @@ async def on_message(message):
                     cursor.close()
                     connection.commit()
                     await message.channel.send('取消保留刀成功!')
-                    await Update(message.guild.id, group_serial) # 更新刀表
+                    await Module.Update.Update(message, message.guild.id, group_serial) # 更新刀表
                   else:
                     await message.channel.send('您並非該刀主人喔!')
                 else:
@@ -1563,13 +1220,13 @@ async def on_message(message):
               await message.channel.send('!取消保留刀 格式錯誤，應為 !取消保留刀 [第幾刀]')
           else:
             pass #非指定頻道 不反應
-          await CloseConnection(connection)
+          await Module.DB_control.CloseConnection(connection, message)
 
       elif tokens[0] == '!目前進度' or tokens[0] == '!目前进度' or tokens[0] == '!ns':
         if len(tokens) == 1:
           # check頻道，並找出所屬組別
           group_serial = 0
-          connection = await OpenConnection()
+          connection = await Module.DB_control.OpenConnection(message)
           if connection:
             cursor = connection.cursor(prepared=True)
             sql = "SELECT now_week, now_boss, group_serial FROM princess_connect.group WHERE server_id = ? and sign_channel_id = ? order by group_serial limit 0, 1"
@@ -1582,7 +1239,7 @@ async def on_message(message):
             else:
               pass #非指定頻道 不反應
 
-            CloseConnection(connection)
+            Module.DB_control.CloseConnection(connection, message)
         else:
           await message.channel.send('!目前進度 格式錯誤，應為 !目前進度')
       
@@ -1590,7 +1247,7 @@ async def on_message(message):
         if len(tokens) == 1:
           # check頻道，並找出所屬組別
           group_serial = 0
-          connection = await OpenConnection()
+          connection = await Module.DB_control.OpenConnection(message)
           if connection:
             cursor = connection.cursor(prepared=True)
             sql = "SELECT now_week, now_boss, boss_change, group_serial FROM princess_connect.group WHERE server_id = ? and sign_channel_id = ? order by group_serial limit 0, 1"
@@ -1630,7 +1287,7 @@ async def on_message(message):
                 cursor.execute(sql, data)
                 row = cursor.fetchone()
                 while row:
-                  mention = await get_mention(row[0])
+                  mention = await Name_manager.get_mention(message, row[0])
                   knifes = knifes + mention  + ' '
                   row = cursor.fetchone()
                 cursor.close()
@@ -1642,13 +1299,15 @@ async def on_message(message):
 
 
                 # 更新刀表
-                await Update(message.guild.id, group_serial) # 更新刀表
+                if now_boss == 1:
+                  Module.Offset_manager.AutoOffset(connection, message.guild.id, group_serial) # 自動周目控制
+                await Module.Update.Update(message, message.guild.id, group_serial) # 更新刀表
               else:
                 await message.channel.send('目前CD中，上次使用時間:' + str(boss_change) + '。' )
             else:
               pass #非指定頻道 不反應
 
-            await CloseConnection(connection)
+            await Module.DB_control.CloseConnection(connection, message)
         else:
           await message.channel.send('!下面一位 格式錯誤，應為 !下面一位')
 
@@ -1656,7 +1315,7 @@ async def on_message(message):
         if len(tokens) == 1:
           # check頻道，並找出所屬組別
           group_serial = 0
-          connection = await OpenConnection()
+          connection = await Module.DB_control.OpenConnection(message)
           if connection:
             cursor = connection.cursor(prepared=True)
             sql = "SELECT now_week, now_boss, group_serial FROM princess_connect.group WHERE server_id = ? and sign_channel_id = ? order by group_serial limit 0, 1"
@@ -1675,7 +1334,7 @@ async def on_message(message):
               cursor.execute(sql, data)
               row = cursor.fetchone()
               while row:
-                mention = await get_mention(row[0])
+                mention = await Name_manager.get_mention(message, row[0])
                 knifes = knifes + mention  + ' '
                 row = cursor.fetchone()
               cursor.close()
@@ -1686,7 +1345,7 @@ async def on_message(message):
                 await message.channel.send(knifes + str(now_week) + '週' + str(now_boss) + '王到囉!')
             else:
               pass #非指定頻道 不反應
-            await CloseConnection(connection)
+            await Module.DB_control.CloseConnection(connection, message)
         else:
           await message.channel.send('!出来打王 格式錯誤，應為 !出来打王')   
 
@@ -1695,7 +1354,7 @@ async def on_message(message):
       # 幫助訊息
       elif tokens[0] == '!幫助' or tokens[0] == '!帮助' or tokens[0] == '!h':
         msg = '\
-**目前版本為為beta 0.8.4 版**\n\
+**目前版本為0.9.1 版**\n\
 \n\
 指令支援繁體/簡體/英文，全形半形。\n\
 此外，英文縮寫對照表於上方網頁文件中可以查詢。\n\
