@@ -7,6 +7,9 @@ https://discord.com/oauth2/authorize?client_id=806421470368104449&scope=bot
 
 
 # 更新紀錄
+## 0.9.1 patch 1
+- 修正 !wo 與 /提前週目數設定 相容性
+
 ## 0.9.1 
 - 模組化工程開始，逐步模組化與引入斜線指令(slash-command)。
 - 新增斜線指令 /提前週目數設定 可依照各階段設定提前週目數量。

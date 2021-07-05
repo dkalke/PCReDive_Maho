@@ -529,12 +529,12 @@ async def on_message(message):
                 if 0 <= week_offset and week_offset <= 10:
                   # 寫入資料庫
                   cursor = connection.cursor(prepared=True)
-                  sql = "UPDATE princess_connect.group SET week_offset = ? WHERE server_id = ? and group_serial = ? "
-                  data = (week_offset, message.guild.id, row[0])
+                  sql = "UPDATE princess_connect.group SET week_offset = ?, week_offset_1 = ?, week_offset_2 = ?, week_offset_3 = ?, week_offset_4 = ?, week_offset_5 = ? WHERE server_id = ? and group_serial = ? "
+                  data = (week_offset, week_offset, week_offset, week_offset, week_offset, week_offset, message.guild.id, row[0])
                   cursor.execute(sql, data)
                   cursor.close
                   connection.commit()
-                  await message.channel.send('現在可以往後預約'+ str(week_offset) +'個週目囉!')
+                  await message.channel.send('現在一到五階段可以往後預約'+ str(week_offset) +'個週目囉!')
                   await Module.Update.Update(message, message.guild.id, row[0])
                 elif week_offset < 0:
                   await message.channel.send('[幾週目]只能是正整數喔!')
