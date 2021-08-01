@@ -9,7 +9,7 @@ import TopGG
 import Name_manager
 import Event.Ready
 import Event.Command
-import Event.Slash_command
+import Event.SlashCommand.slash_command
 
 
 load_dotenv()

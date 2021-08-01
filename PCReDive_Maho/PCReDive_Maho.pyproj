@@ -30,7 +30,34 @@
     <Compile Include="Event\Ready.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Event\Slash_command.py">
+    <Compile Include="Event\SlashCommand\Admin\add_captain.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Event\SlashCommand\Admin\create_group.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Event\SlashCommand\Admin\delete_group.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Event\SlashCommand\Admin\group_list.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Event\SlashCommand\Admin\remove_captain.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Event\SlashCommand\Admin\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Event\SlashCommand\Controller\week_offset.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Event\SlashCommand\Controller\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Event\SlashCommand\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Event\SlashCommand\slash_command.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Event\__init__.py">
@@ -61,6 +88,12 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Event\" />
+    <Folder Include="Event\SlashCommand\" />
+    <Folder Include="Event\SlashCommand\Admin\" />
+    <Folder Include="Event\SlashCommand\Controller\" />
+    <Folder Include="Event\SlashCommand\Captain\" />
+    <Folder Include="Event\SlashCommand\Universal\" />
+    <Folder Include="Event\SlashCommand\General\" />
     <Folder Include="Module\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
