@@ -48,7 +48,19 @@
     <Compile Include="Event\SlashCommand\Admin\__init__.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Event\SlashCommand\Controller\week_offset.py">
+    <Compile Include="Event\SlashCommand\Captain\set_sign_channel_here.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Event\SlashCommand\Captain\set_table_channel_here.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Event\SlashCommand\Captain\set_controller_role.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Event\SlashCommand\Captain\set_weeks_offset.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Event\SlashCommand\Captain\__init__.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Event\SlashCommand\Controller\__init__.py">
