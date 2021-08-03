@@ -48,6 +48,12 @@
     <Compile Include="Event\SlashCommand\Admin\__init__.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Event\SlashCommand\Captain\clear_table.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Event\SlashCommand\Captain\export_table.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Event\SlashCommand\Captain\set_sign_channel_here.py">
       <SubType>Code</SubType>
     </Compile>
@@ -55,6 +61,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Event\SlashCommand\Captain\set_controller_role.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Event\SlashCommand\Captain\set_table_style.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Event\SlashCommand\Captain\set_weeks_offset.py">
