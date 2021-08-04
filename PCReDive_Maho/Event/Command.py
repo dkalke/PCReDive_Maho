@@ -12,6 +12,8 @@ import Module.DB_control
 import Module.Authentication
 import Module.Update
 import Module.Offset_manager
+import Module.check_week
+import Module.check_boss
 
 
 # 全形轉半形
@@ -32,22 +34,6 @@ async def on_message(message):
   # 防止機器人自問自答
   if message.author == client.user:
     return
-
-  def Check_week(group_progress, week): # (now_week,now_boss,week_offset), week
-    if week >= group_progress[0] and week <= group_progress[0] + group_progress[2]: # 檢查週目
-      return True
-    else:
-      return False
-
-  def Check_boss(group_progress, week, boss): # (now_week,now_boss,week_offset), week, boss
-    # 檢查Boss
-    if boss > 0 and boss < 6 :  
-      if week == group_progress[0] and boss < group_progress[1]:
-        return False
-      else:
-        return True
-    else:
-      return False
 
   async def RemindUpdate(connection, server_id):
     cursor = connection.cursor(prepared=True)
@@ -718,8 +704,8 @@ async def on_message(message):
                 source_knife = int(tokens[3])
                 destination_week = int(tokens[4])
                 destination_boss = int(tokens[5])
-                if Check_week((now_week, now_boss, week_offset), source_week) and Check_week((now_week, now_boss, week_offset), destination_week):
-                  if Check_boss((now_week, now_boss, week_offset), source_week, source_boss) and Check_boss((now_week, now_boss, week_offset), destination_week, destination_boss):
+                if Module.check_week.Check_week((now_week, now_boss, week_offset), source_week) and Module.check_week.Check_week((now_week, now_boss, week_offset), destination_week):
+                  if Module.check_boss.Check_boss((now_week, now_boss, week_offset), source_week, source_boss) and Module.check_boss.Check_boss((now_week, now_boss, week_offset), destination_week, destination_boss):
                     # 尋找要刪除刀的序號
                     delete_index = 0
                     cursor = connection.cursor(prepared=True)
@@ -779,8 +765,8 @@ async def on_message(message):
                 week = int(tokens[1])
                 boss = int(tokens[2])
                 knife = int(tokens[3])
-                if Check_week((now_week, now_boss, week_offset), week):
-                  if Check_boss((now_week, now_boss, week_offset), week,boss):
+                if Module.check_week.Check_week((now_week, now_boss, week_offset), week):
+                  if Module.check_boss.Check_boss((now_week, now_boss, week_offset), week,boss):
                     # 尋找要刪除刀的序號
                     delete_index = 0
                     cursor = connection.cursor(prepared=True)
@@ -833,8 +819,8 @@ async def on_message(message):
                 boss = int(tokens[2])
                 comment = tokens[3]
                 if message.mentions:
-                  if Check_week((now_week, now_boss, week_offset), week):
-                    if Check_boss((now_week, now_boss, week_offset), week,boss):
+                  if Module.check_week.Check_week((now_week, now_boss, week_offset), week):
+                    if Module.check_boss.Check_boss((now_week, now_boss, week_offset), week,boss):
                       # 新增進刀表
                       cursor = connection.cursor(prepared=True)
                       sql = "INSERT INTO princess_connect.knifes (server_id, group_serial, week, boss, member_id, comment, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?)"
@@ -1000,8 +986,8 @@ async def on_message(message):
                 week = int(tokens[1])
                 boss = int(tokens[2])
                 comment = tokens[3]
-                if Check_week((row[0], row[1], row[2]), week):
-                  if Check_boss((row[0], row[1], row[2]),week, boss):
+                if Module.check_week.Check_week((row[0], row[1], row[2]), week):
+                  if Module.check_boss.Check_boss((row[0], row[1], row[2]),week, boss):
                     # 新增刀
                     cursor = connection.cursor(prepared=True)
                     sql = "INSERT INTO princess_connect.knifes (server_id, group_serial, week, boss, member_id, comment, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?)"
@@ -1042,8 +1028,8 @@ async def on_message(message):
                 week = int(tokens[1])
                 boss = int(tokens[2])
                 index = int(tokens[3]) # TODO check index 不可為負數
-                if Check_week((row[0], row[1], row[2]), week):
-                  if Check_boss((row[0], row[1], row[2]), week,boss):
+                if Module.check_week.Check_week((row[0], row[1], row[2]), week):
+                  if Module.check_boss.Check_boss((row[0], row[1], row[2]), week,boss):
                     # 尋找要刪除刀的序號
                     delete_index = 0
                     cursor = connection.cursor(prepared=True)
@@ -1132,8 +1118,8 @@ async def on_message(message):
                 index = int(tokens[1]) # TODO check index 不可為負數
                 week = int(tokens[2])
                 boss = int(tokens[3])
-                if Check_week((row[0], row[1], row[2]), week):
-                  if Check_boss((row[0], row[1], row[2]),week, boss):  
+                if Module.check_week.Check_week((row[0], row[1], row[2]), week):
+                  if Module.check_boss.Check_boss((row[0], row[1], row[2]),week, boss):  
                     cursor = connection.cursor(prepared=True)
                     sql = "SELECT serial_number, member_id, comment from princess_connect.keep_knifes where server_id=? and group_serial=? order by boss limit ?,1"
                     data = (message.guild.id, group_serial, index-1)
