@@ -18,3 +18,5 @@ import Event.SlashCommand.Captain.set_sign_channel_here
 import Event.SlashCommand.Captain.set_table_channel_here
 import Event.SlashCommand.Captain.set_table_style
 import Event.SlashCommand.Captain.set_weeks_offset
+
+import Event.SlashCommand.General.reserveBoss
