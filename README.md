@@ -15,10 +15,10 @@ https://discord.com/oauth2/authorize?client_id=806421470368104449&scope=bot
   - discord-py-slash-command (2.3.1)
   - dblpy (0.4.0)
 - MariaDB 10.1.48  
-可利用[script](https://github.com/dkalke/PCReDive_Maho/blob/9f609367341f8e8b3edda1c375be4c6298fcb112/init/priceseDB.sql)產生依賴資料表
+可利用[script](https://github.com/dkalke/PCReDive_Maho/blob/master/PCReDive_Maho/init-files/priceseDB.sql)產生依賴資料表
 
 ### 設定啟動參數
-修改[env](https://github.com/dkalke/PCReDive_Maho/blob/9f609367341f8e8b3edda1c375be4c6298fcb112/init/.env)內部參數，並置於PCReDive_Maho目錄下。
+修改[env](https://github.com/dkalke/PCReDive_Maho/blob/master/PCReDive_Maho/init-files/.env)內部參數，並置於PCReDive_Maho目錄下。
 - SQLHOST  
   MariaDB ip位址
 - SQLPORT  
