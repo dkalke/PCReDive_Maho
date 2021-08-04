@@ -30,7 +30,7 @@ import Module.DB_control
                      option_type=3,
                      required=True
                  )
-             ]
+             ])
 async def reserveBoss(ctx, week, boss, remark):
   group_serial = 0
   connection = await Module.DB_control.OpenConnection(ctx)
@@ -41,22 +41,23 @@ async def reserveBoss(ctx, week, boss, remark):
     cursor.execute(sql, data) # 認證身分
     row = cursor.fetchone()
     cursor.close
-    group_serial = row[3]
-    if Check_week((row[0], row[1], row[2]), week):
-      if Check_boss((row[0], row[1], row[2]),week, boss):
-        # 新增刀
-        cursor = connection.cursor(prepared=True)
-        sql = "INSERT INTO princess_connect.knifes (server_id, group_serial, week, boss, member_id, comment, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?)"
-        data = (ctx.guild.id, group_serial, week, boss, ctx.author.id, remark ,datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
-        cursor.execute(sql, data)
-        cursor.close
-        connection.commit()
-        await ctx.channel.send('第' + str(week) + '週目' + str(boss) + '王，備註:' + remark + '，報刀成功!')
-        await Module.Update.Update(ctx, ctx.guild.id, group_serial) # 更新刀表
+    if row:
+      group_serial = row[3]
+      if Check_week((row[0], row[1], row[2]), week):
+        if Check_boss((row[0], row[1], row[2]),week, boss):
+          # 新增刀
+          cursor = connection.cursor(prepared=True)
+          sql = "INSERT INTO princess_connect.knifes (server_id, group_serial, week, boss, member_id, comment, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?)"
+          data = (ctx.guild.id, group_serial, week, boss, ctx.author.id, remark ,datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+          cursor.execute(sql, data)
+          cursor.close
+          connection.commit()
+          await ctx.channel.send('第' + str(week) + '週目' + str(boss) + '王，備註:' + remark + '，報刀成功!')
+          await Module.Update.Update(ctx, ctx.guild.id, group_serial) # 更新刀表
+        else:
+          await ctx.send('該王不存在喔!')
       else:
-        await ctx.send('該王不存在喔!')
+        await ctx.send('該週目不存在喔!')
     else:
-      await ctx.send('該週目不存在喔!')
-  else:
-    pass #非指定頻道 不反應
-  await Module.DB_control.CloseConnection(connection, ctx)
+      pass #非指定頻道 不反應
+    await Module.DB_control.CloseConnection(connection, ctx)
