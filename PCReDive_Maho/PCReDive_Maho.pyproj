@@ -75,6 +75,8 @@
     <Compile Include="Event\SlashCommand\Controller\__init__.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Event\SlashCommand\General\reserveBoss.py" />
+    <Compile Include="Event\SlashCommand\General\__init__.py" />
     <Compile Include="Event\SlashCommand\__init__.py">
       <SubType>Code</SubType>
     </Compile>
@@ -87,6 +89,8 @@
     <Compile Include="Module\Authentication.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Module\check_boss.py" />
+    <Compile Include="Module\check_week.py" />
     <Compile Include="Module\DB_control.py">
       <SubType>Code</SubType>
     </Compile>
