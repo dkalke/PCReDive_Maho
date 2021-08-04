@@ -52,20 +52,6 @@ level_options = [ create_choice(name="不提前", value=0),create_choice(name="1
                                   connector={"1階段": "level1","2階段": "level2","3階段": "level3","4階段": "level4","5階段": "level5"}
                                 )
 async def set_weeks_offset(ctx, level1, level2, level3, level4, level5):
-                 required=True,
-                 choices=[
-                  create_choice(name="不提前", value=0),create_choice(name="提前1個週目", value=1),create_choice(name="提前2個週目", value=2),create_choice(name="提前3個週目", value=3),create_choice(name="提前4個週目", value=4),create_choice(name="提前5個週目", value=5),
-                  create_choice(name="提前6個週目", value=6),create_choice(name="提前7個週目", value=7),create_choice(name="提前8個週目", value=8),create_choice(name="提前9個週目", value=9),create_choice(name="提前10個週目", value=10)
-                  ]
-               )
-             ])
-async def weekset(ctx, level1, level2, level3, level4, level5):
-                 required=True,
-                 choices=[
-                  create_choice(name="不提前", value=0),create_choice(name="提前1個週目", value=1),create_choice(name="提前2個週目", value=2),create_choice(name="提前3個週目", value=3),create_choice(name="提前4個週目", value=4),create_choice(name="提前5個週目", value=5),
-  await Module.DB_control.CloseConnection(connection, ctx)                
-                  ]
-               )
   await Module.Update.Update(ctx, ctx.guild.id, group_serial)
   connection = await Module.DB_control.OpenConnection(ctx)
   group_serial = await Module.Authentication.IsCaptain(ctx, "/captain set_weeks_offset", connection, ctx.guild.id, ctx.author.id)
