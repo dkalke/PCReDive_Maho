@@ -3,7 +3,7 @@ Princess Connect Discord Bot
 Discord 公主連結報刀機器人
 
 ## 機器人邀請連結
-邀請即用
+邀請即用  
 https://discord.com/oauth2/authorize?client_id=806421470368104449&scope=bot
 
 
@@ -18,14 +18,16 @@ https://discord.com/oauth2/authorize?client_id=806421470368104449&scope=bot
 可利用[script](https://github.com/dkalke/PCReDive_Maho/blob/9f609367341f8e8b3edda1c375be4c6298fcb112/init/priceseDB.sql)產生依賴資料表
 
 ### 設定啟動參數
-修改[env]內部參數，並置於PCReDive_Maho目錄下。
-- SQLDB  
+修改[env](https://github.com/dkalke/PCReDive_Maho/blob/9f609367341f8e8b3edda1c375be4c6298fcb112/init/.env)內部參數，並置於PCReDive_Maho目錄下。
+- SQLHOST  
   MariaDB ip:port
+- SQLDB  
+  MariaDB 資料庫名稱
 - SQLID  
-  使用者名稱
+  MariaDB 使用者名稱
 - SQLPW  
-  使用者密碼
-- TOPGG_TOKEN
+  MariaDB 使用者密碼
+- TOPGG_TOKEN  
   [top.gg](https://top.gg/)申請token填入
 - TOKEN  
   [discord](https://discord.com/developers/applications)申請token填入
