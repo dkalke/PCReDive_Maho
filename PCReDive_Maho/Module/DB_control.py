@@ -3,7 +3,7 @@ import mysql.connector
 from mysql.connector import Error
 
 async def OpenConnection(message):
-  connection = mysql.connector.connect(host=os.getenv('SQLHOST'), database=os.getenv('SQLDB'), user=os.getenv('SQLID'), password=os.getenv('SQLPW'))
+  connection = mysql.connector.connect(host=os.getenv('SQLHOST'), port=os.getenv('SQLPORT'), database=os.getenv('SQLDB'), user=os.getenv('SQLID'), password=os.getenv('SQLPW'))
   if connection.is_connected():
     return connection
   else:
