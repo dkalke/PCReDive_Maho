@@ -1,4 +1,3 @@
-import datetime
 from discord_slash.utils.manage_commands import create_option, create_choice
 import Discord_client
 import Module.DB_control
@@ -48,7 +47,7 @@ async def cancelBoss(ctx, week, boss, index):
       if Module.check_week.Check_week((row[0], row[1], row[2]), week):
         if Module.check_boss.Check_boss((row[0], row[1], row[2]), week,boss):
           # 尋找要刪除刀的序號
-          delete_index = 0
+          delete_index = 0 # 這個好像沒用到？
           cursor = connection.cursor(prepared=True)
           sql = "SELECT serial_number,member_id from princess_connect.knifes where server_id=? and group_serial=? and week=? and boss=? order by serial_number limit ?,1"
           data = (ctx.guild.id, group_serial, week, boss,index-1)
@@ -74,5 +73,5 @@ async def cancelBoss(ctx, week, boss, index):
       else:
         await ctx.send('該週目不存在喔!')
     else:
-      pass #非指定頻道 不反應
+      await ctx.send('這裡不是報刀頻道喔!')
     await Module.DB_control.CloseConnection(connection, ctx)
