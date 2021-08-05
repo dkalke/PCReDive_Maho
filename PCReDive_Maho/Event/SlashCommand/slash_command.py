@@ -19,4 +19,11 @@ import Event.SlashCommand.Captain.set_table_channel_here
 import Event.SlashCommand.Captain.set_table_style
 import Event.SlashCommand.Captain.set_weeks_offset
 
-import Event.SlashCommand.General.reserveBoss
+import Event.SlashCommand.Controller.delete_keep_knife
+import Event.SlashCommand.Controller.delete_knife
+import Event.SlashCommand.Controller.keep_knife
+import Event.SlashCommand.Controller.move_knife
+import Event.SlashCommand.Controller.proposal_knife
+import Event.SlashCommand.Controller.set_progress
+
+import Event.SlashCommand.General.proposal_knife
