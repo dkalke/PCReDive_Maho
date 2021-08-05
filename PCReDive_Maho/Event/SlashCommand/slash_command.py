@@ -27,3 +27,6 @@ import Event.SlashCommand.Controller.proposal_knife
 import Event.SlashCommand.Controller.set_progress
 
 import Event.SlashCommand.General.proposal_knife
+import Event.SlashCommand.General.cancel_proposal
+import Event.SlashCommand.General.keep_proposal
+import Event.SlashCommand.General.use_keep_proposal
