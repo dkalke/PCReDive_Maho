@@ -1,9 +1,9 @@
-import datetime
 from discord_slash.utils.manage_commands import create_option, create_choice
 import Discord_client
 import Module.DB_control
 import Module.check_boss
 import Module.check_week
+import Module.Update
 
 @Discord_client.slash.slash( 
              name="p" ,
@@ -32,9 +32,9 @@ import Module.check_week
                      required=True
                  )
              ],
-             connector={"週目": "week","boss": "boss","備註": "remark"}
+             connector={"週目": "week","boss": "boss","備註": "comment"}
              )
-async def reserveBoss(ctx, week, boss, remark):
+async def proposal_knife(ctx, week, boss, comment):
   connection = await Module.DB_control.OpenConnection(ctx)
   if connection:
     cursor = connection.cursor(prepared=True)
@@ -49,12 +49,12 @@ async def reserveBoss(ctx, week, boss, remark):
         if Module.check_boss.Check_boss((row[0], row[1], row[2]),week, boss):
           # 新增刀
           cursor = connection.cursor(prepared=True)
-          sql = "INSERT INTO princess_connect.knifes (server_id, group_serial, week, boss, member_id, comment, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?)"
-          data = (ctx.guild.id, group_serial, week, boss, ctx.author.id, remark ,datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+          sql = "INSERT INTO princess_connect.knifes (server_id, group_serial, week, boss, member_id, comment) VALUES (?, ?, ?, ?, ?, ?)"
+          data = (ctx.guild.id, group_serial, week, boss, ctx.author.id, comment)
           cursor.execute(sql, data)
           cursor.close
           connection.commit()
-          await ctx.send('第' + str(week) + '週目' + str(boss) + '王，備註:' + remark + '，報刀成功!')
+          await ctx.send('第' + str(week) + '週目' + str(boss) + '王，備註:' + comment + '，報刀成功!')
           await Module.Update.Update(ctx, ctx.guild.id, group_serial) # 更新刀表
         else:
           await ctx.send('該王不存在喔!')
