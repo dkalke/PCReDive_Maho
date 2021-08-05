@@ -23,9 +23,9 @@ import Module.DB_control
                      required=True
                  )
              ],
-             connector={"boss": "boss","備註": "remark"}
+             connector={"boss": "boss","備註": "comment"}
              )
-async def keepKnife(ctx, boss, remark):
+async def keep_proposal(ctx, boss, comment):
   connection = await Module.DB_control.OpenConnection(ctx)
   if connection:
     cursor = connection.cursor(prepared=True)
@@ -36,18 +36,15 @@ async def keepKnife(ctx, boss, remark):
     cursor.close
     if row:
       group_serial = row[0]
-      if boss > 0 and boss < 6:
-        # 寫入保留刀表
-        cursor = connection.cursor(prepared=True)
-        sql = "INSERT INTO princess_connect.keep_knifes (server_id, group_serial, member_id, boss, comment) VALUES (?, ?, ?, ?, ?)"
-        data = (ctx.guild.id, group_serial, ctx.author.id, boss, remark)
-        cursor.execute(sql, data)
-        cursor.close()
-        connection.commit()
-        await ctx.send(str(boss) + '王，備註:' + remark + '，**保留刀**報刀成功!')
-        await Module.Update.Update(ctx, ctx.guild.id, group_serial) # 更新刀表
-      else:
-        await ctx.send('該王不存在喔!')
+      # 寫入保留刀表
+      cursor = connection.cursor(prepared=True)
+      sql = "INSERT INTO princess_connect.keep_knifes (server_id, group_serial, member_id, boss, comment) VALUES (?, ?, ?, ?, ?)"
+      data = (ctx.guild.id, group_serial, ctx.author.id, boss, comment)
+      cursor.execute(sql, data)
+      cursor.close()
+      connection.commit()
+      await ctx.send(str(boss) + '王，備註:' + comment + '，**保留刀**報刀成功!')
+      await Module.Update.Update(ctx, ctx.guild.id, group_serial) # 更新刀表
     else:
       await ctx.send('這裡不是報刀頻道喔!')
     await Module.DB_control.CloseConnection(connection, ctx)
