@@ -110,6 +110,9 @@
     <Compile Include="Module\Authentication.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Module\auto_clear.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Module\check_boss.py" />
     <Compile Include="Module\check_week.py" />
     <Compile Include="Module\DB_control.py">

@@ -7,7 +7,10 @@ async def OpenConnection(message):
   if connection.is_connected():
     return connection
   else:
-    await message.channel.send('資料庫連線失敗!')
+    if not message == None:
+      await message.channel.send('資料庫連線失敗!')
+    else:
+      print('資料庫連線失敗!')
     return None
 
 async def CloseConnection(connection, message):
@@ -15,5 +18,8 @@ async def CloseConnection(connection, message):
     connection.close
     return True
   else:
-    await message.channel.send('連線不存在!!')
+    if not message == None:
+      await message.channel.send('連線不存在!!')
+    else:
+      print('連線不存在!!')
     return False
