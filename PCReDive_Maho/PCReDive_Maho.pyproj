@@ -85,8 +85,23 @@
     <Compile Include="Event\SlashCommand\Controller\__init__.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Event\SlashCommand\General\cancel_keep_proposal.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Event\SlashCommand\General\cancel_proposal.py" />
+    <Compile Include="Event\SlashCommand\General\hit_boss.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Event\SlashCommand\General\keep_proposal.py" />
+    <Compile Include="Event\SlashCommand\General\next_boss.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Event\SlashCommand\General\now_progeass.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Event\SlashCommand\General\prefer_time.py" />
     <Compile Include="Event\SlashCommand\General\proposal_knife.py" />
+    <Compile Include="Event\SlashCommand\General\use_keep_proposal.py" />
     <Compile Include="Event\SlashCommand\General\__init__.py" />
     <Compile Include="Event\SlashCommand\__init__.py">
       <SubType>Code</SubType>
@@ -98,6 +113,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Module\Authentication.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Module\auto_clear.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Module\check_boss.py" />
