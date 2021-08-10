@@ -48,12 +48,16 @@
     <Compile Include="Event\SlashCommand\Admin\__init__.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Event\SlashCommand\Captain\add_member.py" />
     <Compile Include="Event\SlashCommand\Captain\clear_table.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Event\SlashCommand\Captain\delete_member.py" />
     <Compile Include="Event\SlashCommand\Captain\export_table.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Event\SlashCommand\Captain\set_info_channel_here.py" />
+    <Compile Include="Event\SlashCommand\Captain\set_member_accounts.py" />
     <Compile Include="Event\SlashCommand\Captain\set_sign_channel_here.py">
       <SubType>Code</SubType>
     </Compile>
@@ -81,6 +85,7 @@
     <Compile Include="Event\SlashCommand\Controller\__init__.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Event\SlashCommand\General\prefer_time.py" />
     <Compile Include="Event\SlashCommand\General\proposal_knife.py" />
     <Compile Include="Event\SlashCommand\General\__init__.py" />
     <Compile Include="Event\SlashCommand\__init__.py">
