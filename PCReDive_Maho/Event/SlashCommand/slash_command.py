@@ -21,6 +21,7 @@ import Event.SlashCommand.Captain.set_weeks_offset
 import Event.SlashCommand.Captain.set_info_channel_here
 import Event.SlashCommand.Captain.add_member
 import Event.SlashCommand.Captain.delete_member
+import Event.SlashCommand.Captain.set_member_knifes
 
 
 import Event.SlashCommand.Controller.delete_keep_knife
@@ -38,3 +39,4 @@ import Event.SlashCommand.General.next_boss
 import Event.SlashCommand.General.now_progeass
 import Event.SlashCommand.General.proposal_knife
 import Event.SlashCommand.General.use_keep_proposal
+import Event.SlashCommand.General.prefer_time

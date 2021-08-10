@@ -57,7 +57,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Event\SlashCommand\Captain\set_info_channel_here.py" />
-    <Compile Include="Event\SlashCommand\Captain\set_member_accounts.py" />
+    <Compile Include="Event\SlashCommand\Captain\set_member_knifes.py" />
     <Compile Include="Event\SlashCommand\Captain\set_sign_channel_here.py">
       <SubType>Code</SubType>
     </Compile>
