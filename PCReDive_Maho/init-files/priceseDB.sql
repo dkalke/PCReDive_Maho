@@ -24,11 +24,11 @@ CREATE TABLE IF NOT EXISTS `group` (
   `now_boss` int(10) unsigned NOT NULL,
   `table_channel_id` bigint(20) DEFAULT NULL,
   `sign_channel_id` bigint(20) DEFAULT NULL,
+  `info_channel_id` bigint(20) DEFAULT NULL,
   `log_channel_id` bigint(20) DEFAULT NULL,
-  `information_channel_id` bigint(20) DEFAULT NULL,
   `table_message_id` bigint(20) DEFAULT NULL,
   `knife_pool_message_id` bigint(20) DEFAULT NULL,
-  `information_message_id` bigint(20) DEFAULT NULL,
+  `info_message_id` bigint(20) DEFAULT NULL,
   `controller_role_id` bigint(20) DEFAULT NULL,
   `boss_change` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `table_style` tinyint(4) NOT NULL DEFAULT '0',
@@ -56,7 +56,7 @@ CREATE TABLE IF NOT EXISTS `keep_knifes` (
   `boss` int(11) unsigned NOT NULL,
   `comment` varchar(150) NOT NULL DEFAULT '',
   PRIMARY KEY (`serial_number`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=273 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=328 DEFAULT CHARSET=utf8mb4;
 
 -- 取消選取資料匯出。
 
@@ -75,7 +75,7 @@ CREATE TABLE IF NOT EXISTS `knifes` (
   `damage_upto` int(10) unsigned NOT NULL DEFAULT '0',
   `damage_downto` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`serial_number`)
-) ENGINE=InnoDB AUTO_INCREMENT=3832 DEFAULT CHARSET=utf8mb4 COMMENT='每刀資料';
+) ENGINE=InnoDB AUTO_INCREMENT=6752 DEFAULT CHARSET=utf8mb4 COMMENT='每刀資料';
 
 -- 取消選取資料匯出。
 
