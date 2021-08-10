@@ -57,7 +57,7 @@ async def info_update(message ,server_id, group_serial):
 
           member_name = await Name_manager.get_nick_name(message, member_id)
           msg = msg + '{' + str(count) + '} ' + member_name + '\n'
-          msg = msg+ '　持有' + str(knifes) + '刀，剩餘' + str(3) + '刀，出刀偏好:' + period + '\n'
+          msg = msg+ '　持有' + str(knifes) + '刀，剩餘' + str(knifes) + '刀，出刀偏好:' + period + '\n' # TODO 計算已出刀數
           count = count + 1
           row = cursor.fetchone()
 
