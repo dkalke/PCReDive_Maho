@@ -123,6 +123,7 @@
     <Compile Include="Module\DB_control.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Module\info_update.py" />
     <Compile Include="Module\Offset_manager.py">
       <SubType>Code</SubType>
     </Compile>

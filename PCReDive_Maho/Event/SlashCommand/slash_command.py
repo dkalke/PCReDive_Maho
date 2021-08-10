@@ -18,6 +18,10 @@ import Event.SlashCommand.Captain.set_sign_channel_here
 import Event.SlashCommand.Captain.set_table_channel_here
 import Event.SlashCommand.Captain.set_table_style
 import Event.SlashCommand.Captain.set_weeks_offset
+import Event.SlashCommand.Captain.set_info_channel_here
+import Event.SlashCommand.Captain.add_member
+import Event.SlashCommand.Captain.delete_member
+
 
 import Event.SlashCommand.Controller.delete_keep_knife
 import Event.SlashCommand.Controller.delete_knife
