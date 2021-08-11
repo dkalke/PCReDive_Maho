@@ -55,14 +55,23 @@ async def UpdateEmbed(connection, message, server_id, group_serial): # 更新刀
   
           # 刀表SQL
           cursor = connection.cursor(prepared=True)
-          sql = "SELECT member_id, comment FROM princess_connect.knifes WHERE server_id = ? and group_serial = ? and week = ? and boss = ? order by serial_number"
+          sql = "SELECT member_id, comment, knife_type FROM princess_connect.knifes WHERE server_id = ? and group_serial = ? and week = ? and boss = ? order by serial_number"
           data = (server_id, group_serial,i ,j)
           cursor.execute(sql, data)
           row = cursor.fetchone()
           index = 1
           while row:
             nick_name = await Name_manager.get_nick_name(message, row[0])
-            kinfe_msg_name = kinfe_msg_name + '　{' +str(index) + '} ' + nick_name + '\n　　' +row[1] + '\n'
+            knife_type = row[2]
+            if knife_type == 1:
+              knife_type = '[正刀] '
+            elif knife_type == 2:
+              knife_type = '[尾刀] '
+            elif knife_type == 3:
+              knife_type = '[補償刀] '
+            else:
+              knife_type = ''
+            kinfe_msg_name = kinfe_msg_name + '　{' +str(index) + '} ' + nick_name + '\n　　' + knife_type + row[1] + '\n'
             row = cursor.fetchone()
             index = index +1
           cursor.close()
@@ -149,14 +158,23 @@ async def UpdateTraditional(connection, message, server_id, group_serial): # 更
 
           # 刀表SQL
           cursor = connection.cursor(prepared=True)
-          sql = "SELECT member_id, comment FROM princess_connect.knifes WHERE server_id = ? and group_serial = ? and week = ? and boss = ? order by serial_number"
+          sql = "SELECT member_id, comment, knife_type FROM princess_connect.knifes WHERE server_id = ? and group_serial = ? and week = ? and boss = ? order by serial_number"
           data = (server_id, group_serial,i ,j)
           cursor.execute(sql, data)
           row = cursor.fetchone()
           index = 1
           while row:
             nick_name = await Name_manager.get_nick_name(message, row[0])
-            msg = msg + '  {' +str(index) + '}' + nick_name + '(' + row[1] + '),\n'
+            knife_type = row[2]
+            if knife_type == 1:
+              knife_type = '[正刀] '
+            elif knife_type == 2:
+              knife_type = '[尾刀] '
+            elif knife_type == 3:
+              knife_type = '[補償刀] '
+            else:
+              knife_type = ''
+            msg = msg + '  {' +str(index) + '}' + nick_name + '(' + knife_type + row[1] + '),\n'
             row = cursor.fetchone()
             index = index +1
           cursor.close()
