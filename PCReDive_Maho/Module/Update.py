@@ -55,13 +55,22 @@ async def UpdateEmbed(connection, message, server_id, group_serial): # 更新刀
   
           # 刀表SQL
           cursor = connection.cursor(prepared=True)
-          sql = "SELECT member_id, comment, knife_type FROM princess_connect.knifes WHERE server_id = ? and group_serial = ? and week = ? and boss = ? order by serial_number"
+          sql = "SELECT member_id, comment, knife_type, done_time FROM princess_connect.knifes WHERE server_id = ? and group_serial = ? and week = ? and boss = ? order by serial_number"
           data = (server_id, group_serial,i ,j)
           cursor.execute(sql, data)
           row = cursor.fetchone()
           index = 1
           while row:
+            # 出刀狀況
+            done_time = row[3]
+            knife_status = ":negative_squared_cross_mark: "
+            if done_time:
+              knife_status = ":ballot_box_with_check: "
+
+            # 取得DC暱稱
             nick_name = await Name_manager.get_nick_name(message, row[0])
+
+            # 判斷該刀種類
             knife_type = row[2]
             if knife_type == 1:
               knife_type = '[正刀] '
@@ -71,7 +80,8 @@ async def UpdateEmbed(connection, message, server_id, group_serial): # 更新刀
               knife_type = '[補償刀] '
             else:
               knife_type = ''
-            kinfe_msg_name = kinfe_msg_name + '　{' +str(index) + '} ' + nick_name + '\n　　' + knife_type + row[1] + '\n'
+
+            kinfe_msg_name = kinfe_msg_name + '　{' +str(index) + '} ' + knife_status + nick_name + '\n　　' + knife_type + row[1] + '\n'
             row = cursor.fetchone()
             index = index +1
           cursor.close()
@@ -158,12 +168,18 @@ async def UpdateTraditional(connection, message, server_id, group_serial): # 更
 
           # 刀表SQL
           cursor = connection.cursor(prepared=True)
-          sql = "SELECT member_id, comment, knife_type FROM princess_connect.knifes WHERE server_id = ? and group_serial = ? and week = ? and boss = ? order by serial_number"
+          sql = "SELECT member_id, comment, knife_type, done_time FROM princess_connect.knifes WHERE server_id = ? and group_serial = ? and week = ? and boss = ? order by serial_number"
           data = (server_id, group_serial,i ,j)
           cursor.execute(sql, data)
           row = cursor.fetchone()
           index = 1
           while row:
+            # 出刀狀況
+            done_time = row[3]
+            knife_status = "X "
+            if done_time:
+              knife_status = "V "
+
             nick_name = await Name_manager.get_nick_name(message, row[0])
             knife_type = row[2]
             if knife_type == 1:
@@ -174,7 +190,7 @@ async def UpdateTraditional(connection, message, server_id, group_serial): # 更
               knife_type = '[補償刀] '
             else:
               knife_type = ''
-            msg = msg + '  {' +str(index) + '}' + nick_name + '(' + knife_type + row[1] + '),\n'
+            msg = msg + '  {' +str(index) + '} ' + knife_status + nick_name + '(' + knife_type + row[1] + '),\n'
             row = cursor.fetchone()
             index = index +1
           cursor.close()
