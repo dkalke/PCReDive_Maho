@@ -37,11 +37,14 @@ async def auto_clear():
       # 取得刀表頻道
       guild = Discord_client.client.get_guild(server_id)
       if not guild == None:
-        channel = guild.get_channel(table_channel_id)
-        message_obj = await channel.send(content='已完成月中重置流程，刀表已清除!')
-        Module.Offset_manager.AutoOffset(connection, server_id, group_serial) # 自動周目控制
-        await Module.Update.Update(message_obj, server_id, group_serial) # 更新刀表
-        print('伺服器:' + str(server_id) + ', 編號' + str(group_serial) + '頻道:' + str(table_channel_id) + '清除完成!')
+        try:
+          channel = guild.get_channel(table_channel_id)
+          message_obj = await channel.send(content='已完成月中重置流程，刀表已清除!')
+          Module.Offset_manager.AutoOffset(connection, server_id, group_serial) # 自動周目控制
+          await Module.Update.Update(message_obj, server_id, group_serial) # 更新刀表
+          print('伺服器:' + str(server_id) + ', 編號' + str(group_serial) + '頻道:' + str(table_channel_id) + '清除完成!')
+        except:
+          print('伺服器:' + str(server_id) + ', 編號' + str(group_serial) + '頻道:' + str(table_channel_id) + '刀表訊息不存在!')
       else: # 清除不存在的戰隊資料
         sql = "DELETE FROM princess_connect.group where server_id = ? and group_serial = ?"
         data = (server_id, group_serial)

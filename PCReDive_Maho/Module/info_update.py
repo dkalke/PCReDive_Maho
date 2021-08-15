@@ -126,7 +126,7 @@ async def info_update(message ,server_id, group_serial):
           cursor.close
 
           if msg == '':
-            msg = '尚無保留刀資訊!'
+            msg = '尚無成員資訊!'
           else:
             pass
           embed_msg.add_field(name='\u200b', value=msg , inline=False)
