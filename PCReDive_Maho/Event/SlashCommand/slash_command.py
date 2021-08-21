@@ -5,11 +5,13 @@ import Module.Authentication
 import Module.Update
 import Module.Offset_manager
 
+
 import Event.SlashCommand.Admin.create_group
 import Event.SlashCommand.Admin.delete_group
 import Event.SlashCommand.Admin.add_captain
 import Event.SlashCommand.Admin.remove_captain
 import Event.SlashCommand.Admin.group_list
+
 
 import Event.SlashCommand.Captain.clear_table
 import Event.SlashCommand.Captain.export_table
@@ -22,6 +24,7 @@ import Event.SlashCommand.Captain.set_info_channel_here
 import Event.SlashCommand.Captain.add_member
 import Event.SlashCommand.Captain.delete_member
 import Event.SlashCommand.Captain.set_member_knifes
+import Event.SlashCommand.Captain.set_policy
 
 
 import Event.SlashCommand.Controller.delete_keep_knife
@@ -30,6 +33,7 @@ import Event.SlashCommand.Controller.keep_knife
 import Event.SlashCommand.Controller.move_knife
 import Event.SlashCommand.Controller.proposal_knife
 import Event.SlashCommand.Controller.set_progress
+
 
 import Event.SlashCommand.General.cancel_keep_proposal
 import Event.SlashCommand.General.cancel_proposal

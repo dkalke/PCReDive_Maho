@@ -58,6 +58,9 @@
     </Compile>
     <Compile Include="Event\SlashCommand\Captain\set_info_channel_here.py" />
     <Compile Include="Event\SlashCommand\Captain\set_member_knifes.py" />
+    <Compile Include="Event\SlashCommand\Captain\set_policy.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Event\SlashCommand\Captain\set_sign_channel_here.py">
       <SubType>Code</SubType>
     </Compile>
@@ -125,6 +128,9 @@
     <Compile Include="Module\check_boss.py" />
     <Compile Include="Module\check_week.py" />
     <Compile Include="Module\DB_control.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Module\define_value.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Module\info_update.py" />
