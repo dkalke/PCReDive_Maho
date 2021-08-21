@@ -88,7 +88,6 @@
     <Compile Include="Event\SlashCommand\Controller\__init__.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Event\SlashCommand\General\advanced_proposal_knife.py" />
     <Compile Include="Event\SlashCommand\General\cancel_keep_proposal.py">
       <SubType>Code</SubType>
     </Compile>

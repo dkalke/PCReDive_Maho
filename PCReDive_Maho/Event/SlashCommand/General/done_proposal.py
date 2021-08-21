@@ -1,5 +1,5 @@
 import datetime
-from discord_slash.utils.manage_commands import create_option
+from discord_slash.utils.manage_commands import create_option, create_choice
 import Discord_client
 import Module.DB_control
 import Module.Update
@@ -15,6 +15,18 @@ import Module.info_update
                      option_type=4,
                      required=True
                  ),
+                 create_option(
+                     name="類型",
+                     description="是正刀、尾刀、還是補償刀?",
+                     option_type=4,
+                     required=True,
+                     choices=[
+                         create_choice(name="正刀", value=1),create_choice(name="尾刀", value=2),create_choice(name="補償刀", value=3)
+                         # value = 0 為一般報刀使用，無法統計刀數
+                         # 尾刀出完扣除0.5
+                         # 補償刀出完扣除0.5
+                     ]
+                 ),
                   create_option(
                      name="傷害",
                      description="實際打了多少血，僅能輸入數字",
@@ -22,9 +34,9 @@ import Module.info_update
                      required=True
                  )
              ],
-             connector={"序號": "index", "傷害": "real_damage"}
+             connector={"序號": "index", "類型": "knife_type", "傷害": "real_damage"}
              )
-async def done_proposal(ctx, index, real_damage):
+async def done_proposal(ctx, index, knife_type, real_damage):
   connection = await Module.DB_control.OpenConnection(ctx)
   if connection:
     cursor = connection.cursor(prepared=True)
@@ -48,8 +60,8 @@ async def done_proposal(ctx, index, real_damage):
         if row:
           if ctx.author.id == row[1]:
             cursor = connection.cursor(prepared=True)
-            sql = "UPDATE princess_connect.knifes set real_damage=?, done_time=? where serial_number=?"
-            data = (real_damage, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), row[0])
+            sql = "UPDATE princess_connect.knifes set real_damage=?, knife_type=?, done_time=? where serial_number=?"
+            data = (real_damage, knife_type, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), row[0])
             row = cursor.execute(sql, data)
             cursor.close()
             connection.commit()
