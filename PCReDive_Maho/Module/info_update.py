@@ -4,7 +4,7 @@ from discord import Embed
 import Discord_client
 import Name_manager
 import Module.DB_control
-import Module.info_update
+import Module.define_value
 
 class Period(Enum):
   UNKNOW = 0
@@ -20,7 +20,7 @@ async def info_update(message ,server_id, group_serial):
     connection = await Module.DB_control.OpenConnection(message)
     if connection.is_connected():
       cursor = connection.cursor(prepared=True)
-      sql = "SELECT info_channel_id, info_message_id FROM princess_connect.group WHERE server_id = ? and group_serial = ? LIMIT 0, 1"
+      sql = "SELECT info_channel_id, info_message_id, policy FROM princess_connect.group WHERE server_id = ? and group_serial = ? LIMIT 0, 1"
       data = (server_id, group_serial)
       cursor.execute(sql, data)
       row = cursor.fetchone()
@@ -28,6 +28,7 @@ async def info_update(message ,server_id, group_serial):
       if row: # 戰隊存在
         info_channel_id = row[0]
         info_message_id = row[1]
+        policy = row[2]
 
         if info_message_id :
           # 取得戰隊戰日期
@@ -44,8 +45,6 @@ async def info_update(message ,server_id, group_serial):
 
           if date_now < day[0]:
             day_name = '(尚未開戰)'
-            fetch_start = date_now
-            fetch_end = date_now
           elif date_now < day[1]:
             day_name = '戰隊戰第1天'
             fetch_start = day[0]
@@ -99,27 +98,31 @@ async def info_update(message ,server_id, group_serial):
             else:
               period = '錯誤'
 
-            # 已出刀數計算
-            cursor2 = connection2.cursor(prepared=True)
-            sql = "SELECT knife_type FROM princess_connect.knifes WHERE server_id = ? and group_serial = ? and member_id = ? and ? < done_time and done_time < ?"
-            data = (server_id, group_serial, member_id, fetch_start, fetch_end)
-            cursor2.execute(sql, data)
-            in_row = cursor2.fetchone()
-            done_knifes = 0
-            while in_row:
-              if in_row[0] == 1: # 正刀
-                done_knifes = done_knifes + 1 
-              elif in_row[0] == 2: # 尾刀
-                done_knifes = done_knifes + 0.5
-              elif in_row[0] == 3: # 補償刀
-                done_knifes = done_knifes + 0.5
+            knifes_msg = ''
+            # 已出刀數計算，僅支援開啟回報傷害戰隊使用
+            if policy == Module.define_value.Policy.YES.value and fetch_start and fetch_end :
+
+              cursor2 = connection2.cursor(prepared=True)
+              sql = "SELECT knife_type FROM princess_connect.knifes WHERE server_id = ? and group_serial = ? and member_id = ? and ? < done_time and done_time < ?"
+              data = (server_id, group_serial, member_id, fetch_start, fetch_end)
+              cursor2.execute(sql, data)
               in_row = cursor2.fetchone()
-            cursor2.close
+              done_knifes = 0
+              while in_row:
+                if in_row[0] == 1: # 正刀
+                  done_knifes = done_knifes + 1 
+                elif in_row[0] == 2: # 尾刀
+                  done_knifes = done_knifes + 0.5
+                elif in_row[0] == 3: # 補償刀
+                  done_knifes = done_knifes + 0.5
+                in_row = cursor2.fetchone()
+              cursor2.close
+              knifes_msg = '持有' + str(knifes) + '刀，剩餘' + '{:g}'.format(knifes - done_knifes) + '刀，'
 
 
             member_name = await Name_manager.get_nick_name(message, member_id)
             msg = msg + '{' + str(count) + '} ' + member_name + '\n'
-            msg = msg+ '　持有' + str(knifes) + '刀，剩餘' + "{:g}".format(knifes - done_knifes) + '刀，出刀偏好:' + period + '\n' # TODO 計算已出刀數
+            msg = msg+ '　' + knifes_msg + '出刀偏好:' + period + '\n'
             count = count + 1
             row = cursor.fetchone()
 
@@ -129,6 +132,7 @@ async def info_update(message ,server_id, group_serial):
             msg = '尚無成員資訊!'
           else:
             pass
+
           embed_msg.add_field(name='\u200b', value=msg , inline=False)
 
           # 取得訊息物件
@@ -141,6 +145,7 @@ async def info_update(message ,server_id, group_serial):
             await message.channel.send(content='資訊訊息已被移除，請重新設定資訊頻道!')
         else:
           await message.channel.send(content='請戰隊隊長設定資訊頻道!')
+
       else:
         await message.channel.send(content='查無戰隊資料!')
 
