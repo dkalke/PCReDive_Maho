@@ -45,3 +45,4 @@ import Event.SlashCommand.General.proposal_knife
 import Event.SlashCommand.General.use_keep_proposal
 import Event.SlashCommand.General.prefer_time
 import Event.SlashCommand.General.done_proposal
+import Event.SlashCommand.General.done_skip_proposal
