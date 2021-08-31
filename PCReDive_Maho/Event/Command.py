@@ -26,7 +26,7 @@ def full2half(s):
       elif 65281 <= u_code <= 65374:  # 全形字元（除空格）根據關係轉化
           u_code -= 65248
       rstring += chr(u_code)
-  return rstring
+  return rstring.lower()
 
 
 @client.event
