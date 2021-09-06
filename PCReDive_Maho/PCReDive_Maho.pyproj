@@ -133,6 +133,7 @@
     <Compile Include="Module\define_value.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Module\full_string_to_half_and_lower.py" />
     <Compile Include="Module\info_update.py" />
     <Compile Include="Module\Offset_manager.py">
       <SubType>Code</SubType>

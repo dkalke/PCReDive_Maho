@@ -14,19 +14,7 @@ import Module.Update
 import Module.Offset_manager
 import Module.check_week
 import Module.check_boss
-
-
-# 全形轉半形
-def full2half(s):
-  rstring = ""
-  for uchar in s:
-      u_code = ord(uchar)
-      if u_code == 12288:  # 全形空格直接轉換
-          u_code = 32
-      elif 65281 <= u_code <= 65374:  # 全形字元（除空格）根據關係轉化
-          u_code -= 65248
-      rstring += chr(u_code)
-  return rstring.lower()
+import Module.full_string_to_half_and_lower
 
 
 @client.event
@@ -59,7 +47,7 @@ async def on_message(message):
   try:
     tokens = message.content.split()
     if len(tokens) > 0: # 邊界檢查
-      tokens[0] = full2half(tokens[0])
+      tokens[0] = Module.full_string_to_half_and_lower.full_string_to_half_and_lower(tokens[0])
 
       if tokens[0][0] == '!': # 檢查有無更新訊息
         connection = await Module.DB_control.OpenConnection(message)
