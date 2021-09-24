@@ -158,7 +158,6 @@
     <Folder Include="Event\SlashCommand\Admin\" />
     <Folder Include="Event\SlashCommand\Controller\" />
     <Folder Include="Event\SlashCommand\Captain\" />
-    <Folder Include="Event\SlashCommand\Universal\" />
     <Folder Include="Event\SlashCommand\General\" />
     <Folder Include="Module\" />
   </ItemGroup>
