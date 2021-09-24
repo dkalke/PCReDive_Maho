@@ -384,7 +384,7 @@ async def on_message(message):
                 else:
                   await message.channel.send(embed = embed_msg)
 
-                await CloseConnection(connection2)
+                await Module.DB_control.CloseConnection(connection2, message)
 
               await Module.DB_control.CloseConnection(connection, message)
           else:
@@ -1235,7 +1235,7 @@ async def on_message(message):
             else:
               pass #非指定頻道 不反應
 
-            Module.DB_control.CloseConnection(connection, message)
+            await Module.DB_control.CloseConnection(connection, message)
         else:
           await message.channel.send('!目前進度 格式錯誤，應為 !目前進度')
       
