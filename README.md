@@ -6,7 +6,6 @@ Discord 公主連結報刀機器人
 邀請即用  
 https://discord.com/oauth2/authorize?client_id=806421470368104449&scope=bot
 
-
 ## 部屬
 ### 環境
 - python 3.6.9
@@ -53,3 +52,6 @@ python3 PCReDive_Maho.py
 ## 外部連結
 - [使用者說明書](https://hackmd.io/7xSl9FBESkqW20sAv0SHPA)  
 - [TOPGG](https://top.gg/bot/806421470368104449)
+
+## 特別感謝
+[yungpingxu](https://github.com/YungPingXu) 提供手動軸時移功能[pcr-bot](https://github.com/YungPingXu/pcr-bot)
