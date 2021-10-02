@@ -41,7 +41,7 @@ async def keep_knife(ctx, boss, comment, member):
   # check身分，並找出所屬組別
   connection = await Module.DB_control.OpenConnection(ctx)
   if connection:
-    ( now_week, now_boss, week_offset, group_serial ) = await Module.Authentication.IsController(ctx ,'/controller keep_knife', connection, ctx.guild.id)
+    ( main_week, now_week, week_offset, group_serial ) = await Module.Authentication.IsController(ctx ,'/controller keep_knife', connection, ctx.guild.id)
     if not group_serial == 0: # 如果是是控刀手
       # 寫入保留刀表
       cursor = connection.cursor(prepared=True)

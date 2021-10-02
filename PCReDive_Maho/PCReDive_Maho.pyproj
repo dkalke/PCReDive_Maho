@@ -138,6 +138,9 @@
     <Compile Include="Module\Offset_manager.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Module\show_knifes.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Module\Update.py">
       <SubType>Code</SubType>
     </Compile>

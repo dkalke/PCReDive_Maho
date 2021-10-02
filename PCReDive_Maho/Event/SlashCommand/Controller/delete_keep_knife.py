@@ -22,7 +22,7 @@ async def delete_keep_knife(ctx, index):
   # check身分，並找出所屬組別
   connection = await Module.DB_control.OpenConnection(ctx)
   if connection:
-    ( now_week, now_boss, week_offset, group_serial ) = await Module.Authentication.IsController(ctx ,'/controller delete_keep_knife', connection, ctx.guild.id)
+    ( main_week, now_week, week_offset, group_serial ) = await Module.Authentication.IsController(ctx ,'/controller delete_keep_knife', connection, ctx.guild.id)
     if not group_serial == 0: # 如果是是控刀手
       if index > 0:
         # 尋找要刪除刀的序號

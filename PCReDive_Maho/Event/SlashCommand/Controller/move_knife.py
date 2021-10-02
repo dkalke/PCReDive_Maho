@@ -61,10 +61,10 @@ import Module.Update
 async def move_knife(ctx, source_week, source_boss, source_knife, destination_week, destination_boss):
   connection = await Module.DB_control.OpenConnection(ctx)
   if connection:
-    ( now_week, now_boss, week_offset, group_serial ) = await Module.Authentication.IsController(ctx, '/controller move_knife', connection, ctx.guild.id) # check身分，並找出所屬組別
+    ( main_week, now_week, week_offset, group_serial ) = await Module.Authentication.IsController(ctx, '/controller move_knife', connection, ctx.guild.id) # check身分，並找出所屬組別
     if not group_serial == 0: # 如果是控刀手
-      if Module.check_week.Check_week((now_week, now_boss, week_offset), source_week) and Module.check_week.Check_week((now_week, now_boss, week_offset), destination_week):
-        if Module.check_boss.Check_boss((now_week, now_boss, week_offset), source_week, source_boss) and Module.check_boss.Check_boss((now_week, now_boss, week_offset), destination_week, destination_boss):
+      if Module.check_week.Check_week((main_week, week_offset), source_week) and Module.check_week.Check_week((main_week, week_offset), destination_week):
+        if Module.check_boss.Check_boss(now_week, source_week, source_boss) and Module.check_boss.Check_boss(now_week, destination_week, destination_boss):
           # 尋找要刪除刀的序號
           delete_index = 0
           cursor = connection.cursor(prepared=True)

@@ -28,7 +28,7 @@ async def Update(message ,server_id, group_serial):
 async def UpdateEmbed(connection, message, server_id, group_serial): # 更新刀表
   # 查詢當前周目、王、刀表訊息、保留刀訊息
   cursor = connection.cursor(prepared=True)
-  sql = "SELECT now_week, week_offset, now_boss, table_channel_id, table_message_id, knife_pool_message_id, policy FROM princess_connect.group WHERE server_id = ? and group_serial = ? LIMIT 0, 1"
+  sql = "SELECT now_week, week_offset, now_week_1, now_week_2, now_week_3, now_week_4, now_week_5, now_boss, table_channel_id, table_message_id, knife_pool_message_id, policy FROM princess_connect.group WHERE server_id = ? and group_serial = ? LIMIT 0, 1"
   data = (server_id, group_serial)
   cursor.execute(sql, data)
   row = cursor.fetchone()
@@ -36,11 +36,12 @@ async def UpdateEmbed(connection, message, server_id, group_serial): # 更新刀
   if row:
     now_week = row[0]
     week_offset = row[1]
-    now_boss = row[2]
-    table_channel_id = row[3]
-    table_message_id = row[4]
-    knife_pool_message_id = row[5]
-    policy = row[6]
+    now_boss_week = (row[2], row[3], row[4], row[5], row[6])
+    now_boss = row[7]
+    table_channel_id = row[8]
+    table_message_id = row[9]
+    knife_pool_message_id = row[10]
+    policy = row[11]
 
     if table_message_id:
       embed_msg = Embed(title='第' + str(group_serial) + '戰隊刀表', color=0xD98B99)
@@ -50,51 +51,52 @@ async def UpdateEmbed(connection, message, server_id, group_serial): # 更新刀
       for i in range(now_week, now_week + week_offset + 1):
         kinfe_msg_name = ''
         for j in range(index_boss,6):              
-          if i == now_week and j == now_boss:
-            kinfe_msg_name = kinfe_msg_name + '**'+ str(j) + '王(現在進度)**\n'  # TODO
-          else:
-            kinfe_msg_name = kinfe_msg_name + '**'+ str(j) + '王**\n'  # TODO
+          kinfe_msg_name = kinfe_msg_name + '**'+ str(j) + '王**\n'
   
-          # 刀表SQL
-          cursor = connection.cursor(prepared=True)
-          sql = "SELECT member_id, comment, knife_type, done_time, real_damage FROM princess_connect.knifes WHERE server_id = ? and group_serial = ? and week = ? and boss = ? order by serial_number"
-          data = (server_id, group_serial,i ,j)
-          cursor.execute(sql, data)
-          row = cursor.fetchone()
-          index = 1
-          while row:
-            # 出刀狀況
-            nick_name = await Name_manager.get_nick_name(message, row[0]) # 取得DC暱稱
-            comment = row[1]
-            knife_status = ''
-            knife_type = ''
-
-            # 如選擇需回報傷害，顯示出刀類型與出刀與否記號
-            if policy == Module.define_value.Policy.YES.value:
-              done_time = row[3]
-              if done_time:
-                comment = '實際傷害:' + format(row[4],',')
-                knife_status = ":ballot_box_with_check: "
-
-                knife_type = row[2]
-                if knife_type == 1:
-                  knife_type = '[正刀] '
-                elif knife_type == 2:
-                  knife_type = '[尾刀] '
-                elif knife_type == 3:
-                  knife_type = '[補償刀] '
-                else:
-                  knife_type = ''
-              else:
-                knife_status = ":negative_squared_cross_mark: "
-
-            else:
-              pass
-
-            kinfe_msg_name = kinfe_msg_name + '　{' +str(index) + '} ' + knife_status + nick_name + '\n　　' + knife_type + comment + '\n'
+          # 如果王的週目小於主週目則不顯示(死了)
+          if i < now_boss_week[j-1]:
+            kinfe_msg_name = kinfe_msg_name + '　(已討伐)\n'
+          else:
+            # 刀表SQL
+            cursor = connection.cursor(prepared=True)
+            sql = "SELECT member_id, comment, knife_type, done_time, real_damage FROM princess_connect.knifes WHERE server_id = ? and group_serial = ? and week = ? and boss = ? order by serial_number"
+            data = (server_id, group_serial,i ,j)
+            cursor.execute(sql, data)
             row = cursor.fetchone()
-            index = index +1
-          cursor.close()
+            index = 1
+            while row:
+              # 出刀狀況
+              nick_name = await Name_manager.get_nick_name(message, row[0]) # 取得DC暱稱
+              comment = row[1]
+              knife_status = ''
+              knife_type = ''
+
+              # 如選擇需回報傷害，顯示出刀類型與出刀與否記號
+              if policy == Module.define_value.Policy.YES.value:
+                done_time = row[3]
+                if done_time:
+                  comment = '實際傷害:' + format(row[4],',')
+                  knife_status = ":ballot_box_with_check: "
+
+                  knife_type = row[2]
+                  if knife_type == 1:
+                    knife_type = '[正刀] '
+                  elif knife_type == 2:
+                    knife_type = '[尾刀] '
+                  elif knife_type == 3:
+                    knife_type = '[補償刀] '
+                  else:
+                    knife_type = ''
+                else:
+                  knife_status = ":negative_squared_cross_mark: "
+
+              else:
+                pass
+
+              kinfe_msg_name = kinfe_msg_name + '　{' +str(index) + '} ' + knife_status + nick_name + '\n　　' + knife_type + comment + '\n'
+              row = cursor.fetchone()
+              index = index +1
+            cursor.close()
         index_boss = 1
         embed_msg.add_field(name='\u200b', value='-   -   -   -   -   -   -   -   ', inline=False)
         embed_msg.add_field(name='第' + str(i) + '週目', value=kinfe_msg_name , inline=False)
@@ -154,7 +156,7 @@ async def UpdateEmbed(connection, message, server_id, group_serial): # 更新刀
 async def UpdateTraditional(connection, message, server_id, group_serial): # 更新刀表
   # 查詢當前周目、王、刀表訊息、保留刀訊息
   cursor = connection.cursor(prepared=True)
-  sql = "SELECT now_week, week_offset, now_boss, table_channel_id, table_message_id, knife_pool_message_id, policy FROM princess_connect.group WHERE server_id = ? and group_serial = ? LIMIT 0, 1"
+  sql = "SELECT now_week, week_offset, now_week_1, now_week_2, now_week_3, now_week_4, now_week_5, now_boss, table_channel_id, table_message_id, knife_pool_message_id, policy FROM princess_connect.group WHERE server_id = ? and group_serial = ? LIMIT 0, 1"
   data = (server_id, group_serial)
   cursor.execute(sql, data)
   row = cursor.fetchone()
@@ -162,11 +164,12 @@ async def UpdateTraditional(connection, message, server_id, group_serial): # 更
   if row:
     now_week = row[0]
     week_offset = row[1]
-    now_boss = row[2]
-    table_channel_id = row[3]
-    table_message_id = row[4]
-    knife_pool_message_id = row[5]
-    policy = row[6]
+    now_boss_week = (row[2], row[3], row[4], row[5], row[6])
+    now_boss = row[7]
+    table_channel_id = row[8]
+    table_message_id = row[9]
+    knife_pool_message_id = row[10]
+    policy = row[11]
 
     if table_message_id:
       # 刀表部分，從當前週目開始印
@@ -177,55 +180,54 @@ async def UpdateTraditional(connection, message, server_id, group_serial): # 更
         for j in range(index_boss,6):
           msg = ''
 
-          # 刀表SQL
-          cursor = connection.cursor(prepared=True)
-          sql = "SELECT member_id, comment, knife_type, done_time, real_damage FROM princess_connect.knifes WHERE server_id = ? and group_serial = ? and week = ? and boss = ? order by serial_number"
-          data = (server_id, group_serial,i ,j)
-          cursor.execute(sql, data)
-          row = cursor.fetchone()
-          index = 1
-          while row:
-            # 出刀狀況
-            nick_name = await Name_manager.get_nick_name(message, row[0])
-            comment = row[1]
-            knife_status = ''
-            knife_type = ''
-
-            # 如選擇需回報傷害，顯示出刀類型與出刀與否記號
-            if policy == Module.define_value.Policy.YES.value:
-              done_time = row[3]
-              if done_time:
-                comment = '實際傷害:' + format(row[4],',')
-                knife_status = "V "
-
-                knife_type = row[2]
-                if knife_type == 1:
-                  knife_type = '[正刀] '
-                elif knife_type == 2:
-                  knife_type = '[尾刀] '
-                elif knife_type == 3:
-                  knife_type = '[補償刀] '
-                else:
-                  knife_type = ''
-              else:
-                knife_status = "X "
-            else:
-              pass
-
-            msg = msg + '  {' +str(index) + '} ' + knife_status + nick_name + '(' + knife_type + comment + '),\n'
-            row = cursor.fetchone()
-            index = index +1
-          cursor.close()
-          if i == now_week and j == now_boss:
-            if msg == '':
-              send_msg = send_msg + ' ' + str(j) + '王(當前周目)\n'
-            else:
-              send_msg = send_msg + ' ' + str(j) + '王(當前周目)\n' + msg + '\n'  
+          # 如果王的週目小於主週目則不顯示(死了)
+          if i < now_boss_week[j-1]:
+            msg = msg + '　(已討伐)\n'
           else:
-            if msg == '':
-              send_msg = send_msg + ' ' + str(j) + '王\n'
-            else:
-              send_msg = send_msg + ' ' + str(j) + '王\n' + msg + '\n'  
+            # 刀表SQL
+            cursor = connection.cursor(prepared=True)
+            sql = "SELECT member_id, comment, knife_type, done_time, real_damage FROM princess_connect.knifes WHERE server_id = ? and group_serial = ? and week = ? and boss = ? order by serial_number"
+            data = (server_id, group_serial,i ,j)
+            cursor.execute(sql, data)
+            row = cursor.fetchone()
+            index = 1
+            while row:
+              # 出刀狀況
+              nick_name = await Name_manager.get_nick_name(message, row[0])
+              comment = row[1]
+              knife_status = ''
+              knife_type = ''
+
+              # 如選擇需回報傷害，顯示出刀類型與出刀與否記號
+              if policy == Module.define_value.Policy.YES.value:
+                done_time = row[3]
+                if done_time:
+                  comment = '實際傷害:' + format(row[4],',')
+                  knife_status = "V "
+
+                  knife_type = row[2]
+                  if knife_type == 1:
+                    knife_type = '[正刀] '
+                  elif knife_type == 2:
+                    knife_type = '[尾刀] '
+                  elif knife_type == 3:
+                    knife_type = '[補償刀] '
+                  else:
+                    knife_type = ''
+                else:
+                  knife_status = "X "
+              else:
+                pass
+
+              msg = msg + '  {' +str(index) + '} ' + knife_status + nick_name + '(' + knife_type + comment + '),\n'
+              row = cursor.fetchone()
+              index = index +1
+            cursor.close()
+          
+          if msg == '':
+            send_msg = send_msg + ' ' + str(j) + '王\n'
+          else:
+            send_msg = send_msg + ' ' + str(j) + '王\n' + msg + '\n'  
         index_boss = 1
 
           

@@ -43,12 +43,11 @@ async def delete_knife(ctx, week, boss, knife):
   # check身分，並找出所屬組別
   connection = await Module.DB_control.OpenConnection(ctx)
   if connection:
-    ( now_week, now_boss, week_offset, group_serial ) = await Module.Authentication.IsController(ctx ,'/controller delete_knife', connection, ctx.guild.id)
+    ( main_week, now_week, week_offset, group_serial ) = await Module.Authentication.IsController(ctx ,'/controller delete_knife', connection, ctx.guild.id)
     if not group_serial == 0: # 如果是是控刀手
-      if Module.check_week.Check_week((now_week, now_boss, week_offset), week):
-        if Module.check_boss.Check_boss((now_week, now_boss, week_offset), week,boss):
+      if Module.check_week.Check_week((main_week, week_offset), week):
+        if Module.check_boss.Check_boss(now_week, week,boss):
           # 尋找要刪除刀的序號
-          delete_index = 0
           cursor = connection.cursor(prepared=True)
           sql = "SELECT serial_number,server_id, group_serial, boss, member_id, comment from princess_connect.knifes where server_id=? and group_serial=? and week=? and boss=? order by serial_number limit ?,1"
           data = (ctx.guild.id, group_serial, week, boss, knife-1)
