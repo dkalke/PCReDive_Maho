@@ -1396,16 +1396,16 @@ async def on_message(message):
                     else:
                         resultline += tmp
                     resultline += "\n"
-                await message.channel.send(resultline)
+                await message.author.send(resultline)
             else:
-                await message.channel.send("您輸入的補償秒數錯誤，秒數必須要在 1～90 之間！")
+                await message.author.send("您輸入的補償秒數錯誤，秒數必須要在 1～90 之間！")
         else:
-            await message.channel.send("您輸入的秒數格式錯誤，正確的格式為\n.tr 補償秒數\n文字軸")
+            await message.author.send("您輸入的秒數格式錯誤，正確的格式為\n.tr 補償秒數\n文字軸")
       
       # 幫助訊息
       elif tokens[0] == '!幫助' or tokens[0] == '!帮助' or tokens[0] == '!h':
         msg = '\
-**目前版本為0.9.1 版**\n\
+**目前版本為0.9.4 版**\n\
 \n\
 指令支援繁體/簡體/英文，全形半形。\n\
 此外，英文縮寫對照表於上方網頁文件中可以查詢。\n\
