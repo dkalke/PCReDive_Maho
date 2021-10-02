@@ -38,14 +38,19 @@ async def delete_group(ctx, group_serial):
           data = (ctx.guild.id, group_serial)
           cursor.execute(sql, data) 
           cursor.close
-                
-
+          
           # 刪除隊長
           cursor = connection.cursor(prepared=True)
           sql = "DELETE FROM princess_connect.group_captain WHERE server_id = ? and group_serial = ?"
           data = (ctx.guild.id, group_serial)
+          cursor.execute(sql, data)       
+
+          # 刪除成員
+          cursor = connection.cursor(prepared=True)
+          sql = "DELETE FROM princess_connect.members WHERE server_id = ? and group_serial = ?"
+          data = (ctx.guild.id, group_serial)
           cursor.execute(sql, data) 
-                
+          cursor.close
 
           # 刪除戰隊
           cursor = connection.cursor(prepared=True)
