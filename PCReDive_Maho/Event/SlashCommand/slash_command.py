@@ -37,7 +37,6 @@ import Event.SlashCommand.Controller.set_progress
 
 import Event.SlashCommand.General.cancel_keep_proposal
 import Event.SlashCommand.General.cancel_proposal
-import Event.SlashCommand.General.hit_boss
 import Event.SlashCommand.General.keep_proposal
 import Event.SlashCommand.General.next_boss
 import Event.SlashCommand.General.now_progeass
@@ -46,3 +45,6 @@ import Event.SlashCommand.General.use_keep_proposal
 import Event.SlashCommand.General.prefer_time
 import Event.SlashCommand.General.done_proposal
 import Event.SlashCommand.General.done_skip_proposal
+
+
+# import Event.SlashCommand.General.hit_boss # 擾民棄用，實際狀況可直接使用discord內建tag功能提醒尚未出刀者。
