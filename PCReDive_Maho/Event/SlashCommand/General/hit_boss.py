@@ -2,7 +2,6 @@ import Discord_client
 import Module.DB_control
 import Name_manager
 
-#!取消保留刀 [第幾刀]
 @Discord_client.slash.slash( 
              name="hb" ,
              description="tag現在要打王的人",
