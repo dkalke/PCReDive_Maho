@@ -49,10 +49,10 @@ async def proposal_knife(ctx, week, boss, comment, member):
   # check身分，並找出所屬組別
   connection = await Module.DB_control.OpenConnection(ctx)
   if connection:
-    ( now_week, now_boss, week_offset, group_serial ) = await Module.Authentication.IsController(ctx ,'/controller proposal_knife', connection, ctx.guild.id)
+    ( main_week, now_week, week_offset, group_serial ) = await Module.Authentication.IsController(ctx ,'/controller proposal_knife', connection, ctx.guild.id)
     if not group_serial == 0: # 如果是是控刀手
-      if Module.check_week.Check_week((now_week, now_boss, week_offset), week):
-        if Module.check_boss.Check_boss((now_week, now_boss, week_offset), week, boss):
+      if Module.check_week.Check_week((main_week, week_offset), week):
+        if Module.check_boss.Check_boss(now_week, week, boss):
           # 新增進刀表
           cursor = connection.cursor(prepared=True)
           sql = "INSERT INTO princess_connect.knifes (server_id, group_serial, week, boss, member_id, comment) VALUES (?, ?, ?, ?, ?, ?)"

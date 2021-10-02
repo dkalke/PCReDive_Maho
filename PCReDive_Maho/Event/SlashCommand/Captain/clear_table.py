@@ -28,7 +28,7 @@ async def clear_table(ctx):
 
       # 重設boss次序
       cursor = connection.cursor(prepared=True)
-      sql = "UPDATE princess_connect.group SET now_week='1', now_boss='1' WHERE server_id = ? and group_serial=?"
+      sql = "UPDATE princess_connect.group SET now_week='1', now_week_1='1', now_week_2='1', now_week_3='1', now_week_4='1', now_week_5='1', now_boss='1' WHERE server_id = ? and group_serial=?"
       data = (ctx.guild.id, group_serial)
       cursor.execute(sql, data)
       cursor.close

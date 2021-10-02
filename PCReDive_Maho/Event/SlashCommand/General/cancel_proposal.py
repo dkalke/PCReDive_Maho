@@ -37,18 +37,17 @@ async def cancel_proposal(ctx, week, boss, index):
   connection = await Module.DB_control.OpenConnection(ctx)
   if connection:
     cursor = connection.cursor(prepared=True)
-    sql = "SELECT now_week, now_boss, week_offset, group_serial FROM princess_connect.group WHERE server_id = ? and sign_channel_id = ? order by group_serial limit 0, 1"
+    sql = "SELECT now_week, now_week_1, now_week_2, now_week_3, now_week_4, now_week_5, week_offset, group_serial FROM princess_connect.group WHERE server_id = ? and sign_channel_id = ? order by group_serial limit 0, 1"
     data = (ctx.guild.id, ctx.channel.id)
     cursor.execute(sql, data) # 認證身分
     row = cursor.fetchone()
     cursor.close
     if row:
-      group_serial = row[3]
-      if Module.check_week.Check_week((row[0], row[1], row[2]), week):
-        if Module.check_boss.Check_boss((row[0], row[1], row[2]), week, boss):
+      group_serial = row[7]
+      if Module.check_week.Check_week((row[0], row[6]), week):
+        if Module.check_boss.Check_boss((row[1], row[2], row[3], row[4], row[5]), week, boss):
           if index > 0:
             # 尋找要刪除刀的序號
-            delete_index = 0 # 這個好像沒用到？
             cursor = connection.cursor(prepared=True)
             sql = "SELECT serial_number,member_id from princess_connect.knifes where server_id=? and group_serial=? and week=? and boss=? order by serial_number limit ?,1"
             data = (ctx.guild.id, group_serial, week, boss,index-1)

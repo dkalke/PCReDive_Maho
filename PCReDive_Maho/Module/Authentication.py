@@ -19,21 +19,21 @@ async def IsCaptain(message, command, connection, server_id, member_id):
 
 async def IsController(message, command, connection, server_id):
   group_serial = 0
-  now_week = 0
-  now_boss = 0
+  main_week = 0
+  now_week = None
   week_offset = 0
   cursor = connection.cursor(prepared=True)
-  sql = "SELECT now_week, now_boss, week_offset, group_serial, controller_role_id FROM princess_connect.group WHERE server_id = ? order by group_serial"
+  sql = "SELECT now_week, now_week_1, now_week_2, now_week_3, now_week_4, now_week_5, week_offset, group_serial, controller_role_id FROM princess_connect.group WHERE server_id = ? order by group_serial"
   data = (server_id,)
   cursor.execute(sql, data) # 認證身分
   row = cursor.fetchone()
   while row and group_serial == 0:
     for role in message.author.roles:
-      if role.id == row[4]:
-        now_week = row[0]
-        now_boss = row[1]
-        week_offset = row[2]
-        group_serial = row[3]
+      if role.id == row[8]:
+        main_week = row[0]
+        now_week = [row[1], row[2], row[3], row[4], row[5]]
+        week_offset = row[6]
+        group_serial = row[7]
         # TODO 如果一個人多個戰隊的控刀手權限，目前僅會執行編號最小的戰隊
         break
     row = cursor.fetchone()
@@ -50,7 +50,7 @@ async def IsController(message, command, connection, server_id):
   if group_serial == 0: # 如果是控刀手
     await message.channel.send(command + ' 發生錯誤，您沒有控刀手權限!')
 
-  return ( now_week, now_boss, week_offset, group_serial )
+  return ( main_week, now_week, week_offset, group_serial )
 
 def IsExistGroup(message, connection, server_id, group_serial):
   cursor = connection.cursor(prepared=True)
