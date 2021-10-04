@@ -42,8 +42,8 @@ async def set_progress(ctx, boss, week):
       if week > 0:
         cursor = connection.cursor(prepared=True)
         sql = ""
-        if week < main_week: # 主週目即為最小的週目
-          main_week = week
+        now_week[boss-1] = week
+        main_week = min(now_week)
         if boss == 1:
           sql = "UPDATE princess_connect.group SET now_week=?, now_week_1=? WHERE server_id = ? and group_serial=? order by group_serial"
         elif boss == 2:
