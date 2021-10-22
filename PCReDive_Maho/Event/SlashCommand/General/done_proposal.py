@@ -62,28 +62,31 @@ async def done_proposal(ctx, boss, index, knife_type, real_damage):
       policy = row[6]
       if policy == Module.define_value.Policy.YES.value:
         if index > 0:
-          # 尋找該刀
-          cursor = connection.cursor(prepared=True)
-          sql = "SELECT serial_number,member_id from princess_connect.knifes where server_id=? and group_serial=? and week=? and boss=? order by serial_number limit ?,1"
-          data = (ctx.guild.id, group_serial, now_week[boss-1], boss, index-1)
-          cursor.execute(sql, data)
-          row = cursor.fetchone()
-          cursor.close()
-          if row:
-            if ctx.author.id == row[1]:
-              cursor = connection.cursor(prepared=True)
-              sql = "UPDATE princess_connect.knifes set real_damage=?, knife_type=?, done_time=? where serial_number=?"
-              data = (real_damage, knife_type, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), row[0])
-              row = cursor.execute(sql, data)
-              cursor.close()
-              connection.commit()
-              await ctx.send('回報成功!')
-              await Module.Update.Update(ctx, ctx.guild.id, group_serial) # 更新刀表
-              await Module.info_update.info_update(ctx ,ctx.guild.id, group_serial) # 更新資訊
+          if 0 <= real_damage and real_damage <= Module.define_value.MAX_DAMAGE:
+            # 尋找該刀
+            cursor = connection.cursor(prepared=True)
+            sql = "SELECT serial_number,member_id from princess_connect.knifes where server_id=? and group_serial=? and week=? and boss=? order by serial_number limit ?,1"
+            data = (ctx.guild.id, group_serial, now_week[boss-1], boss, index-1)
+            cursor.execute(sql, data)
+            row = cursor.fetchone()
+            cursor.close()
+            if row:
+              if ctx.author.id == row[1]:
+                cursor = connection.cursor(prepared=True)
+                sql = "UPDATE princess_connect.knifes set real_damage=?, knife_type=?, done_time=? where serial_number=?"
+                data = (real_damage, knife_type, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), row[0])
+                row = cursor.execute(sql, data)
+                cursor.close()
+                connection.commit()
+                await ctx.send('回報成功!')
+                await Module.Update.Update(ctx, ctx.guild.id, group_serial) # 更新刀表
+                await Module.info_update.info_update(ctx ,ctx.guild.id, group_serial) # 更新資訊
+              else:
+                await ctx.send('您並非該刀主人喔!')
             else:
-              await ctx.send('您並非該刀主人喔!')
+              await ctx.send('該刀不存在喔!')
           else:
-            await ctx.send('該刀不存在喔!')
+            await ctx.send('傷害異常，目前僅能紀載0至' + str(Module.define_value.MAX_DAMAGE) + '!')
         else:
           await ctx.send('序號必須大於0!')
       else:

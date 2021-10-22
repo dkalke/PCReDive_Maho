@@ -16,6 +16,7 @@ import Module.Offset_manager
 import Module.check_week
 import Module.check_boss
 import Module.full_string_to_half_and_lower
+import Module.define_value
 
 
 def checktime(number): # 檢查是不是合法的時間
@@ -37,6 +38,29 @@ def transform_time(original_time): # 轉換秒數
             result += str(original_time // 60) + str(original_time % 60)
     return result
 
+def knife_type_normalized(knife_type): # 檢查是否吻合繁體、檢體、英文、數字之形式
+  if knife_type== "正刀":
+    return 1
+  elif knife_type== "尾刀":
+    return 2
+  elif knife_type== "補償刀":
+    return 3
+  elif knife_type== "补偿刀":
+    return 3
+  elif knife_type== "n": # normal
+    return 1
+  elif knife_type== "k": # kill
+    return 2
+  elif knife_type== "c": # compensate
+    return 3
+  elif knife_type== "1": # normal
+    return 1
+  elif knife_type== "2": # kill
+    return 2
+  elif knife_type== "3": # compensate
+    return 3
+  else:
+    return 0
 
 
 @client.event
@@ -220,7 +244,6 @@ async def on_message(message):
         
       #!使用保留刀 [第幾刀] [週目] [boss]
       elif tokens[0] == '!使用保留刀' or tokens[0] == '!使用保留刀' or tokens[0] == '!ukp':
-        group_serial = 0
         connection = await Module.DB_control.OpenConnection(message)
         if connection:
           cursor = connection.cursor(prepared=True)
@@ -279,10 +302,8 @@ async def on_message(message):
             pass #非指定頻道 不反應
           await Module.DB_control.CloseConnection(connection, message)
 
-
       #!取消保留刀 [第幾刀]
       elif tokens[0] == '!取消保留刀' or tokens[0] == '!取消保留刀' or tokens[0] == '!ckp':
-        group_serial = 0
         connection = await Module.DB_control.OpenConnection(message)
         if connection:
           cursor = connection.cursor(prepared=True)
@@ -325,6 +346,81 @@ async def on_message(message):
           else:
             pass #非指定頻道 不反應
           await Module.DB_control.CloseConnection(connection, message)
+
+      #!報刀回傷 [boss] [序號] [類型] [傷害]
+      elif tokens[0] == '!報刀回傷' or tokens[0] == '!报刀回伤' or tokens[0] == '!d':
+        connection = await Module.DB_control.OpenConnection(message)
+        if connection:
+          cursor = connection.cursor(prepared=True)
+          sql = "SELECT now_week_1, now_week_2, now_week_3, now_week_4, now_week_5, group_serial, policy FROM princess_connect.group WHERE server_id = ? and sign_channel_id = ? order by group_serial limit 0, 1"
+          data = (message.guild.id, message.channel.id)
+          cursor.execute(sql, data) # 認證身分
+          row = cursor.fetchone()
+          cursor.close
+          if row:
+            if len(tokens) == 5:
+              boss, index, knife_type, real_damage = tokens[1], tokens[2], tokens[3], tokens[4]
+              if boss.isdigit():
+                if index.isdigit():
+                  knife_type = knife_type_normalized(knife_type)
+                  if knife_type: 
+                    if real_damage.isdigit():
+                      boss, index, real_damage = int(tokens[1]), int(tokens[2]), int(tokens[4])
+                      if (0 < boss) and (boss < 6):
+                        if 0 <= real_damage and real_damage <= Module.define_value.MAX_DAMAGE:
+                          now_week = [row[0], row[1], row[2], row[3], row[4]]
+                          group_serial = row[5]
+                          policy = row[6]
+                          if policy == Module.define_value.Policy.YES.value:
+                            if index > 0:
+                              # 尋找該刀
+                              cursor = connection.cursor(prepared=True)
+                              sql = "SELECT serial_number,member_id from princess_connect.knifes where server_id=? and group_serial=? and week=? and boss=? order by serial_number limit ?,1"
+                              data = (message.guild.id, group_serial, now_week[boss-1], boss, index-1)
+                              cursor.execute(sql, data)
+                              row = cursor.fetchone()
+                              cursor.close()
+                              if row:
+                                if message.author.id == row[1]:
+                                  cursor = connection.cursor(prepared=True)
+                                  sql = "UPDATE princess_connect.knifes set real_damage=?, knife_type=?, done_time=? where serial_number=?"
+                                  data = (real_damage, knife_type, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), row[0])
+                                  row = cursor.execute(sql, data)
+                                  cursor.close()
+                                  connection.commit()
+                                  await message.channel.send('回報成功!')
+                                  await Module.Update.Update(message, message.guild.id, group_serial) # 更新刀表
+                                  await Module.info_update.info_update(message ,message.guild.id, group_serial) # 更新資訊
+                                else:
+                                  await message.channel.send('您並非該刀主人喔!')
+                              else:
+                                await message.channel.send('該刀不存在喔!')
+                            else:
+                              await message.channel.send('[第幾刀]必須大於0!')
+                          else:
+                            await message.channel.send('目前戰隊政策為:**不回報傷害**! 指令無效，感謝你的自主回報!')
+                        else:
+                          await message.channel.send('傷害異常，目前最高僅能紀載0至' + str(Module.define_value.MAX_DAMAGE) + '!')
+                      else:
+                        await message.channel.send('[boss]只能輸入1~5!')
+                    else:
+                      await message.channel.send('[傷害]請使用阿拉伯數字!')
+                  else:
+                    await message.channel.send('[種類]輸入錯誤，請參考說明書!')
+                else:
+                  await message.channel.send('[第幾刀]請使用阿拉伯數字!')
+              else:
+                await message.channel.send('[boss]請使用阿拉伯數字!')
+            else:
+              await message.channel.send('!報刀回傷 格式錯誤，應為 !報刀回傷 [boss] [第幾刀] [類型] [傷害]')
+          else:
+            await message.channel.send('這裡不是報刀頻道喔!')
+          await Module.DB_control.CloseConnection(connection, message)
+
+      #!無報回傷
+      elif tokens[0] == '!無報回傷' or tokens[0] == '!取消保留刀' or tokens[0] == '!ds':
+        print()
+
 
       elif tokens[0] == '!目前進度' or tokens[0] == '!目前进度' or tokens[0] == '!ns':
         if len(tokens) == 1:
