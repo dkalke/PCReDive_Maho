@@ -96,6 +96,9 @@
     <Compile Include="Event\SlashCommand\General\done_proposal.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Event\SlashCommand\General\help.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Event\SlashCommand\General\hit_boss.py">
       <SubType>Code</SubType>
     </Compile>

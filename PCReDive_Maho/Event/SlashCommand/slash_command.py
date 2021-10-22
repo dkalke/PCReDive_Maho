@@ -45,6 +45,7 @@ import Event.SlashCommand.General.use_keep_proposal
 import Event.SlashCommand.General.prefer_time
 import Event.SlashCommand.General.done_proposal
 import Event.SlashCommand.General.done_skip_proposal
+import Event.SlashCommand.General.help
 
 
 # import Event.SlashCommand.General.hit_boss # 擾民棄用，實際狀況可直接使用discord內建tag功能提醒尚未出刀者。

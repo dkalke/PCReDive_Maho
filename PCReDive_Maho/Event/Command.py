@@ -516,86 +516,36 @@ async def on_message(message):
       
       # 幫助訊息
       elif tokens[0] == '!幫助' or tokens[0] == '!帮助' or tokens[0] == '!h':
-        msg = '\
-**目前版本為0.9.4 版**\n\
-\n\
-指令支援繁體/簡體/英文，全形半形。\n\
-此外，英文縮寫對照表於上方網頁文件中可以查詢。\n\
-'
-        embed_msg = Embed(title='說明(網頁好讀版請點我)', url='https://hackmd.io/@dkal/SysbG9clO', description=msg, color=0xB37084)
-        embed_msg.set_author(name='咕嚕靈波（●′∀‵）ノ♡', url='https://discord.com/api/oauth2/authorize?client_id=806421470368104449&permissions=2048&scope=bot', icon_url='https://i.imgur.com/TtjU27j.jpg')
-        embed_msg.add_field(name='第一步', value='請管理員先建立戰隊，並指派隊長。', inline=False)
-        embed_msg.add_field(name='第二步', value='請各隊長先以指令設定好刀表、報刀、歷史紀錄，並設定好各頻道的權限，一般成員是以發言頻道做為判斷基準。', inline=False)
-        embed_msg.add_field(name='第三步', value='開始使用囉!', inline=False)
-        embed_msg.add_field(name='\u200b', value='\u200b', inline=False) # 空行
-        msg = '\
-請輸入以下指令來查看指令格式:\n\
-　 !管理員專用指令\n\
-或 !管理员专用指令\n\
-或 !admcmd\n\
-\n\
-　 !戰隊隊長專用指令\n\
-或 !战队队长专用指令\n\
-或 !pricmd\n\
-\n\
-　 !控刀手專用指令\n\
-或 !控刀手专用指令\n\
-或 !concmd\n\
-\n\
-　 !一般指令\n\
-或 !norcmd\n\
-'
-        embed_msg.add_field(name='指令格式', value=msg, inline=False)
+        embed_msg = Embed(title='使用說明書', url='https://github.com/dkalke/PCReDive_Maho/wiki', description='網頁版使用說明書\nhttps://github.com/dkalke/PCReDive_Maho/wiki', color=0xB37084)
         embed_msg.set_footer(text='當前版本可能會有些許BUG，歡迎反應或許願新功能!')
         await message.channel.send(embed=embed_msg)
 
 
-
+      # TODO 2021/10/23指令廢棄一律改用網頁版，過一陣子移除該指令。
       elif tokens[0] == '!管理員專用指令' or tokens[0] == '!管理员专用指令' or tokens[0] == '!admcmd':
-        embed_msg = Embed(title='[管理員專用]', color=0xB87181)
-        embed_msg.add_field(name='建立戰隊', value='建立戰隊，並將mention的人員全設為戰隊隊長。\n　!建立戰隊 [數字編號] [@隊長1 @隊長2 .....]\n　!建立战队 [數字編號] [@隊長1 @隊長2 .....]\n　!cg [數字編號] [@隊長1 @隊長2 .....]', inline=False)
-        embed_msg.add_field(name='刪除戰隊', value='刪除指定戰隊資料，手起刀落，會砍得一乾二淨請謹慎使用。\n　!刪除戰隊 [數字編號]\n　!删除战队 [數字編號]\n　!dg [數字編號]', inline=False)
-        embed_msg.add_field(name='戰隊隊長', value='更換指定戰隊隊長，採用內閣改組方式，會整組換掉，如有異動請全部重新mention一次。\n　!戰隊隊長 [數字編號] [@隊長1 @隊長2 .....]\n　!战队队长 [數字編號] [@隊長1 @隊長2 .....]\n　!gc [數字編號] [@隊長1 @隊長2 .....]', inline=False)
-        embed_msg.add_field(name='戰隊列表', value='顯示所有戰隊資料。\n　!戰隊列表\n　!战队列表\n　!gl', inline=False)
+        embed_msg = Embed(title='使用說明書', url='https://github.com/dkalke/PCReDive_Maho/wiki', description='網頁版使用說明書\nhttps://github.com/dkalke/PCReDive_Maho/wiki', color=0xB37084)
+        embed_msg.set_footer(text='當前版本可能會有些許BUG，歡迎反應或許願新功能!')
         await message.channel.send(embed=embed_msg)
 
 
-
+      # TODO 2021/10/23指令廢棄一律改用網頁版，過一陣子移除該指令。
       elif tokens[0] == '!戰隊隊長專用指令' or tokens[0] == '!战队队长专用指令' or tokens[0] == '!pricmd':
-        embed_msg = Embed(title='[戰隊隊長專用]', color=0xC5848B)
-        embed_msg.add_field(name='控刀手身分組', value='把mention身分組設定為控刀手。\n　!控刀手身分組 [身分組]\n　!控刀手身分组 [身分組]\n　!cr [身分組]', inline=False)
-        embed_msg.add_field(name='刀表在此', value='指定某一頻道作為顯示刀表的頻道，建議設定不可發言。\n　!刀表在此\n　!刀表在此\n　!tc', inline=False)
-        embed_msg.add_field(name='報刀在此', value='指定某一頻道作為報刀的頻道，請用權限控制，僅有戰隊成員可發言。\n　!報刀在此\n　!报刀在此\n　!sc', inline=False)
-        embed_msg.add_field(name='提前週目', value='設定可以提前幾個週目預約。\n　!提前週目 [幾週]\n　!提前周目 [幾週]\n　!wo [幾週]', inline=False)
-        embed_msg.add_field(name='清除刀表', value='清除刀表，打掉重來。\n　!清除刀表\n　!清除刀表\n　!ct', inline=False)
-        embed_msg.add_field(name='刀表樣式', value='切換刀表樣式。 0:Embed, 1:Text。\n　!刀表樣式 [代號]\n　!刀表样式 [代號]\n　!ts [代號]', inline=False)
-        embed_msg.add_field(name='匯出刀表', value='傳送完整csv刀表到私人訊息。\n　!匯出刀表\n　!汇出刀表\n　!e', inline=False)
+        embed_msg = Embed(title='使用說明書', url='https://github.com/dkalke/PCReDive_Maho/wiki', description='網頁版使用說明書\nhttps://github.com/dkalke/PCReDive_Maho/wiki', color=0xB37084)
+        embed_msg.set_footer(text='當前版本可能會有些許BUG，歡迎反應或許願新功能!')
         await message.channel.send(embed=embed_msg)
 
 
-
+      # TODO 2021/10/23指令廢棄一律改用網頁版，過一陣子移除該指令。
       elif tokens[0] == '!控刀手專用指令' or tokens[0] == '!控刀手专用指令' or tokens[0] == '!concmd':
-        embed_msg = Embed(title='[控刀手專用]', color=0xCFA6AC)
-        embed_msg.add_field(name='移動', value='將該刀從[週目][boss][第幾刀]移動至[週目][boss]，簡單來說就是抽換刀序。\n　!移動 [週目] [boss] [哪一刀] [新週目] [新boss]\n　!移动 [週目] [boss] [哪一刀] [新週目] [新boss]\n　!m [週目] [boss] [哪一刀] [新週目] [新boss]', inline=False)
-        embed_msg.add_field(name='刪除', value='刪除**刀表**中的某刀。請指明週目、boss與第幾刀。\n　!刪除 [週目] [boss] [第幾刀]\n　!删除 [週目] [boss] [第幾刀]\n　!fd [週目] [boss] [第幾刀]', inline=False)
-        embed_msg.add_field(name='幫報', value='幫mention的人報刀至**刀表**。請指明週目、boss、備註與mention對方。\n　!幫報 [週目] [boss] [備註] [@成員]\n　!帮报 [週目] [boss] [備註] [@成員]\n　!hp [週目] [boss] [備註] [@成員]', inline=False)
-        embed_msg.add_field(name='幫報保留刀', value='幫mention的人報刀至**保留區**。請指明boss、備註與mention對方。\n　!幫報保留刀 [boss] [備註] [@成員]\n　!帮报保留刀 [boss] [備註] [@成員]\n　!hkp [boss] [備註] [@成員]', inline=False)
-        embed_msg.add_field(name='刪除保留刀', value='刪除**保留區**中的某刀。請指明第幾刀。\n　!刪除保留刀 [第幾刀]\n　!!删除保留刀 [第幾刀]\n　!fdkp [第幾刀]', inline=False)
-        embed_msg.add_field(name='設定', value='調整當前boss進度，請指明週目與第幾boss。\n　!設定 [週目] [boss]\n　!设定 [週目] [boss]\n　!s [週目] [boss]', inline=False)        
+        embed_msg = Embed(title='使用說明書', url='https://github.com/dkalke/PCReDive_Maho/wiki', description='網頁版使用說明書\nhttps://github.com/dkalke/PCReDive_Maho/wiki', color=0xB37084)
+        embed_msg.set_footer(text='當前版本可能會有些許BUG，歡迎反應或許願新功能!')
         await message.channel.send(embed=embed_msg)
 
 
-
+      # TODO 2021/10/23指令廢棄一律改用網頁版，過一陣子移除該指令。
       elif tokens[0] == '!一般指令' or tokens[0] == '!norcmd':
-        embed_msg = Embed(title='[一般指令]', color=0xD8B8BA)
-        embed_msg.add_field(name='預約', value='報刀至**刀表**。請指明週目、boss與備註。\n　!預約 [週目] [幾王] [備註]\n　!预约 [週目] [幾王] [備註]\n　!p [週目] [幾王] [備註]', inline=False)
-        embed_msg.add_field(name='取消預約', value='取消自己於**刀表**中的刀。請指明週目、boss與**刀表**中的第幾刀。\n　!取消預約 [週目] [幾王] [第幾刀]\n　!取消预约 [週目] [幾王] [第幾刀]\n　!cp [週目] [幾王] [第幾刀]', inline=False)
-        embed_msg.add_field(name='報保留刀', value='報刀至**保留區**。請指明boss與備註。\n　!報保留刀 [幾王] [備註]\n　!报保留刀 [幾王] [備註]\n　!kp [幾王] [備註]', inline=False)
-        embed_msg.add_field(name='使用保留刀', value='使用自己於**保留區**中的某刀。請指明**保留區**中的第幾刀，要出的週目與boss。\n　!使用保留刀 [第幾刀] [週目] [boss]\n　!使用保留刀 [第幾刀] [週目] [boss]\n　!ukp [第幾刀] [週目] [boss]', inline=False)
-        embed_msg.add_field(name='取消保留刀', value='取消自己於**保留區**中的某刀。請指明boss與**保留區**中的第幾刀。\n　!取消保留刀 [第幾刀]\n　!取消保留刀 [第幾刀]\n　!ckp [第幾刀]', inline=False)
-        embed_msg.add_field(name='目前進度', value='顯示目前王的進度，其實刀表最上方就是目前的進度。\n　!目前進度\n　!目前进度\n　!ns', inline=False)
-        embed_msg.add_field(name='下面一位', value='進入下一王時使用，同時會tag下一王的成員，30秒僅能使用一次。\n　!下面一位\n　!下面一位\n　!n', inline=False)
-        embed_msg.add_field(name='出來打王', value='tag當前王的出刀人員。\n　!出來打王\n　!出来打王\n　!hb', inline=False)
+        embed_msg = Embed(title='使用說明書', url='https://github.com/dkalke/PCReDive_Maho/wiki', description='網頁版使用說明書\nhttps://github.com/dkalke/PCReDive_Maho/wiki', color=0xB37084)
+        embed_msg.set_footer(text='當前版本可能會有些許BUG，歡迎反應或許願新功能!')
         await message.channel.send(embed=embed_msg)
 
 
