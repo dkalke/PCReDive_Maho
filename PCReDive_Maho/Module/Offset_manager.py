@@ -1,3 +1,5 @@
+import Module.define_value
+import Module.week_stage
 def AutoOffset(connection, server_id, group_serial):  
   # 一階段:1~3周
   # 二階段:4~10周
@@ -17,30 +19,20 @@ def AutoOffset(connection, server_id, group_serial):
     now_week = row[0]
     week_offset = row[1]
     level_offset = [row[2], row[3], row[4], row[5], row[6]]
-    week_threshold = [1,4,11,31,41]
 
     # 目前的最大可視範圍
-    if week_threshold[0] <= now_week and now_week < week_threshold[1]:
-      week_offset = level_offset[0]
-    elif week_threshold[1] <= now_week and now_week < week_threshold[2]:
-      week_offset = level_offset[1]
-    elif week_threshold[2] <= now_week and now_week < week_threshold[3]:
-      week_offset = level_offset[2]
-    elif week_threshold[3] <= now_week and now_week < week_threshold[4]:
-      week_offset = level_offset[3]
-    elif week_threshold[4] <= now_week:
-      week_offset = level_offset[4]
+    week_offset = level_offset[Module.week_stage.week_stage(now_week)]
 
     temp = now_week + week_offset
     ans.append(temp)  # 自身最大可視範圍
-    if temp > week_threshold[1] and week_threshold[1] > now_week :
-      ans.append(week_threshold[1] + level_offset[1]) # 以第一階段為基準的最大可視範圍
-    if temp > week_threshold[2] and week_threshold[2] > now_week :
-      ans.append(week_threshold[2] + level_offset[2]) # 以第二階段為基準的最大可視範圍
-    if temp > week_threshold[3] and week_threshold[3] > now_week :
-      ans.append(week_threshold[3] + level_offset[3]) # 以第三階段為基準的最大可視範圍
-    if temp > week_threshold[4] and week_threshold[4] > now_week :
-      ans.append(week_threshold[4] + level_offset[4]) # 以第四階段為基準的最大可視範圍
+    if temp > Module.define_value.Stage.two.value and Module.define_value.Stage.two.value > now_week :
+      ans.append(Module.define_value.Stage.two.value + level_offset[1]) # 以第一階段為基準的最大可視範圍
+    if temp > Module.define_value.Stage.three.value and Module.define_value.Stage.three.value > now_week :
+      ans.append(Module.define_value.Stage.three.value + level_offset[2]) # 以第二階段為基準的最大可視範圍
+    if temp > Module.define_value.Stage.four.value and Module.define_value.Stage.four.value > now_week :
+      ans.append(Module.define_value.Stage.four.value + level_offset[3]) # 以第三階段為基準的最大可視範圍
+    if temp > Module.define_value.Stage.five.value and Module.define_value.Stage.five.value > now_week :
+      ans.append(Module.define_value.Stage.five.value + level_offset[4]) # 以第四階段為基準的最大可視範圍
     week_offset = min(ans) - now_week
 
     cursor = connection.cursor(prepared=True)

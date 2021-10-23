@@ -14,3 +14,11 @@ class Policy(Enum):
   NO = 0 # 不回報傷害 
   YES = 1 # 須回報傷害
 
+
+class Stage(Enum):
+  one = 1
+  two = 4
+  three = 11
+  four = 31
+  five = 41
+
