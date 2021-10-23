@@ -6,6 +6,8 @@ import Module.Update
 import Name_manager
 import Module.Offset_manager
 import Module.show_knifes
+import Module.define_value
+import Module.week_stage
 
 #!取消保留刀 [第幾刀]
 @Discord_client.slash.slash( 
@@ -45,7 +47,7 @@ async def next_boss(ctx, boss):
       group_serial = row[11]
       
       # UTC+0   UTC+8   =>   UTC+8
-      if not now_week[boss-1] >= main_week + 2:
+      if ( not now_week[boss-1] >= main_week + 2 ) and (Module.week_stage.week_stage(now_week[boss-1]) == Module.week_stage.week_stage(main_week)):
         if ( ctx.created_at + datetime.timedelta(hours = 8) - boss_change[boss-1] ).seconds >= 30: 
           # 更新該王週目
           now_week[boss-1] = now_week[boss-1]+1
@@ -81,9 +83,15 @@ async def next_boss(ctx, boss):
             boss_index=list(range(1,6))
             boss_index.remove(boss)
 
+
             #如果其他王week位處main_week+2，一併tag上來
             for index in boss_index:
-              if now_week[index-1] == main_week+2: 
+              if new_main_week == Module.define_value.Stage.one.value or \
+                new_main_week == Module.define_value.Stage.two.value or \
+                new_main_week == Module.define_value.Stage.three.value or \
+                new_main_week == Module.define_value.Stage.four.value or \
+                new_main_week == Module.define_value.Stage.five.value or \
+                (now_week[index-1] == main_week+2 and Module.week_stage.week_stage(now_week[index-1])== Module.week_stage.week_stage(new_main_week)): 
                 knifes = await Module.show_knifes.show_knifes(connection, ctx, group_serial, now_week[index-1] ,index)
 
                 if knifes == '':
@@ -104,7 +112,7 @@ async def next_boss(ctx, boss):
             # 自動周目控制
             Module.Offset_manager.AutoOffset(connection, ctx.guild.id, group_serial) 
           else:
-            if now_week[boss-1] < main_week+2: # 檢查週目是否超出可出刀週目
+            if (now_week[boss-1] < main_week+2) and (Module.week_stage.week_stage(now_week[boss-1]) == Module.week_stage.week_stage(main_week)): # 檢查週目是否超出可出刀週目
               knifes = await Module.show_knifes.show_knifes(connection, ctx, group_serial, now_week[boss-1] ,boss)
 
               if knifes == '':
