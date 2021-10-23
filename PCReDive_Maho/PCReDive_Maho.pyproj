@@ -147,6 +147,9 @@
     <Compile Include="Module\Update.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Module\week_stage.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Module\__init__.py">
       <SubType>Code</SubType>
     </Compile>
