@@ -5,9 +5,7 @@ import Module.Update
 
 
 async def auto_clear():
-  print("AA")
   connection = await Module.DB_control.OpenConnection(None)
-  print("AAA")
   if connection:
     cursor = connection.cursor(prepared=True)
 
@@ -42,14 +40,14 @@ async def auto_clear():
         message_obj = None
         try:
           channel = guild.get_channel(sign_channel_id)
-          message_obj = await channel.send(content='正在執行月中重置流程!')
+          message_obj = await channel.send(content='正在執行戰前重置流程!')
 
           # 取得刀表頻道
           try:
             channel = guild.get_channel(table_channel_id)
             Module.Offset_manager.AutoOffset(connection, server_id, group_serial) # 自動周目控制
             await Module.Update.Update(message_obj, server_id, group_serial) # 更新刀表
-            message_obj.edit(content = '已完成月中重置流程，刀表已清除!')
+            message_obj.edit(content = '已完成戰前重置流程，刀表已清除!')
             print('伺服器:' + str(server_id) + ', 編號' + str(group_serial) + '頻道:' + str(table_channel_id) + '清除完成!')
           except:
             print('伺服器:' + str(server_id) + ', 編號' + str(group_serial) + '頻道:' + str(table_channel_id) + '刀表頻道不存在!')
