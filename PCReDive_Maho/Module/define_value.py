@@ -3,11 +3,11 @@ from enum import Enum
 MAX_DAMAGE = 1000000000
 
 class Period(Enum):
-  UNKNOW = 0
-  DAY = 1
-  NIGHT = 2
-  GRAVEYARD = 3
-  ALL = 4
+  UNKNOW = 0 # 未定
+  DAY = 1 # 08-16
+  NIGHT = 2 # 16-24
+  GRAVEYARD = 3 # 00-08
+  ALL = 4 # 00-24
 
 
 class Policy(Enum):

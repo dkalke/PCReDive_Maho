@@ -6,13 +6,6 @@ import Name_manager
 import Module.DB_control
 import Module.define_value
 
-class Period(Enum):
-  UNKNOW = 0
-  DAY = 1
-  NIGHT = 2
-  GRAVEYARD = 3
-  ALL = 4
-
 async def info_update(message ,server_id, group_serial):
   # 取得資訊訊息物件
   connection2 = await Module.DB_control.OpenConnection(message)
@@ -85,15 +78,15 @@ async def info_update(message ,server_id, group_serial):
             knifes=row[1]
             period=row[2]
 
-            if period == Period.UNKNOW.value:
+            if period == Module.define_value.Period.UNKNOW.value:
               period = '不定'
-            elif period == Period.DAY.value:
+            elif period == Module.define_value.Period.DAY.value:
               period = '早班'
-            elif period == Period.NIGHT.value:
+            elif period == Module.define_value.Period.NIGHT.value:
               period = '晚班'
-            elif period == Period.GRAVEYARD.value:
+            elif period == Module.define_value.Period.GRAVEYARD.value:
               period = '夜班'
-            elif period == Period.ALL.value:
+            elif period == Module.define_value.Period.ALL.value:
               period = '全日'
             else:
               period = '錯誤'

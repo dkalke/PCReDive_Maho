@@ -1,5 +1,6 @@
 ﻿from discord_slash.utils.manage_commands import create_option, create_choice
 import Discord_client
+import Module.define_value
 import Module.DB_control
 import Module.info_update
 
@@ -13,9 +14,9 @@ import Module.info_update
                      option_type=4,
                      required=True,
                      choices=[
-                         create_choice(name="不定??-??", value=Module.info_update.Period.UNKNOW.value),create_choice(name="日班08-16", value=Module.info_update.Period.DAY.value),
-                         create_choice(name="晚班16-24", value=Module.info_update.Period.NIGHT.value),create_choice(name="夜班00-08", value=Module.info_update.Period.GRAVEYARD.value),
-                         create_choice(name="全日00-24", value=Module.info_update.Period.ALL.value)
+                         create_choice(name="不定??-??", value=Module.define_value.Period.UNKNOW.value),create_choice(name="日班08-16", value=Module.define_value.Period.DAY.value),
+                         create_choice(name="晚班16-24", value=Module.define_value.Period.NIGHT.value),create_choice(name="夜班00-08", value=Module.define_value.Period.GRAVEYARD.value),
+                         create_choice(name="全日00-24", value=Module.define_value.Period.ALL.value)
                      ]
                  )
              ],
