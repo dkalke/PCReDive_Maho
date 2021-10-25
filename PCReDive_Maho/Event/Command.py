@@ -62,6 +62,20 @@ def knife_type_normalized(knife_type): # 檢查是否吻合繁體、檢體、英
   else:
     return 0
 
+def period_type_normalized(period):
+  if period== "0" or period== "u" or period== "不定" or period== "不定??-??": # ??-??
+    return Module.define_value.Period.UNKNOW.value
+  elif period== "1" or period== "d" or period== "日班" or period== "日班08-16": # 08-16
+    return Module.define_value.Period.DAY.value
+  elif period== "2" or period== "n" or period== "晚班" or period== "晚班16-24": # 16-24
+    return Module.define_value.Period.NIGHT.value
+  elif period== "3" or period== "g" or period== "夜班" or period== "夜班00-08": # 00-08
+    return Module.define_value.Period.GRAVEYARD.value
+  elif period== "4" or period== "a" or period== "全日" or period== "全日00-24": # 00-24
+    return Module.define_value.Period.ALL.value
+  else:
+    return -1 # ERROR
+
 
 @client.event
 async def on_message(message):
@@ -613,6 +627,46 @@ async def on_message(message):
             await message.channel.send('請輸入數字!')
         else:
           await message.channel.send('!下面一位 格式錯誤，應為 !下面一位 [boss]')
+
+      #!偏好時段 [時段]
+      elif tokens[0] == '!偏好時段' or tokens[0] == '!偏好时段' or tokens[0] == '!pt':
+        connection = await Module.DB_control.OpenConnection(message)
+        if connection:
+          cursor = connection.cursor(prepared=True)
+          sql = "SELECT group_serial FROM princess_connect.group WHERE server_id = ? and sign_channel_id = ? order by group_serial limit 0, 1"
+          data = (message.guild.id, message.channel.id)
+          cursor.execute(sql, data) # 認證身分
+          row = cursor.fetchone()
+          cursor.close
+          if row:
+            group_serial = row[0]
+            if len(tokens) == 2:
+              period = period_type_normalized(tokens[1])
+              if not period == -1:
+                # 檢查使否屬於該戰隊
+                cursor = connection.cursor(prepared=True)
+                sql = "select * from princess_connect.members WHERE server_id = ? and group_serial = ? and member_id = ? limit 0,1"
+                data = (message.guild.id, group_serial, message.author.id)
+                cursor.execute(sql, data)
+                row = cursor.fetchone()
+                if row:
+                  # 修改出刀偏好
+                  cursor = connection.cursor(prepared=True)
+                  sql = "update princess_connect.members SET period=? WHERE server_id = ? and group_serial = ? and member_id = ?"
+                  data = (period, message.guild.id, group_serial, message.author.id)
+                  cursor.execute(sql, data)
+                  connection.commit()
+                  await Module.info_update.info_update(message ,message.guild.id, group_serial)
+                  await message.channel.send('您在第' + str(group_serial) + '戰隊的出刀偏好時段已修改完成!')
+                else:
+                  await message.channel.send('您不屬於第' + str(group_serial) + '戰隊喔!')
+              else:
+                await message.channel.send('[時段]輸入錯誤，請參考說明書!')
+            else:
+              await message.channel.send('!偏好時段 格式錯誤，應為 !偏好時段 [時段]')
+          else:
+            await message.channel.send('這裡不是報刀頻道喔，請在所屬戰隊報刀頻道使用!')
+          await Module.DB_control.CloseConnection(connection, message)
 
 
       # --------------------------------------------------------------------所有頻道，所有人皆可使用------------------------------------------------------------------------------------------------------          
