@@ -151,7 +151,6 @@ async def on_message(message):
             pass #非指定頻道 不反應
           await Module.DB_control.CloseConnection(connection, message)
 
-
       #!取消報刀  !取消預約 [周目] [幾王] [第幾刀]
       elif tokens[0] == '!取消預約' or tokens[0] == '!取消预约' or tokens[0] == '!cp':
         group_serial = 0
@@ -206,7 +205,7 @@ async def on_message(message):
             pass #非指定頻道 不反應
           await Module.DB_control.CloseConnection(connection, message)
         
-      
+      #!報保留刀 [boss] [備註]
       elif tokens[0] == '!報保留刀' or tokens[0] == '!报保留刀' or tokens[0] == '!kp':
         # check頻道，並找出所屬組別
         group_serial = 0
@@ -478,7 +477,7 @@ async def on_message(message):
             await message.channel.send('這裡不是報刀頻道喔!')
           await Module.DB_control.CloseConnection(connection, message)
 
-
+      #!目前進度
       elif tokens[0] == '!目前進度' or tokens[0] == '!目前进度' or tokens[0] == '!ns':
         if len(tokens) == 1:
           # check頻道，並找出所屬組別
@@ -500,6 +499,7 @@ async def on_message(message):
         else:
           await message.channel.send('!目前進度 格式錯誤，應為 !目前進度')
       
+      #!下面一位 [boss]
       elif tokens[0] == '!下面一位' or tokens[0] == '!下面一位' or tokens[0] == '!n':
         if len(tokens) == 2:
           if tokens[1].isdigit():
@@ -616,6 +616,8 @@ async def on_message(message):
 
 
       # --------------------------------------------------------------------所有頻道，所有人皆可使用------------------------------------------------------------------------------------------------------          
+      #.ts [秒數]
+      #[刀軸]
       # 刀表調整器
       # author: YungPingXu
       # source: https://github.com/YungPingXu/pcr-bot/blob/main/code.py
@@ -672,7 +674,7 @@ async def on_message(message):
         else:
             await message.author.send("您輸入的秒數格式錯誤，正確的格式為\n.tr 補償秒數\n文字軸")
       
-      # 幫助訊息
+      #!幫助
       elif tokens[0] == '!幫助' or tokens[0] == '!帮助' or tokens[0] == '!h':
         embed_msg = Embed(title='使用說明書', url='https://github.com/dkalke/PCReDive_Maho/wiki', description='網頁版使用說明書\nhttps://github.com/dkalke/PCReDive_Maho/wiki', color=0xB37084)
         embed_msg.set_footer(text='當前版本可能會有些許BUG，歡迎反應或許願新功能!')
