@@ -5,6 +5,7 @@ import Discord_client
 import Name_manager
 import Module.DB_control
 import Module.define_value
+import Module.week_stage
 
 async def Update(message ,server_id, group_serial):
   connection = await Module.DB_control.OpenConnection(message)
@@ -46,16 +47,15 @@ async def UpdateEmbed(connection, message, server_id, group_serial): # 更新刀
     if table_message_id:
       embed_msg = Embed(title='第' + str(group_serial) + '戰隊刀表', color=0xD98B99)
       # 刀表部分，從當前週目開始印
-      send_msg = ''
       index_boss = now_boss # 僅第一個週目由此王開始
       for i in range(now_week, now_week + week_offset + 1):
-        kinfe_msg_name = ''
-        for j in range(index_boss,6):              
-          kinfe_msg_name = kinfe_msg_name + '**'+ str(j) + '王**\n'
-  
-          # 如果王的週目小於主週目則不顯示(死了)
-          if i < now_boss_week[j-1]:
-            kinfe_msg_name = kinfe_msg_name + '　(已討伐)\n'
+        weel_stage = Module.week_stage.week_stage(i)
+        week_msg = ''
+        for j in range(index_boss,6):  
+          kinfe_msg = ''
+          if i < now_boss_week[j-1]: # 如果王的週目小於主週目(王死)則不顯示報刀資訊
+            title_msg = '**'+ str(j) + '**王(**0**/**' + str(Module.define_value.BOSS_HP[weel_stage][j-1]) +'**)\n'
+            kinfe_msg = '　(已討伐)\n'
           else:
             # 刀表SQL
             cursor = connection.cursor(prepared=True)
@@ -64,6 +64,8 @@ async def UpdateEmbed(connection, message, server_id, group_serial): # 更新刀
             cursor.execute(sql, data)
             row = cursor.fetchone()
             index = 1
+            kinfe_msg = '' # 該週目該王報刀資訊
+            sum_damage = 0 # 報刀傷害總和(萬)
             while row:
               # 出刀狀況
               nick_name = await Name_manager.get_nick_name(message, row[0]) # 取得DC暱稱
@@ -93,13 +95,16 @@ async def UpdateEmbed(connection, message, server_id, group_serial): # 更新刀
               else:
                 pass
 
-              kinfe_msg_name = kinfe_msg_name + '　{' +str(index) + '} ' + knife_status + nick_name + '\n　　' + knife_type + comment + '\n'
-              row = cursor.fetchone()
+              kinfe_msg = kinfe_msg + '　{' +str(index) + '} ' + knife_status + nick_name + '\n　　' + knife_type + comment + '\n'
+              sum_damage = sum_damage + row[4]
               index = index +1
+              row = cursor.fetchone()
             cursor.close()
+            title_msg = '**'+ str(j) + '**王(**' + str(Module.define_value.BOSS_HP[weel_stage][j-1] - sum_damage) + '**/**' + str(Module.define_value.BOSS_HP[weel_stage][j-1]) +'**)\n'
+          week_msg = week_msg + title_msg + kinfe_msg
         index_boss = 1
         embed_msg.add_field(name='\u200b', value='-   -   -   -   -   -   -   -   ', inline=False)
-        embed_msg.add_field(name='第' + str(i) + '週目', value=kinfe_msg_name , inline=False)
+        embed_msg.add_field(name='第' + str(i) + '週目', value=week_msg , inline=False)
             
   
           
@@ -176,13 +181,14 @@ async def UpdateTraditional(connection, message, server_id, group_serial): # 更
       send_msg = '```asciidoc\n'
       index_boss = now_boss # 僅第一個週目由此王開始
       for i in range(now_week, now_week + week_offset + 1):
-        send_msg = send_msg + '第' + str(i) + '週目:\n'
+        week_msg = ''
+        weel_stage = Module.week_stage.week_stage(i)
         for j in range(index_boss,6):
-          msg = ''
-
-          # 如果王的週目小於主週目則不顯示(死了)
-          if i < now_boss_week[j-1]:
-            msg = msg + '　(已討伐)\n'
+          title_msg = ''
+          knife_msg = ''
+          if i < now_boss_week[j-1]: # 如果王的週目小於主週目(死了)則不顯示
+            title_msg = ' ' + str(j) + '王(0/' + str(Module.define_value.BOSS_HP[weel_stage][j-1]) + ')\n'
+            knife_msg = '　(已討伐)\n'
           else:
             # 刀表SQL
             cursor = connection.cursor(prepared=True)
@@ -191,12 +197,14 @@ async def UpdateTraditional(connection, message, server_id, group_serial): # 更
             cursor.execute(sql, data)
             row = cursor.fetchone()
             index = 1
+            sum_damage = 0
             while row:
               # 出刀狀況
               nick_name = await Name_manager.get_nick_name(message, row[0])
               comment = row[1]
               knife_status = ''
               knife_type = ''
+              sum_damage = sum_damage + row[4]
 
               # 如選擇需回報傷害，顯示出刀類型與出刀與否記號
               if policy == Module.define_value.Policy.YES.value:
@@ -219,18 +227,15 @@ async def UpdateTraditional(connection, message, server_id, group_serial): # 更
               else:
                 pass
 
-              msg = msg + '  {' +str(index) + '} ' + knife_status + nick_name + '(' + knife_type + comment + '),\n'
+              knife_msg = knife_msg + '  {' +str(index) + '} ' + knife_status + nick_name + '(' + knife_type + comment + ')\n'
               row = cursor.fetchone()
               index = index +1
             cursor.close()
+            title_msg = ' ' + str(j) + '王(' + str(Module.define_value.BOSS_HP[weel_stage][j-1] - sum_damage) + '/' + str(Module.define_value.BOSS_HP[weel_stage][j-1]) + ')\n'
           
-          if msg == '':
-            send_msg = send_msg + ' ' + str(j) + '王\n'
-          else:
-            send_msg = send_msg + ' ' + str(j) + '王\n' + msg + '\n'  
+          week_msg = week_msg + title_msg + knife_msg  
         index_boss = 1
-
-          
+        send_msg = send_msg + '第' + str(i) + '週目:\n' + week_msg    
       send_msg = send_msg + '```'
             
       # 取得訊息物件
