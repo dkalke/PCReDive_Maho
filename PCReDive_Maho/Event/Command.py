@@ -536,7 +536,7 @@ async def on_message(message):
       
                   # UTC+0   UTC+8   =>   UTC+8
                   if ( not now_week[boss-1] >= main_week + 2 ) and (Module.week_stage.week_stage(now_week[boss-1]) == Module.week_stage.week_stage(main_week)):
-                    if ( message.created_at + datetime.timedelta(hours = 8) - boss_change[boss-1] ).seconds >= 30: 
+                    if ( message.created_at + datetime.timedelta(hours = 8) - boss_change[boss-1] ).seconds >= Module.define_value.CD_TIME: 
                       # 更新該王週目
                       now_week[boss-1] = now_week[boss-1]+1
                       cursor = connection.cursor(prepared=True)
