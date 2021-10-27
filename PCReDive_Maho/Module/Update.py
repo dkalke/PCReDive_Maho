@@ -120,7 +120,7 @@ async def UpdateEmbed(connection, message, server_id, group_serial): # 更新刀
       # 從一王印到五王
       # 刀表SQL
       cursor = connection.cursor(prepared=True)
-      sql = "SELECT boss, member_id, comment FROM princess_connect.keep_knifes WHERE server_id = ? and group_serial = ? order by boss"
+      sql = "SELECT boss, member_id, comment FROM princess_connect.keep_knifes WHERE server_id = ? and group_serial = ? order by boss, serial_number"
       data = (server_id, group_serial)
       cursor.execute(sql, data)
       msg = ''
@@ -251,7 +251,7 @@ async def UpdateTraditional(connection, message, server_id, group_serial): # 更
       # 從一王印到五王
       # 刀表SQL
       cursor = connection.cursor(prepared=True)
-      sql = "SELECT boss, member_id, comment FROM princess_connect.keep_knifes WHERE server_id = ? and group_serial = ? order by boss"
+      sql = "SELECT boss, member_id, comment FROM princess_connect.keep_knifes WHERE server_id = ? and group_serial = ? order by boss, serial_number"
       data = (server_id, group_serial)
       cursor.execute(sql, data)
       msg = '```asciidoc\n保留刀:\n'
