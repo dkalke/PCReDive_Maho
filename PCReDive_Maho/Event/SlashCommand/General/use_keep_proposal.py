@@ -48,7 +48,7 @@ async def use_keep_proposal(ctx, index, week, boss):
         if Module.check_boss.Check_boss((row[1], row[2], row[3], row[4], row[5]), week, boss):  
           if index > 0:
             cursor = connection.cursor(prepared=True)
-            sql = "SELECT serial_number, member_id, comment from princess_connect.keep_knifes where server_id=? and group_serial=? order by boss limit ?,1"
+            sql = "SELECT serial_number, member_id, comment from princess_connect.keep_knifes where server_id=? and group_serial=? order by serial_number limit ?,1"
             data = (ctx.guild.id, group_serial, index-1)
             cursor.execute(sql, data)
             row = cursor.fetchone()
@@ -70,18 +70,18 @@ async def use_keep_proposal(ctx, index, week, boss):
                 cursor.close()
 
                 connection.commit()
-                await ctx.channel.send('第' + str(week) + '週目' + str(boss) + '王，備註:' + row[2] + '，報刀成功!')
+                await ctx.send('第' + str(week) + '週目' + str(boss) + '王，備註:' + row[2] + '，報刀成功!')
                 await Module.Update.Update(ctx, ctx.guild.id, group_serial) # 更新刀表
               else:
-                await ctx.channel.send('您並非該刀主人喔!')
+                await ctx.send('您並非該刀主人喔!')
             else:
-              await ctx.channel.send('該刀不存在喔!')
+              await ctx.send('該刀不存在喔!')
           else:
             await ctx.send('序號必須大於0!')
         else:
-          await ctx.channel.send('該王不存在喔!')
+          await ctx.send('該王不存在喔!')
       else:
-        await ctx.channel.send('該週目不存在喔!')
+        await ctx.send('該週目不存在喔!')
     else:
       await ctx.send('這裡不是報刀頻道喔!')
     await Module.DB_control.CloseConnection(connection, ctx)

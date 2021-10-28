@@ -120,16 +120,16 @@ async def UpdateEmbed(connection, message, server_id, group_serial): # 更新刀
       # 從一王印到五王
       # 刀表SQL
       cursor = connection.cursor(prepared=True)
-      sql = "SELECT boss, member_id, comment FROM princess_connect.keep_knifes WHERE server_id = ? and group_serial = ? order by boss, serial_number"
+      sql = "SELECT member_id, comment FROM princess_connect.keep_knifes WHERE server_id = ? and group_serial = ? order by serial_number"
       data = (server_id, group_serial)
       cursor.execute(sql, data)
       msg = ''
       index = 1
       row = cursor.fetchone()
       while row:  
-        # {index} ?王 nickname\tcomment\n
-        name = await Name_manager.get_nick_name(message, row[1])
-        msg = msg + '{' +str(index) + '} ' + str(row[0]) + '王 ' + name + '\n　' + row[2] + '\n'
+        # {index} nickname\tcomment\n
+        name = await Name_manager.get_nick_name(message, row[0])
+        msg = msg + '{' +str(index) + '} ' + name + '\n　' + row[1] + '\n'
         index = index + 1
         row = cursor.fetchone()
       cursor.close
@@ -251,16 +251,16 @@ async def UpdateTraditional(connection, message, server_id, group_serial): # 更
       # 從一王印到五王
       # 刀表SQL
       cursor = connection.cursor(prepared=True)
-      sql = "SELECT boss, member_id, comment FROM princess_connect.keep_knifes WHERE server_id = ? and group_serial = ? order by boss, serial_number"
+      sql = "SELECT member_id, comment FROM princess_connect.keep_knifes WHERE server_id = ? and group_serial = ? order by serial_number"
       data = (server_id, group_serial)
       cursor.execute(sql, data)
       msg = '```asciidoc\n保留刀:\n'
       index = 1
       row = cursor.fetchone()
       while row:  
-        # {index} ?王 nickname\tcomment\n
-        name = await Name_manager.get_nick_name(message, row[1])
-        msg = msg + '{' +str(index) + '} ' + str(row[0]) + '王 ' + name + '\t' + row[2] + '\n'
+        # {index} nickname\tcomment\n
+        name = await Name_manager.get_nick_name(message, row[0])
+        msg = msg + '{' +str(index) + '} ' + name + '\t' + row[1] + '\n'
         index = index + 1
         row = cursor.fetchone()
       cursor.close

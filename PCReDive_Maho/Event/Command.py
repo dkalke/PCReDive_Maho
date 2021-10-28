@@ -219,7 +219,7 @@ async def on_message(message):
             pass #非指定頻道 不反應
           await Module.DB_control.CloseConnection(connection, message)
         
-      #!報保留刀 [boss] [備註]
+      #!報保留刀 [備註]
       elif tokens[0] == '!報保留刀' or tokens[0] == '!报保留刀' or tokens[0] == '!kp':
         # check頻道，並找出所屬組別
         group_serial = 0
@@ -233,24 +233,18 @@ async def on_message(message):
           cursor.close
           if row:
             group_serial = row[0]
-            if len(tokens) == 3:
-              if tokens[1].isdigit():
-                if int(tokens[1]) > 0 and int(tokens[1]) < 6:
-                  # 寫入保留刀表
-                  cursor = connection.cursor(prepared=True)
-                  sql = "INSERT INTO princess_connect.keep_knifes (server_id, group_serial, member_id, boss, comment) VALUES (?, ?, ?, ?, ?)"
-                  data = (message.guild.id, group_serial, message.author.id, int(tokens[1]), tokens[2])
-                  cursor.execute(sql, data)
-                  cursor.close()
-                  connection.commit()
-                  await message.channel.send(tokens[1] + '王，備註:' + tokens[2] + '，**保留刀**報刀成功!')
-                  await Module.Update.Update(message, message.guild.id, group_serial) # 更新刀表
-                else:
-                  await message.channel.send('該王不存在喔!')
-              else:
-                await message.channel.send('[幾王]請使用阿拉伯數字!')
+            if len(tokens) == 2:
+              # 寫入保留刀表
+              cursor = connection.cursor(prepared=True)
+              sql = "INSERT INTO princess_connect.keep_knifes (server_id, group_serial, member_id, comment) VALUES (?, ?, ?, ?)"
+              data = (message.guild.id, group_serial, message.author.id, tokens[1])
+              cursor.execute(sql, data)
+              cursor.close()
+              connection.commit()
+              await message.channel.send( '備註:' + tokens[1] + '，**保留刀**報刀成功!')
+              await Module.Update.Update(message, message.guild.id, group_serial) # 更新刀表
             else:
-              await message.channel.send('!報保留刀 格式錯誤，應為 !報保留刀 [王] [註解]')
+              await message.channel.send('!報保留刀 格式錯誤，應為 !報保留刀 [註解]')
           else:
             pass #非指定頻道 不反應
           await Module.DB_control.CloseConnection(connection, message)
@@ -275,7 +269,7 @@ async def on_message(message):
                 if Module.check_week.Check_week((row[0], row[6]), week):
                   if Module.check_boss.Check_boss((row[1], row[2], row[3], row[4], row[5]),week, boss):  
                     cursor = connection.cursor(prepared=True)
-                    sql = "SELECT serial_number, member_id, comment from princess_connect.keep_knifes where server_id=? and group_serial=? order by boss limit ?,1"
+                    sql = "SELECT serial_number, member_id, comment from princess_connect.keep_knifes where server_id=? and group_serial=? order by serial_number limit ?,1"
                     data = (message.guild.id, group_serial, index-1)
                     cursor.execute(sql, data)
                     row = cursor.fetchone()
@@ -333,7 +327,7 @@ async def on_message(message):
 
                 # 尋找要刪除刀的序號
                 cursor = connection.cursor(prepared=True)
-                sql = "SELECT serial_number,member_id from princess_connect.keep_knifes where server_id=? and group_serial=? order by boss, serial_number limit ?,1"
+                sql = "SELECT serial_number,member_id from princess_connect.keep_knifes where server_id=? and group_serial=? order by serial_number limit ?,1"
                 data = (message.guild.id, group_serial, index-1)
                 cursor.execute(sql, data)
                 row = cursor.fetchone()

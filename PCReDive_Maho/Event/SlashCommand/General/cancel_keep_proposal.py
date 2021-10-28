@@ -31,7 +31,7 @@ async def cancel_keep_proposal(ctx, index):
       if index > 0:
         # 尋找要刪除刀的序號
         cursor = connection.cursor(prepared=True)
-        sql = "SELECT serial_number,member_id from princess_connect.keep_knifes where server_id=? and group_serial=? order by boss, serial_number limit ?,1"
+        sql = "SELECT serial_number,member_id from princess_connect.keep_knifes where server_id=? and group_serial=? order by serial_number limit ?,1"
         data = (ctx.guild.id, group_serial, index-1)
         cursor.execute(sql, data)
         row = cursor.fetchone()
