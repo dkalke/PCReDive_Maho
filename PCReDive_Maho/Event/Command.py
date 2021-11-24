@@ -137,28 +137,40 @@ async def on_message(message):
           cursor.close
           if row:
             group_serial = row[7]
-            if len(tokens) == 4:
-              if tokens[1].isdigit() and tokens[2].isdigit() :
+            # 檢測預估傷害格式
+            token_5_pass_flag = True
+            estimated_damage = 0
+            if len(tokens) == 5:
+              token_5_pass_flag = False
+              if tokens[4].isdigit():
+                token_5_pass_flag = True
+                estimated_damage = int(tokens[4])
+
+            if len(tokens) == 4 or len(tokens) == 5 :
+              if tokens[1].isdigit() and tokens[2].isdigit() and token_5_pass_flag:
                 week = int(tokens[1])
                 boss = int(tokens[2])
                 comment = tokens[3]
                 if Module.check_week.Check_week((row[0], row[6]), week):
                   if Module.check_boss.Check_boss((row[1], row[2], row[3], row[4], row[5]),week, boss):
-                    # 新增刀
-                    cursor = connection.cursor(prepared=True)
-                    sql = "INSERT INTO princess_connect.knifes (server_id, group_serial, week, boss, member_id, comment, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?)"
-                    data = (message.guild.id, group_serial, week, boss, message.author.id, comment ,datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
-                    cursor.execute(sql, data)
-                    cursor.close
-                    connection.commit()
-                    await message.channel.send('第' + str(week) + '週目' + str(boss) + '王，備註:' + comment + '，報刀成功!')
-                    await Module.Update.Update(message, message.guild.id, group_serial) # 更新刀表
+                    if not (Module.week_stage.week_stage(week) == 4 and estimated_damage == 0):
+                      # 新增刀
+                      cursor = connection.cursor(prepared=True)
+                      sql = "INSERT INTO princess_connect.knifes (server_id, group_serial, week, boss, member_id, comment, estimated_damage) VALUES (?, ?, ?, ?, ?, ?, ?)"
+                      data = (message.guild.id, group_serial, week, boss, message.author.id, comment ,estimated_damage)
+                      cursor.execute(sql, data)
+                      cursor.close
+                      connection.commit()
+                      await message.channel.send('第' + str(week) + '週目' + str(boss) + '王，備註:' + comment + '，報刀成功!')
+                      await Module.Update.Update(message, message.guild.id, group_serial) # 更新刀表
+                    else:
+                      await ctx.send('五階段報刀必須填寫預估傷害(萬)!')
                   else:
                     await message.channel.send('該王不存在喔!')
                 else:
                   await message.channel.send('該週目不存在喔!')
               else:
-                await message.channel.send('[週目] [王]請使用阿拉伯數字!')
+                await message.channel.send('[週目] [王] [預估傷害]請使用阿拉伯數字!')
             else:
               await message.channel.send('!預約 格式錯誤，應為 !預約 [週目] [王] [註解]')
           else:

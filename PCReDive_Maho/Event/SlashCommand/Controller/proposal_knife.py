@@ -42,10 +42,16 @@ import Module.Update
                                       option_type=6,
                                       required=True
                                     ),
+                                    create_option(
+                                        name="預估傷害",
+                                        description="單位為\'萬\'，預估能打出的傷害",
+                                        option_type=4,
+                                        required=False
+                                    )
                                   ],
-                                  connector={"週目":"week" ,"boss": "boss", "備註": "comment", "成員": "member"}
+                                  connector={"週目":"week" ,"boss": "boss", "備註": "comment", "成員": "member", "預估傷害":"estimated_damage"}
                                 )
-async def proposal_knife(ctx, week, boss, comment, member):
+async def proposal_knife(ctx, week, boss, comment, member, **kwargs):
   # check身分，並找出所屬組別
   connection = await Module.DB_control.OpenConnection(ctx)
   if connection:
@@ -53,15 +59,22 @@ async def proposal_knife(ctx, week, boss, comment, member):
     if not group_serial == 0: # 如果是是控刀手
       if Module.check_week.Check_week((main_week, week_offset), week):
         if Module.check_boss.Check_boss(now_week, week, boss):
-          # 新增進刀表
-          cursor = connection.cursor(prepared=True)
-          sql = "INSERT INTO princess_connect.knifes (server_id, group_serial, week, boss, member_id, comment) VALUES (?, ?, ?, ?, ?, ?)"
-          data = (ctx.guild.id, group_serial, week, boss, member.id, comment )
-          cursor.execute(sql, data)
-          cursor.close
-          connection.commit()
-          await ctx.send('幫報完成! 第' + str(week) + '週目' + str(boss) + '王，備註:' + comment + '。')
-          await Module.Update.Update(ctx, ctx.guild.id, group_serial) # 更新刀表
+          try:
+            estimated_damage = kwargs["estimated_damage"]
+          except KeyError as e:
+            estimated_damage = 0
+          if not (Module.week_stage.week_stage(week) == 4 and estimated_damage == 0):
+            # 新增進刀表
+            cursor = connection.cursor(prepared=True)
+            sql = "INSERT INTO princess_connect.knifes (server_id, group_serial, week, boss, member_id, comment, estimated_damage) VALUES (?, ?, ?, ?, ?, ?, ?)"
+            data = (ctx.guild.id, group_serial, week, boss, member.id, comment, estimated_damage )
+            cursor.execute(sql, data)
+            cursor.close
+            connection.commit()
+            await ctx.send('幫報完成! 第' + str(week) + '週目' + str(boss) + '王，備註:' + comment + '。')
+            await Module.Update.Update(ctx, ctx.guild.id, group_serial) # 更新刀表
+          else:
+            await ctx.send('五階段報刀必須填寫預估傷害(萬)!')
         else:
           await ctx.send('該王不存在喔!')
       else:
