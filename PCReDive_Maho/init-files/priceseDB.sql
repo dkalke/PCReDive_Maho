@@ -66,7 +66,7 @@ CREATE TABLE IF NOT EXISTS `keep_knifes` (
   `member_id` bigint(20) unsigned NOT NULL DEFAULT 0,
   `comment` varchar(150) NOT NULL DEFAULT '',
   PRIMARY KEY (`serial_number`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=307 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=309 DEFAULT CHARSET=utf8mb4;
 
 -- 取消選取資料匯出。
 
@@ -83,6 +83,7 @@ CREATE TABLE IF NOT EXISTS `knifes` (
   `done_time` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
   `knife_type` tinyint(4) NOT NULL DEFAULT 0,
   `real_damage` int(10) unsigned NOT NULL DEFAULT 0,
+  `estimated_damage` int(10) unsigned NOT NULL DEFAULT 0,
   PRIMARY KEY (`serial_number`)
 ) ENGINE=InnoDB AUTO_INCREMENT=5412 DEFAULT CHARSET=utf8mb4 COMMENT='每刀資料';
 

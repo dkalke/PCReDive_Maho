@@ -59,13 +59,13 @@ async def UpdateEmbed(connection, message, server_id, group_serial): # 更新刀
           else:
             # 刀表SQL
             cursor = connection.cursor(prepared=True)
-            sql = "SELECT member_id, comment, knife_type, done_time, real_damage FROM princess_connect.knifes WHERE server_id = ? and group_serial = ? and week = ? and boss = ? order by serial_number"
+            sql = "SELECT member_id, comment, knife_type, done_time, real_damage, estimated_damage FROM princess_connect.knifes WHERE server_id = ? and group_serial = ? and week = ? and boss = ? order by serial_number"
             data = (server_id, group_serial,i ,j)
             cursor.execute(sql, data)
             row = cursor.fetchone()
             index = 1
             kinfe_msg = '' # 該週目該王報刀資訊
-            sum_damage = 0 # 報刀傷害總和(萬)
+            estimated_sum_damage = 0 # 報刀傷害總和(萬)
             while row:
               # 出刀狀況
               nick_name = await Name_manager.get_nick_name(message, row[0]) # 取得DC暱稱
@@ -96,11 +96,11 @@ async def UpdateEmbed(connection, message, server_id, group_serial): # 更新刀
                 pass
 
               kinfe_msg = kinfe_msg + '　{' +str(index) + '} ' + knife_status + nick_name + '\n　　' + knife_type + comment + '\n'
-              sum_damage = sum_damage + row[4]
+              estimated_sum_damage = estimated_sum_damage + row[5]
               index = index +1
               row = cursor.fetchone()
             cursor.close()
-            title_msg = '**'+ str(j) + '**王(**' + str(Module.define_value.BOSS_HP[weel_stage][j-1] - sum_damage) + '**/**' + str(Module.define_value.BOSS_HP[weel_stage][j-1]) +'**)\n'
+            title_msg = '**'+ str(j) + '**王(**' + str(Module.define_value.BOSS_HP[weel_stage][j-1] - estimated_sum_damage) + '**/**' + str(Module.define_value.BOSS_HP[weel_stage][j-1]) +'**)\n'
           week_msg = week_msg + title_msg + kinfe_msg
         index_boss = 1
         embed_msg.add_field(name='\u200b', value='-   -   -   -   -   -   -   -   ', inline=False)
@@ -192,19 +192,19 @@ async def UpdateTraditional(connection, message, server_id, group_serial): # 更
           else:
             # 刀表SQL
             cursor = connection.cursor(prepared=True)
-            sql = "SELECT member_id, comment, knife_type, done_time, real_damage FROM princess_connect.knifes WHERE server_id = ? and group_serial = ? and week = ? and boss = ? order by serial_number"
+            sql = "SELECT member_id, comment, knife_type, done_time, real_damage, estimated_damage FROM princess_connect.knifes WHERE server_id = ? and group_serial = ? and week = ? and boss = ? order by serial_number"
             data = (server_id, group_serial,i ,j)
             cursor.execute(sql, data)
             row = cursor.fetchone()
             index = 1
-            sum_damage = 0
+            estimated_sum_damage = 0
             while row:
               # 出刀狀況
               nick_name = await Name_manager.get_nick_name(message, row[0])
               comment = row[1]
               knife_status = ''
               knife_type = ''
-              sum_damage = sum_damage + row[4]
+              estimated_sum_damage = estimated_sum_damage + row[5]
 
               # 如選擇需回報傷害，顯示出刀類型與出刀與否記號
               if policy == Module.define_value.Policy.YES.value:
@@ -231,7 +231,7 @@ async def UpdateTraditional(connection, message, server_id, group_serial): # 更
               row = cursor.fetchone()
               index = index +1
             cursor.close()
-            title_msg = ' ' + str(j) + '王(' + str(Module.define_value.BOSS_HP[weel_stage][j-1] - sum_damage) + '/' + str(Module.define_value.BOSS_HP[weel_stage][j-1]) + ')\n'
+            title_msg = ' ' + str(j) + '王(' + str(Module.define_value.BOSS_HP[weel_stage][j-1] - estimated_sum_damage) + '/' + str(Module.define_value.BOSS_HP[weel_stage][j-1]) + ')\n'
           
           week_msg = week_msg + title_msg + knife_msg  
         index_boss = 1
