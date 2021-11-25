@@ -12,5 +12,5 @@ async def on_ready():
 
   # 每月15號自動清理刀表，移除無用資訊(無法存取的伺服器)
   sched = AsyncIOScheduler()
-  sched.add_job(Module.auto_clear.auto_clear, 'cron', year='*', month='*', day=26, hour=23, minute=59, second=59, args=[])
+  sched.add_job(Module.auto_clear.auto_clear, 'cron', year='*', month='*', day=25, hour=23, minute=59, second=59, args=[])
   sched.start()
