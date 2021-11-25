@@ -69,7 +69,7 @@ async def proposal_knife(ctx, week, boss, comment, **kwargs):
             await ctx.send('第' + str(week) + '週目' + str(boss) + '王，備註:' + comment + '，報刀成功!')
             await Module.Update.Update(ctx, ctx.guild.id, group_serial) # 更新刀表
           else:
-            await ctx.send('五階段報刀必須填寫預估傷害(萬)!')
+            await ctx.send('發生錯誤，五階段報刀請填寫可選參數[預估傷害]，單位為萬!')
         else:
           await ctx.send('該王不存在喔!')
       else:

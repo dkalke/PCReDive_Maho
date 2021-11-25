@@ -164,7 +164,7 @@ async def on_message(message):
                       await message.channel.send('第' + str(week) + '週目' + str(boss) + '王，備註:' + comment + '，報刀成功!')
                       await Module.Update.Update(message, message.guild.id, group_serial) # 更新刀表
                     else:
-                      await ctx.send('五階段報刀必須填寫預估傷害(萬)!')
+                      await message.channel.send('發生錯誤，五階段報刀格式為: !p [週目] [boss] [備註] [預估傷害(萬)]')
                   else:
                     await message.channel.send('該王不存在喔!')
                 else:
