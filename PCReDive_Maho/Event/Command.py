@@ -155,14 +155,25 @@ async def on_message(message):
                   if Module.check_boss.Check_boss((row[1], row[2], row[3], row[4], row[5]),week, boss):
                     if not (Module.week_stage.week_stage(week) == 4 and estimated_damage == 0):
                       # 新增刀
-                      cursor = connection.cursor(prepared=True)
-                      sql = "INSERT INTO princess_connect.knifes (server_id, group_serial, week, boss, member_id, comment, estimated_damage) VALUES (?, ?, ?, ?, ?, ?, ?)"
-                      data = (message.guild.id, group_serial, week, boss, message.author.id, comment ,estimated_damage)
+                      sql = "SELECT SUM(estimated_damage) from knifes WHERE server_id = ? and group_serial = ? and week = ? and boss = ?"
+                      data = (message.guild.id, group_serial, week, boss)
                       cursor.execute(sql, data)
+                      row = cursor.fetchone()
                       cursor.close
-                      connection.commit()
-                      await message.channel.send('第' + str(week) + '週目' + str(boss) + '王，備註:' + comment + '，報刀成功!')
-                      await Module.Update.Update(message, message.guild.id, group_serial) # 更新刀表
+                      sum_estimated_damage = 0
+                      if row[0]:
+                        sum_estimated_damage = int(row[0])
+                      if (Module.define_value.BOSS_HP[Module.week_stage.week_stage(week)][boss-1] - sum_estimated_damage) > 0:
+                        cursor = connection.cursor(prepared=True)
+                        sql = "INSERT INTO princess_connect.knifes (server_id, group_serial, week, boss, member_id, comment, estimated_damage) VALUES (?, ?, ?, ?, ?, ?, ?)"
+                        data = (message.guild.id, group_serial, week, boss, message.author.id, comment ,estimated_damage)
+                        cursor.execute(sql, data)
+                        cursor.close
+                        connection.commit()
+                        await message.channel.send('第' + str(week) + '週目' + str(boss) + '王，備註:' + comment + '，報刀成功!')
+                        await Module.Update.Update(message, message.guild.id, group_serial) # 更新刀表
+                      else:
+                        await message.channel.send('偵測到溢傷，請改報其他週目!')
                     else:
                       await message.channel.send('發生錯誤，五階段報刀格式為: !p [週目] [boss] [備註] [預估傷害(萬)]')
                   else:

@@ -5,6 +5,7 @@ import Module.check_boss
 import Module.check_week
 import Module.Update
 import Module.week_stage
+import Module.define_value
 
 @Discord_client.slash.slash( 
              name="p" ,
@@ -61,13 +62,25 @@ async def proposal_knife(ctx, week, boss, comment, **kwargs):
           if not (Module.week_stage.week_stage(week) == 4 and estimated_damage == 0):
             # 新增刀
             cursor = connection.cursor(prepared=True)
-            sql = "INSERT INTO princess_connect.knifes (server_id, group_serial, week, boss, member_id, comment, estimated_damage) VALUES (?, ?, ?, ?, ?, ?, ?)"
-            data = (ctx.guild.id, group_serial, week, boss, ctx.author.id, comment, estimated_damage)
+            sql = "SELECT SUM(estimated_damage) from knifes WHERE server_id = ? and group_serial = ? and week = ? and boss = ?"
+            data = (ctx.guild.id, group_serial, week, boss)
             cursor.execute(sql, data)
+            row = cursor.fetchone()
             cursor.close
-            connection.commit()
-            await ctx.send('第' + str(week) + '週目' + str(boss) + '王，備註:' + comment + '，報刀成功!')
-            await Module.Update.Update(ctx, ctx.guild.id, group_serial) # 更新刀表
+            sum_estimated_damage = 0
+            if row[0]:
+              sum_estimated_damage = int(row[0])
+            if (Module.define_value.BOSS_HP[Module.week_stage.week_stage(week)][boss-1] - sum_estimated_damage) > 0:
+              cursor = connection.cursor(prepared=True)
+              sql = "INSERT INTO princess_connect.knifes (server_id, group_serial, week, boss, member_id, comment, estimated_damage) VALUES (?, ?, ?, ?, ?, ?, ?)"
+              data = (ctx.guild.id, group_serial, week, boss, ctx.author.id, comment, estimated_damage)
+              cursor.execute(sql, data)
+              cursor.close
+              connection.commit()
+              await ctx.send('第' + str(week) + '週目' + str(boss) + '王，備註:' + comment + '，報刀成功!')
+              await Module.Update.Update(ctx, ctx.guild.id, group_serial) # 更新刀表
+            else:
+              await ctx.send('偵測到溢傷，請改報其他週目!')
           else:
             await ctx.send('發生錯誤，五階段報刀請填寫可選參數[預估傷害]，單位為萬!')
         else:
