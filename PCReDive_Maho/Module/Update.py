@@ -49,12 +49,12 @@ async def UpdateEmbed(connection, message, server_id, group_serial): # 更新刀
       # 刀表部分，從當前週目開始印
       index_boss = now_boss # 僅第一個週目由此王開始
       for i in range(now_week, now_week + week_offset + 1):
-        weel_stage = Module.week_stage.week_stage(i)
+        week_stage = Module.week_stage.week_stage(i)
         week_msg = ''
         for j in range(index_boss,6):  
           kinfe_msg = ''
           if i < now_boss_week[j-1]: # 如果王的週目小於主週目(王死)則不顯示報刀資訊
-            title_msg = '**'+ str(j) + '**王(**0**/**' + str(Module.define_value.BOSS_HP[weel_stage][j-1]) +'**)\n'
+            title_msg = '**'+ str(j) + '**王(**0**/**' + str(Module.define_value.BOSS_HP[week_stage][j-1]) +'**)\n'
             kinfe_msg = '　(已討伐)\n'
           else:
             # 刀表SQL
@@ -100,7 +100,7 @@ async def UpdateEmbed(connection, message, server_id, group_serial): # 更新刀
               index = index +1
               row = cursor.fetchone()
             cursor.close()
-            title_msg = '**'+ str(j) + '**王(**' + str(Module.define_value.BOSS_HP[weel_stage][j-1] - estimated_sum_damage) + '**/**' + str(Module.define_value.BOSS_HP[weel_stage][j-1]) +'**)\n'
+            title_msg = '**'+ str(j) + '**王(**' + str(Module.define_value.BOSS_HP[week_stage][j-1] - estimated_sum_damage) + '**/**' + str(Module.define_value.BOSS_HP[week_stage][j-1]) +'**)\n'
           week_msg = week_msg + title_msg + kinfe_msg
         index_boss = 1
         embed_msg.add_field(name='\u200b', value='-   -   -   -   -   -   -   -   ', inline=False)
@@ -182,12 +182,12 @@ async def UpdateTraditional(connection, message, server_id, group_serial): # 更
       index_boss = now_boss # 僅第一個週目由此王開始
       for i in range(now_week, now_week + week_offset + 1):
         week_msg = ''
-        weel_stage = Module.week_stage.week_stage(i)
+        week_stage = Module.week_stage.week_stage(i)
         for j in range(index_boss,6):
           title_msg = ''
           knife_msg = ''
           if i < now_boss_week[j-1]: # 如果王的週目小於主週目(死了)則不顯示
-            title_msg = ' ' + str(j) + '王(0/' + str(Module.define_value.BOSS_HP[weel_stage][j-1]) + ')\n'
+            title_msg = ' ' + str(j) + '王(0/' + str(Module.define_value.BOSS_HP[week_stage][j-1]) + ')\n'
             knife_msg = '　(已討伐)\n'
           else:
             # 刀表SQL
@@ -231,7 +231,7 @@ async def UpdateTraditional(connection, message, server_id, group_serial): # 更
               row = cursor.fetchone()
               index = index +1
             cursor.close()
-            title_msg = ' ' + str(j) + '王(' + str(Module.define_value.BOSS_HP[weel_stage][j-1] - estimated_sum_damage) + '/' + str(Module.define_value.BOSS_HP[weel_stage][j-1]) + ')\n'
+            title_msg = ' ' + str(j) + '王(' + str(Module.define_value.BOSS_HP[week_stage][j-1] - estimated_sum_damage) + '/' + str(Module.define_value.BOSS_HP[week_stage][j-1]) + ')\n'
           
           week_msg = week_msg + title_msg + knife_msg  
         index_boss = 1
