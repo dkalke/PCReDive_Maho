@@ -103,6 +103,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Event\SlashCommand\General\keep_proposal.py" />
+    <Compile Include="Event\SlashCommand\General\previous_boss.py" />
     <Compile Include="Event\SlashCommand\General\next_boss.py">
       <SubType>Code</SubType>
     </Compile>

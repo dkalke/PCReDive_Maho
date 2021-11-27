@@ -39,6 +39,7 @@ import Event.SlashCommand.General.cancel_keep_proposal
 import Event.SlashCommand.General.cancel_proposal
 import Event.SlashCommand.General.keep_proposal
 import Event.SlashCommand.General.next_boss
+import Event.SlashCommand.General.previous_boss
 import Event.SlashCommand.General.now_progeass
 import Event.SlashCommand.General.proposal_knife
 import Event.SlashCommand.General.use_keep_proposal

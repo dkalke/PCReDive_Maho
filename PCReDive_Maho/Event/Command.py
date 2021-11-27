@@ -645,6 +645,73 @@ async def on_message(message):
         else:
           await message.channel.send('!下面一位 格式錯誤，應為 !下面一位 [boss]')
 
+      #!反悔 [boss]
+      elif tokens[0] == '!反悔' or tokens[0] == '!反悔' or tokens[0] == '!cn':
+        if len(tokens) == 2:
+          if tokens[1].isdigit():
+            boss = int(tokens[1])
+            if boss > 0 and boss < 6:
+              connection = await Module.DB_control.OpenConnection(message)
+              if connection:
+                cursor = connection.cursor(prepared=True)
+                sql = "SELECT now_week, now_week_1, now_week_2, now_week_3, now_week_4, now_week_5, boss_change_1, boss_change_2, boss_change_3, boss_change_4, boss_change_5, group_serial FROM princess_connect.group WHERE server_id = ? and sign_channel_id = ? order by group_serial limit 0, 1"
+                data = (message.guild.id, message.channel.id)
+                cursor.execute(sql, data) # 認證身分
+                row = cursor.fetchone()
+                cursor.close()
+                if row:
+                  # CD檢查
+                  main_week = row[0]
+                  now_week=[row[1], row[2], row[3], row[4], row[5]]
+                  boss_change = [row[6], row[7], row[8], row[9], row[10]]
+                  group_serial = row[11]
+      
+                  # UTC+0   UTC+8   =>   UTC+8 
+                  if boss_change[boss-1] <= message.created_at + datetime.timedelta(hours = 8):
+                    if message.created_at + datetime.timedelta(hours = 8) <= boss_change[boss-1] + datetime.timedelta(seconds = Module.define_value.NCD_TIME): 
+                      # 更新該王週目與主週目
+                      # 注意，為避免濫用此功能，使用/cn後，會將/n的時間加上60秒，可達到以下效果
+                      # 1. 避免/n /cn 重複來回使用
+                      # 2. 避免60秒內 連續使用/cn
+                      # 3. 僅能使用/cn回退一個週目
+                      now_week[boss-1] = now_week[boss-1]-1
+                      new_main_week = min(now_week)
+                      cursor = connection.cursor(prepared=True)
+                      sql = ""
+                      if boss==1:
+                        sql = "UPDATE princess_connect.group SET now_week_1=?, now_week=?, boss_change_1=?  WHERE server_id = ? and sign_channel_id = ?"
+                      elif boss==2:
+                        sql = "UPDATE princess_connect.group SET now_week_2=?, now_week=?, boss_change_2=? WHERE server_id = ? and sign_channel_id = ?"
+                      elif boss==3:
+                        sql = "UPDATE princess_connect.group SET now_week_3=?, now_week=?, boss_change_3=? WHERE server_id = ? and sign_channel_id = ?"
+                      elif boss==4:
+                        sql = "UPDATE princess_connect.group SET now_week_4=?, now_week=?, boss_change_4=? WHERE server_id = ? and sign_channel_id = ?"
+                      elif boss==5:
+                        sql = "UPDATE princess_connect.group SET now_week_5=?, now_week=?, boss_change_5=? WHERE server_id = ? and sign_channel_id = ?"
+                      data = (now_week[boss-1], new_main_week, (boss_change[boss-1] + datetime.timedelta(seconds = Module.define_value.NCD_TIME)).strftime("%Y-%m-%d %H:%M:%S"), message.guild.id, message.channel.id)
+                      cursor.execute(sql, data)
+                      cursor.close
+                      connection.commit()
+
+                      await message.channel.send(str(boss) + '王已退回' + str(now_week[boss-1]) + '週目，請務必提醒受影響成員，以免成員誤入!')
+                      Module.Offset_manager.AutoOffset(connection, message.guild.id, group_serial) # 自動周目控制
+                      await Module.Update.Update(message, message.guild.id, group_serial) # 更新刀表
+                    else:
+                      await message.channel.send(str(boss) + '王已超過可反悔時間，請聯繫控刀手!\n/n下次可用時間:' + str(boss_change[boss-1] + datetime.timedelta(seconds = Module.define_value.NCD_TIME + Module.define_value.CD_TIME )) + '。' )
+                  else:
+                    await message.channel.send('只能反悔一週，如有需要請聯繫控刀手!')
+
+                else:
+                  pass #非指定頻道 不反應
+
+                await Module.DB_control.CloseConnection(connection, message)
+            else:
+              await message.channel.send('王只能是包含1~5的正整數!')
+          else:
+            await message.channel.send('請輸入數字!')
+        else:
+          await message.channel.send('!反悔 格式錯誤，應為 !反悔 [boss]')
+
       #!偏好時段 [時段]
       elif tokens[0] == '!偏好時段' or tokens[0] == '!偏好时段' or tokens[0] == '!pt':
         connection = await Module.DB_control.OpenConnection(message)
