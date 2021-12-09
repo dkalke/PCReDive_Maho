@@ -6,6 +6,7 @@ import Module.check_week
 import Module.check_boss
 import Module.Update
 
+# 20211209棄用
 # !移動 [週目] [幾王] [第幾刀] 到 [週目] [幾王]
 @Discord_client.slash.subcommand( base="controller", 
                                   name="move_knife", 
