@@ -9,7 +9,7 @@ import Module.show_knifes
 import Module.define_value
 import Module.week_stage
 
-#!取消保留刀 [第幾刀]
+#!反悔 [boss]
 @Discord_client.slash.slash( 
               name="cn" ,
               description="打錯啦，" + str(Module.define_value.NCD_TIME) +"秒內可回到上一週目!",
