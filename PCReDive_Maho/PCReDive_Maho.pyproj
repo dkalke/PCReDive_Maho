@@ -138,6 +138,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Module\full_string_to_half_and_lower.py" />
+    <Compile Include="Module\get_closest_end_time.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Module\info_update.py" />
     <Compile Include="Module\Offset_manager.py">
       <SubType>Code</SubType>
