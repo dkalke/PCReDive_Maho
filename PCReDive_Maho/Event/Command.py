@@ -284,42 +284,67 @@ async def on_message(message):
           cursor.close
           if row:
             group_serial = row[7]
-            if len(tokens) == 4:
-              if tokens[1].isdigit() and tokens[2].isdigit() and tokens[3].isdigit():
+            # 檢測預估傷害格式
+            token_5_pass_flag = True
+            estimated_damage = 0
+            if len(tokens) == 5:
+              token_5_pass_flag = False
+              if tokens[4].isdigit():
+                token_5_pass_flag = True
+                estimated_damage = int(tokens[4])
+
+
+            if len(tokens) == 4 or len(tokens) == 5 :
+              if tokens[1].isdigit() and tokens[2].isdigit() and token_5_pass_flag:
                 index = int(tokens[1]) # TODO check index 不可為負數
                 week = int(tokens[2])
                 boss = int(tokens[3])
                 if Module.check_week.Check_week((row[0], row[6]), week):
                   if Module.check_boss.Check_boss((row[1], row[2], row[3], row[4], row[5]),week, boss):  
-                    cursor = connection.cursor(prepared=True)
-                    sql = "SELECT serial_number, member_id, comment from princess_connect.keep_knifes where server_id=? and group_serial=? order by serial_number limit ?,1"
-                    data = (message.guild.id, group_serial, index-1)
-                    cursor.execute(sql, data)
-                    row = cursor.fetchone()
-                    cursor.close()
-                    if row:
-                      if message.author.id == row[1]:
-                        # 新增刀
+                    if not (Module.week_stage.week_stage(week) == 4 and estimated_damage == 0):
+                      # 檢查溢傷
+                      sql = "SELECT SUM(estimated_damage) from knifes WHERE server_id = ? and group_serial = ? and week = ? and boss = ?"
+                      data = (message.guild.id, group_serial, week, boss)
+                      cursor.execute(sql, data)
+                      row = cursor.fetchone()
+                      cursor.close
+                      sum_estimated_damage = 0
+                      if row[0]:
+                        sum_estimated_damage = int(row[0])
+                      if (Module.define_value.BOSS_HP[Module.week_stage.week_stage(week)][boss-1] - sum_estimated_damage) > 0:
                         cursor = connection.cursor(prepared=True)
-                        sql = "INSERT INTO princess_connect.knifes (server_id, group_serial, week, boss, member_id, comment, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?)"
-                        data = (message.guild.id, group_serial, week, boss, row[1], row[2] ,datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+                        sql = "SELECT serial_number, member_id, comment from princess_connect.keep_knifes where server_id=? and group_serial=? order by serial_number limit ?,1"
+                        data = (message.guild.id, group_serial, index-1)
                         cursor.execute(sql, data)
-                        cursor.close
-
-                        # 刪除刀
-                        cursor = connection.cursor(prepared=True)
-                        sql = "DELETE from princess_connect.keep_knifes where serial_number=?"
-                        data = (row[0],)
-                        cursor.execute(sql, data)
+                        row = cursor.fetchone()
                         cursor.close()
+                        if row:
+                          if message.author.id == row[1]:
+                            # 新增刀
+                            cursor = connection.cursor(prepared=True)
+                            sql = "INSERT INTO princess_connect.knifes (server_id, group_serial, week, boss, member_id, comment, timestamp, estimated_damage) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+                            data = (message.guild.id, group_serial, week, boss, row[1], row[2] ,datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), estimated_damage)
+                            cursor.execute(sql, data)
+                            cursor.close
 
-                        connection.commit()
-                        await message.channel.send('第' + str(week) + '週目' + str(boss) + '王，備註:' + row[2] + '，報刀成功!')
-                        await Module.Update.Update(message, message.guild.id, group_serial) # 更新刀表
+                            # 刪除刀
+                            cursor = connection.cursor(prepared=True)
+                            sql = "DELETE from princess_connect.keep_knifes where serial_number=?"
+                            data = (row[0],)
+                            cursor.execute(sql, data)
+                            cursor.close()
+
+                            connection.commit()
+                            await message.channel.send('第' + str(week) + '週目' + str(boss) + '王，備註:' + row[2] + '，報刀成功!')
+                            await Module.Update.Update(message, message.guild.id, group_serial) # 更新刀表
+                          else:
+                            await message.channel.send('您並非該刀主人喔!')
+                        else:
+                          await message.channel.send('該刀不存在喔!')   
                       else:
-                        await message.channel.send('您並非該刀主人喔!')
+                        await message.channel.send('偵測到溢傷，請改報其他週目!')
                     else:
-                      await message.channel.send('該刀不存在喔!')   
+                      await message.channel.send('發生錯誤，五階段使用保留刀格式為: !ukp [序號] [週目] [boss] [預估傷害(萬)]')
                   else:
                     await message.channel.send('該王不存在喔!')
                 else:
@@ -327,7 +352,7 @@ async def on_message(message):
               else:
                 await message.channel.send('[第幾刀] [週目] [boss]請使用阿拉伯數字!')
             else:
-              await message.channel.send('!使用保留刀 格式錯誤，應為 !使用保留刀 [第幾刀] [週目] [boss]')
+              await message.channel.send('!使用保留刀 格式錯誤，應為:\n 1~4階段: !使用保留刀 [第幾刀] [週目] [boss]\n5階段: !使用保留刀 [第幾刀] [週目] [boss] [預估傷害]')
           else:
             pass #非指定頻道 不反應
           await Module.DB_control.CloseConnection(connection, message)
