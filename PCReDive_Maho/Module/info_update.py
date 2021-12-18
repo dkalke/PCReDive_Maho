@@ -5,6 +5,7 @@ import Discord_client
 import Name_manager
 import Module.DB_control
 import Module.define_value
+import Module.get_closest_end_time
 
 async def info_update(message ,server_id, group_serial):
   # 取得資訊訊息物件
@@ -61,13 +62,15 @@ async def info_update(message ,server_id, group_serial):
           else:
             day_name = '(等待下月戰隊戰日期公佈中)'
 
+          closest_end_time = Module.get_closest_end_time.get_closest_day_end(date_now) # 取得當日結束時間 29點00分
+
           embed_msg = Embed(title='第' + str(group_serial) + '戰隊資訊', description=day_name ,color=0xD98B99)
 
 
 
           # 列出序號、成員名稱、剩餘刀數、出刀偏好
           cursor = connection.cursor(prepared=True)
-          sql = "SELECT member_id, knifes, period FROM princess_connect.members WHERE server_id = ? and group_serial = ?"
+          sql = "SELECT member_id, knifes, period, last_sl_time FROM princess_connect.members WHERE server_id = ? and group_serial = ?"
           data = (server_id, group_serial)
           cursor.execute(sql, data)
           row = cursor.fetchone()
@@ -77,6 +80,10 @@ async def info_update(message ,server_id, group_serial):
             member_id=row[0]
             knifes=row[1]
             period=row[2]
+            # 是否有SL?
+            sl_condition = ':ballot_box_with_check: '
+            if row[3] >= closest_end_time:
+              sl_condition = ':negative_squared_cross_mark: '
 
             if period == Module.define_value.Period.UNKNOW.value:
               period = '不定'
@@ -110,7 +117,7 @@ async def info_update(message ,server_id, group_serial):
                   done_knifes = done_knifes + 0.5
                 in_row = cursor2.fetchone()
               cursor2.close
-              knifes_msg = '持有' + str(knifes) + '刀，剩餘' + '{:g}'.format(knifes - done_knifes) + '刀，'
+              knifes_msg = sl_condition + '持有' + str(knifes) + '刀，剩餘' + '{:g}'.format(knifes - done_knifes) + '刀，'
 
 
             member_name = await Name_manager.get_nick_name(message, member_id)

@@ -2,10 +2,12 @@
 # 新增資料庫 table:members
 # server_id、member_id、group_serial、knifes(該帳號一天有幾刀)、period(偏好時段)
 
+import datetime
 import Discord_client
 from discord_slash.utils.manage_commands import create_option
 import Module.DB_control
 import Module.Authentication
+import Module.define_value
 import Module.info_update
 
 @Discord_client.slash.subcommand( base="captain",
@@ -40,8 +42,8 @@ async def add_captain(ctx, member):
       if not row:
         # 寫入成員名單
         cursor = connection.cursor(prepared=True)
-        sql = "INSERT INTO princess_connect.members (server_id, group_serial, member_id, knifes, period) VALUES (?, ?, ?, ?, ?)"
-        data = (ctx.guild.id, group_serial, member.id, 3, Module.info_update.Period.UNKNOW.value) # 預設三刀
+        sql = "INSERT INTO princess_connect.members (server_id, group_serial, member_id, knifes, period, last_sl_time) VALUES (?, ?, ?, ?, ?, ?)"
+        data = (ctx.guild.id, group_serial, member.id, 3, Module.define_value.Period.UNKNOW.value, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) # 預設三刀
         cursor.execute(sql, data)
         cursor.close
         connection.commit() # 資料庫存檔

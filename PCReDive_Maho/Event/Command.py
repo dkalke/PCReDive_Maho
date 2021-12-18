@@ -17,6 +17,7 @@ import Module.check_week
 import Module.check_boss
 import Module.full_string_to_half_and_lower
 import Module.define_value
+import Module.get_closest_end_time
 
 
 def checktime(number): # 檢查是不是合法的時間
@@ -776,6 +777,46 @@ async def on_message(message):
           else:
             await message.channel.send('這裡不是報刀頻道喔，請在所屬戰隊報刀頻道使用!')
           await Module.DB_control.CloseConnection(connection, message)
+
+      #!閃退
+      elif tokens[0] == '!閃退' or tokens[0] == '!闪退' or tokens[0] == '!sl':
+        connection = await Module.DB_control.OpenConnection(message)
+        if connection:
+          cursor = connection.cursor(prepared=True)
+          sql = "SELECT group_serial FROM princess_connect.group WHERE server_id = ? and sign_channel_id = ? order by group_serial limit 0, 1"
+          data = (message.guild.id, message.channel.id)
+          cursor.execute(sql, data) # 認證身分
+          row = cursor.fetchone()
+          cursor.close
+          if row:
+            group_serial = row[0]
+
+            # 檢查使否屬於該戰隊
+            cursor = connection.cursor(prepared=True)
+            sql = "select last_sl_time from princess_connect.members WHERE server_id = ? and group_serial = ? and member_id = ? limit 0,1"
+            data = (message.guild.id, group_serial, message.author.id)
+            cursor.execute(sql, data)
+            row = cursor.fetchone()
+            if row:
+              # 修改SL時間
+              closest_end_time = Module.get_closest_end_time.get_closest_day_end(datetime.datetime.now())
+              if row[0] < closest_end_time:
+                cursor = connection.cursor(prepared=True)
+                sql = "update princess_connect.members SET last_sl_time=? WHERE server_id = ? and group_serial = ? and member_id = ?"
+                data = (closest_end_time, message.guild.id, group_serial, message.author.id)
+                cursor.execute(sql, data)
+                connection.commit()
+                await message.channel.send('紀錄完成!')
+                await Module.info_update.info_update(message ,message.guild.id, group_serial)
+              else:
+                await message.channel.send('注意，今日已使用過SL，請勿退出遊戲!')
+            else:
+              await message.channel.send('您不屬於第' + str(group_serial) + '戰隊喔!')
+          else:
+            await message.channel.send('這裡不是報刀頻道喔，請在所屬戰隊報刀頻道使用!')
+          await Module.DB_control.CloseConnection(connection, message)
+
+         
 
 
       # --------------------------------------------------------------------所有頻道，所有人皆可使用------------------------------------------------------------------------------------------------------          
