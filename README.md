@@ -13,6 +13,7 @@ https://discord.com/oauth2/authorize?client_id=806421470368104449&scope=bot
   - discord.py (1.7.3)
   - discord-py-slash-command (2.3.1)
   - dblpy (0.4.0)
+  - apscheduler (3.8.1)
 - MariaDB 10.1.48  
 可利用[script](https://github.com/dkalke/PCReDive_Maho/blob/master/PCReDive_Maho/init-files/priceseDB.sql)產生依賴資料表
 
