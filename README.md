@@ -9,6 +9,7 @@ https://discord.com/oauth2/authorize?client_id=806421470368104449&scope=bot
 ## 部屬
 ### 環境
 - python 3.6.9
+  - python-dotenv 0.19.2
   - mysql-connector-python (8.0.24)
   - discord.py (1.7.3)
   - discord-py-slash-command (2.3.1)
