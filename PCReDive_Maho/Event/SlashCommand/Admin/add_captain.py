@@ -33,25 +33,30 @@ async def add_captain(ctx, group_serial, member):
       if connection:
         # 尋找戰隊有無存在
         row = Module.Authentication.IsExistGroup(ctx,connection, ctx.guild.id, group_serial)
+        cursor = connection.cursor(prepared=True)
         if row: 
-          # 檢查成員有無再其他戰隊當隊長
-          cursor = connection.cursor(prepared=True)
-          sql = "SELECT * FROM princess_connect.group_captain WHERE server_id=? and member_id=? LIMIT 0, 1"
-          data = (ctx.guild.id, member.id)
+          user_db_id = None
+          # 檢查成員使否位於該戰隊成員表內，若無則新增
+          sql = "SELECT serial_number FROM princess_connect.members WHERE server_id=? and group_serial = ? and member_id=? LIMIT 0, 1"
+          data = (ctx.guild.id, group_serial, member.id)
           cursor.execute(sql, data)
           row = cursor.fetchone()
-          cursor.close
           if not row:
-            # 寫入隊長名單
-            cursor = connection.cursor(prepared=True)
-            sql = "INSERT INTO princess_connect.group_captain (server_id, group_serial, member_id) VALUES (?, ?, ?)"
+            sql = "INSERT INTO princess_connect.members (server_id, group_serial, member_id) VALUES (?, ?, ?) RETURNING serial_number"
             data = (ctx.guild.id, group_serial, member.id)
             cursor.execute(sql, data)
-            cursor.close
-            connection.commit() # 資料庫存檔
-            await ctx.send( member.name + ' 已為第' + str(group_serial) + '戰隊隊長。')
+            row = cursor.fetchone()
+            user_db_id = row[0]
           else:
-            await ctx.send('新增失敗， ' + member.name + ' 已為其他戰隊隊長。')
+            user_db_id = row[0]
+
+          # 啟用隊長權限
+          sql = "UPDATE princess_connect.members SET is_captain = '1' where serial_number = ?"
+          data = (user_db_id, )
+          cursor.execute(sql, data)
+          cursor.close
+          connection.commit() # 資料庫存檔
+          await ctx.send( member.name + ' 已為第' + str(group_serial) + '戰隊隊長。')
         else:
           await ctx.send('第' + str(group_serial) + '戰隊不存在!')    
         await Module.DB_control.CloseConnection(connection, ctx)

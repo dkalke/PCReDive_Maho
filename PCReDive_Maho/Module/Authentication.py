@@ -7,7 +7,7 @@ async def IsAdmin(message, command):
 
 async def IsCaptain(message, command, connection, server_id, member_id):
   cursor = connection.cursor(prepared=True)
-  sql = "SELECT group_serial FROM princess_connect.group_captain WHERE server_id = ? and member_id = ?  LIMIT 0, 1"
+  sql = "SELECT group_serial FROM princess_connect.members WHERE server_id = ? and member_id = ? and is_captain = '1' LIMIT 0, 1"
   data = (server_id, member_id)
   cursor.execute(sql, data)
   row = cursor.fetchone()

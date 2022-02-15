@@ -49,15 +49,6 @@ CREATE TABLE IF NOT EXISTS `group` (
 
 -- 取消選取資料匯出。
 
--- 傾印  資料表 princess_connect.group_captain 結構
-CREATE TABLE IF NOT EXISTS `group_captain` (
-  `server_id` bigint(20) unsigned NOT NULL DEFAULT 0,
-  `group_serial` int(10) unsigned NOT NULL DEFAULT 0,
-  `member_id` bigint(20) unsigned NOT NULL DEFAULT 0
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='戰隊隊長';
-
--- 取消選取資料匯出。
-
 -- 傾印  資料表 princess_connect.keep_knifes 結構
 CREATE TABLE IF NOT EXISTS `keep_knifes` (
   `serial_number` int(11) unsigned NOT NULL AUTO_INCREMENT,
@@ -89,15 +80,31 @@ CREATE TABLE IF NOT EXISTS `knifes` (
 
 -- 取消選取資料匯出。
 
+-- 傾印  資料表 princess_connect.knife_summary 結構
+CREATE TABLE IF NOT EXISTS `knife_summary` (
+  `serial_number` int(11) NOT NULL,
+  `normal` int(11) DEFAULT 3,
+  `reserved` int(11) DEFAULT 3,
+  PRIMARY KEY (`serial_number`),
+  CONSTRAINT `123` FOREIGN KEY (`serial_number`) REFERENCES `members` (`serial_number`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='統計刀表';
+
+-- 取消選取資料匯出。
+
 -- 傾印  資料表 princess_connect.members 結構
 CREATE TABLE IF NOT EXISTS `members` (
+  `serial_number` int(11) NOT NULL AUTO_INCREMENT,
   `server_id` bigint(20) unsigned NOT NULL,
+  `group_serial` int(11) DEFAULT NULL,
   `member_id` bigint(20) NOT NULL,
-  `group_serial` bigint(20) unsigned NOT NULL,
-  `knifes` tinyint(3) unsigned NOT NULL DEFAULT 0,
+  `sockpuppet` int(11) NOT NULL DEFAULT 0,
   `period` tinyint(3) unsigned NOT NULL DEFAULT 0,
-  PRIMARY KEY (`server_id`,`member_id`,`group_serial`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  `knifes` tinyint(3) unsigned NOT NULL DEFAULT 0,
+  `is_captain` tinyint(3) unsigned NOT NULL DEFAULT 0,
+  PRIMARY KEY (`serial_number`),
+  KEY `FK_members_group` (`server_id`,`group_serial`),
+  CONSTRAINT `FK_members_group` FOREIGN KEY (`server_id`, `group_serial`) REFERENCES `group` (`server_id`, `group_serial`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4;
 
 -- 取消選取資料匯出。
 

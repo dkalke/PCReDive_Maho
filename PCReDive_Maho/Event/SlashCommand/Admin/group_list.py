@@ -108,7 +108,7 @@ async def group_list(ctx):
           # 找出戰隊隊長
           captain_msg = ''
           cursor2 = connection2.cursor(prepared=True)
-          sql = "SELECT member_id FROM princess_connect.group_captain WHERE server_id = ? and group_serial = ?"
+          sql = "SELECT member_id FROM princess_connect.members WHERE server_id = ? and group_serial = ? and is_captain = '1'"
           data = (server_id,group_serial)
           cursor2.execute(sql, data)
           inner_row = cursor2.fetchone()

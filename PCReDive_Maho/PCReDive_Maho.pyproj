@@ -11,6 +11,10 @@
     <OutputPath>.</OutputPath>
     <Name>PCReDive_Maho</Name>
     <RootNamespace>PCReDive_Maho</RootNamespace>
+    <InterpreterId>CondaEnv|CondaEnv|New_Maho</InterpreterId>
+    <IsWindowsApplication>False</IsWindowsApplication>
+    <LaunchProvider>Standard Python launcher</LaunchProvider>
+    <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -174,6 +178,11 @@
     <Folder Include="Event\SlashCommand\Captain\" />
     <Folder Include="Event\SlashCommand\General\" />
     <Folder Include="Module\" />
+  </ItemGroup>
+  <ItemGroup>
+    <InterpreterReference Include="CondaEnv|CondaEnv|maho" />
+    <InterpreterReference Include="CondaEnv|CondaEnv|New_Maho" />
+    <InterpreterReference Include="Global|PythonCore|3.9" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in

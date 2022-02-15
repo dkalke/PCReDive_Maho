@@ -24,41 +24,13 @@ async def delete_group(ctx, group_serial):
       connection = await Module.DB_control.OpenConnection(ctx)
       if connection:
         row = Module.Authentication.IsExistGroup(ctx ,connection, ctx.guild.id, group_serial)
-        if row: # 找到該戰隊資料，刪除之!
-          # 刪除保留刀表
-          cursor = connection.cursor(prepared=True)
-          sql = "DELETE FROM princess_connect.keep_knifes WHERE server_id = ? and group_serial = ?"
-          data = (ctx.guild.id, group_serial)
-          cursor.execute(sql, data)
-          cursor.close
-
-          # 刪除刀表
-          cursor = connection.cursor(prepared=True)
-          sql = "DELETE FROM princess_connect.knifes WHERE server_id = ? and group_serial = ?"
-          data = (ctx.guild.id, group_serial)
-          cursor.execute(sql, data) 
-          cursor.close
-          
-          # 刪除隊長
-          cursor = connection.cursor(prepared=True)
-          sql = "DELETE FROM princess_connect.group_captain WHERE server_id = ? and group_serial = ?"
-          data = (ctx.guild.id, group_serial)
-          cursor.execute(sql, data)       
-
-          # 刪除成員
-          cursor = connection.cursor(prepared=True)
-          sql = "DELETE FROM princess_connect.members WHERE server_id = ? and group_serial = ?"
-          data = (ctx.guild.id, group_serial)
-          cursor.execute(sql, data) 
-          cursor.close
-
+        if row: # 找到該戰隊資料，刪除之! (設有外鍵關聯，其餘相關資料將一併並刪除)
           # 刪除戰隊
           cursor = connection.cursor(prepared=True)
           sql = "DELETE FROM princess_connect.group WHERE server_id = ? and group_serial = ?"
           data = (ctx.guild.id, group_serial)
           cursor.execute(sql, data) 
           cursor.close
-
           connection.commit() # 資料庫存檔
           await ctx.send('已刪除第' + str(group_serial) + '戰隊!')
         else: 

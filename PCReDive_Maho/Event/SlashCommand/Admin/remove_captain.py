@@ -31,27 +31,17 @@ async def delete_group(ctx, group_serial, member):
     if await Module.Authentication.IsAdmin(ctx ,'/remove_captain'):
       connection = await Module.DB_control.OpenConnection(ctx)
       if connection:
+        cursor = connection.cursor(prepared=True)
         # 尋找戰隊有無存在
         row = Module.Authentication.IsExistGroup(ctx,connection, ctx.guild.id, group_serial)
         if row: 
-          # 檢查成員是否為該戰隊隊長
-          cursor = connection.cursor(prepared=True)
-          sql = "SELECT * FROM princess_connect.group_captain WHERE server_id=? and group_serial=? and member_id=? LIMIT 0, 1"
+          # 停用隊長權限
+          sql = "UPDATE princess_connect.members SET is_captain = '0' where server_id = ? and group_serial = ? and member_id = ?"
           data = (ctx.guild.id, group_serial, member.id)
           cursor.execute(sql, data)
-          row = cursor.fetchone()
           cursor.close
-          if row:
-            # 刪除隊長名單
-            cursor = connection.cursor(prepared=True)
-            sql = "DELETE FROM princess_connect.group_captain WHERE server_id=? and group_serial=? and member_id=?"
-            data = (ctx.guild.id, group_serial, member.id)
-            cursor.execute(sql, data)
-            cursor.close
-            connection.commit() # 資料庫存檔
-            await ctx.send('已移除 ' + member.name + ' 第' + str(group_serial) + '戰隊隊長身分。')
-          else:
-            await ctx.send('移除失敗， ' + member.name + ' 不具有第' + str(group_serial) + '戰隊隊長身分。')
+          connection.commit() # 資料庫存檔
+          await ctx.send('已移除 ' + member.name + ' 第' + str(group_serial) + '戰隊隊長身分。')
         else:
           await ctx.send('第' + str(group_serial) + '戰隊不存在!')    
         await Module.DB_control.CloseConnection(connection, ctx)
