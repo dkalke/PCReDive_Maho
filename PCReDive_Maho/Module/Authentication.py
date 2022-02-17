@@ -15,7 +15,7 @@ async def IsCaptain(message, command, connection, server_id, member_id):
   if row:
     return row
   else:
-    await message.channel.send(command+ ' 您的權限不足!')
+    await message.send(command+ ' 您的權限不足!')
 
 async def IsController(message, command, connection, server_id):
   group_serial = 0
@@ -60,3 +60,26 @@ def IsExistGroup(message, connection, server_id, group_serial):
   row = cursor.fetchone()
   cursor.close
   return row
+
+
+async def IsSignChannel(message, connection, group_serial):
+  # 是否在所屬戰隊的頻道中
+  server_id = message.guild.id
+  cursor = connection.cursor(prepared=True)
+  sql = "SELECT sign_channel_id FROM princess_connect.group WHERE server_id = ? and group_serial = ? limit 0, 1"
+  data = (server_id, group_serial)
+  cursor.execute(sql, data)
+  row = cursor.fetchone()
+  cursor.close
+  if row:
+    if row[0] == None:
+      await message.send('請戰隊隊長設定報刀頻道!')
+    elif row[0] == message.channel.id:
+      return True
+    else:
+      await message.send('請在戰隊內報刀頻道使用!')
+  else:
+    await message.send('發生錯誤，該戰隊編號不存在!')
+    return False
+  
+  
