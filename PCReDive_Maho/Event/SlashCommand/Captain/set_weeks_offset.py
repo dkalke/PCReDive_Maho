@@ -57,16 +57,17 @@ async def set_weeks_offset(ctx, level1, level2, level3, level4, level5):
     row = await Module.Authentication.IsCaptain(ctx, "/captain set_weeks_offset", connection, ctx.guild.id, ctx.author.id)
     if row:
       group_serial = row[0]
-      # 寫入資料庫
-      cursor = connection.cursor(prepared=True)
-      sql = "UPDATE princess_connect.group SET week_offset_1 = ?, week_offset_2 = ?,week_offset_3 = ?,week_offset_4 = ?,week_offset_5 = ? WHERE server_id = ? and group_serial = ? "
-      data = (level1, level2, level3, level4, level5, ctx.guild.id, group_serial)
-      cursor.execute(sql, data)
-      cursor.close
-      connection.commit()
-      await ctx.send(f"第{group_serial}戰隊提前週目設置如下\n第1階段:提前{level1}週目\n第2階段:提前{level2}週目\n第3階段:提前{level3}週目\n第4階段:提前{level4}週目\n第5階段:提前{level5}週目")
-      # 動態調整週目
-      Module.Offset_manager.AutoOffset(connection, ctx.guild.id, group_serial)
-      await Module.Update.Update(ctx, ctx.guild.id, group_serial)
+      if await Module.Authentication.IsSignChannel(ctx,connection,group_serial):
+        # 寫入資料庫
+        cursor = connection.cursor(prepared=True)
+        sql = "UPDATE princess_connect.group SET week_offset_1 = ?, week_offset_2 = ?,week_offset_3 = ?,week_offset_4 = ?,week_offset_5 = ? WHERE server_id = ? and group_serial = ? "
+        data = (level1, level2, level3, level4, level5, ctx.guild.id, group_serial)
+        cursor.execute(sql, data)
+        cursor.close
+        connection.commit()
+        await ctx.send(f"第{group_serial}戰隊提前週目設置如下\n第1階段:提前{level1}週目\n第2階段:提前{level2}週目\n第3階段:提前{level3}週目\n第4階段:提前{level4}週目\n第5階段:提前{level5}週目")
+        # 動態調整週目
+        Module.Offset_manager.AutoOffset(connection, ctx.guild.id, group_serial)
+        await Module.Update.Update(ctx, ctx.guild.id, group_serial)
 
     await Module.DB_control.CloseConnection(connection, ctx)
