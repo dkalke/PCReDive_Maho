@@ -23,8 +23,6 @@ import Event.SlashCommand.Captain.set_weeks_offset
 import Event.SlashCommand.Captain.set_info_channel_here
 import Event.SlashCommand.Captain.add_member
 import Event.SlashCommand.Captain.delete_member
-import Event.SlashCommand.Captain.set_member_knifes
-import Event.SlashCommand.Captain.set_policy
 
 
 import Event.SlashCommand.Controller.delete_keep_knife
