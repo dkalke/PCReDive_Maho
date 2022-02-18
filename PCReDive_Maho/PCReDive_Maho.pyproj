@@ -62,10 +62,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Event\SlashCommand\Captain\set_info_channel_here.py" />
-    <Compile Include="Event\SlashCommand\Captain\set_member_knifes.py" />
-    <Compile Include="Event\SlashCommand\Captain\set_policy.py">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Event\SlashCommand\Captain\set_sign_channel_here.py">
       <SubType>Code</SubType>
     </Compile>
@@ -147,6 +143,7 @@
     <Compile Include="Module\get_closest_end_time.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Module\half_string_to_full.py" />
     <Compile Include="Module\info_update.py" />
     <Compile Include="Module\Offset_manager.py">
       <SubType>Code</SubType>
