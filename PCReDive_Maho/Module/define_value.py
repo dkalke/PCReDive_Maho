@@ -1,3 +1,4 @@
+import datetime
 from enum import Enum
 
 MAX_DAMAGE = 1000000000
@@ -29,6 +30,18 @@ BOSS_HP=[\
   [1200,1400,1700,1900,2200],\
   [1900,2000,2300,2500,2700],\
   [8500,9000,9500,10000,11000]]
+
+# 戰隊戰日期
+this_year = 2022
+this_month = 1
+this_day = 27
+BATTLE_DAY=[\
+  datetime.datetime(year=this_year, month=this_month, day=this_day, hour=5, minute=0, second=0),\
+  datetime.datetime(year=this_year, month=this_month, day=this_day, hour=5, minute=0, second=0) + datetime.timedelta(days=1),\
+  datetime.datetime(year=this_year, month=this_month, day=this_day, hour=5, minute=0, second=0) + datetime.timedelta(days=2),\
+  datetime.datetime(year=this_year, month=this_month, day=this_day, hour=5, minute=0, second=0) + datetime.timedelta(days=3),\
+  datetime.datetime(year=this_year, month=this_month, day=this_day, hour=5, minute=0, second=0) + datetime.timedelta(days=4),\
+  datetime.datetime(year=this_year, month=this_month, day=this_day, hour=0, minute=0, second=0) + datetime.timedelta(days=5)]
 
 CD_TIME = 10 # !n 的冷卻時間
 NCD_TIME = 60 # !cn 的冷卻時間
