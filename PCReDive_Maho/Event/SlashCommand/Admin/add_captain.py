@@ -36,12 +36,12 @@ async def add_captain(ctx, group_serial, member):
         cursor = connection.cursor(prepared=True)
         if row: 
           user_db_id = None
-          # 檢查成員使否位於該戰隊成員表內，若無則新增
-          sql = "SELECT serial_number FROM princess_connect.members WHERE server_id=? and group_serial = ? and member_id=? LIMIT 0, 1"
-          data = (ctx.guild.id, group_serial, member.id)
+          # 檢查成員是否有在該戰隊成員表內
+          sql = "SELECT serial_number FROM princess_connect.members WHERE server_id=? and member_id=? and group_serial=?"
+          data = (ctx.guild.id, member.id, group_serial)
           cursor.execute(sql, data)
           row = cursor.fetchone()
-          if not row:
+          if row:# 若無則新增
             sql = "INSERT INTO princess_connect.members (server_id, group_serial, member_id) VALUES (?, ?, ?) RETURNING serial_number"
             data = (ctx.guild.id, group_serial, member.id)
             cursor.execute(sql, data)
@@ -50,13 +50,21 @@ async def add_captain(ctx, group_serial, member):
           else:
             user_db_id = row[0]
 
-          # 啟用隊長權限
-          sql = "UPDATE princess_connect.members SET is_captain = '1' where serial_number = ?"
-          data = (user_db_id, )
+          # 檢查是否為其他戰隊隊長
+          sql = "SELECT count(*) FROM princess_connect.members WHERE server_id=? and member_id=? and is_captain = '1'"
+          data = (ctx.guild.id, member.id)
           cursor.execute(sql, data)
-          cursor.close
-          connection.commit() # 資料庫存檔
-          await ctx.send( member.name + ' 已為第' + str(group_serial) + '戰隊隊長。')
+          row = cursor.fetchone()
+          if row[0] == 0:
+            # 啟用隊長權限
+            sql = "UPDATE princess_connect.members SET is_captain = '1' where serial_number = ?"
+            data = (user_db_id, )
+            cursor.execute(sql, data)
+            cursor.close
+            connection.commit() # 資料庫存檔
+            await ctx.send( member.name + ' 已新增為第' + str(group_serial) + '戰隊隊長。')
+          else:
+            await ctx.send( member.name + ' 目前已有戰隊隊長身分，不可重複指派。')
         else:
           await ctx.send('第' + str(group_serial) + '戰隊不存在!')    
         await Module.DB_control.CloseConnection(connection, ctx)
