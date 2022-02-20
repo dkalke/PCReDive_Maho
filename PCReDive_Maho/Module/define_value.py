@@ -33,8 +33,8 @@ BOSS_HP=[\
 
 # 戰隊戰日期
 this_year = 2022
-this_month = 1
-this_day = 27
+this_month = 2
+this_day = 24
 BATTLE_DAY=[\
   datetime.datetime(year=this_year, month=this_month, day=this_day, hour=5, minute=0, second=0),\
   datetime.datetime(year=this_year, month=this_month, day=this_day, hour=5, minute=0, second=0) + datetime.timedelta(days=1),\
