@@ -29,7 +29,7 @@ async def Update(message ,server_id, group_serial):
 async def UpdateEmbed(connection, message, server_id, group_serial): # 更新刀表
   # 查詢當前周目、王、刀表訊息、保留刀訊息
   cursor = connection.cursor(prepared=True)
-  sql = "SELECT now_week, week_offset, now_week_1, now_week_2, now_week_3, now_week_4, now_week_5, now_boss, table_channel_id, table_message_id, knife_pool_message_id FROM princess_connect.group WHERE server_id = ? and group_serial = ? LIMIT 0, 1"
+  sql = "SELECT now_week, week_offset, now_week_1, now_week_2, now_week_3, now_week_4, now_week_5, table_channel_id, table_message_id, knife_pool_message_id FROM princess_connect.group WHERE server_id = ? and group_serial = ? LIMIT 0, 1"
   data = (server_id, group_serial)
   cursor.execute(sql, data)
   row = cursor.fetchone()
@@ -38,19 +38,17 @@ async def UpdateEmbed(connection, message, server_id, group_serial): # 更新刀
     now_week = row[0]
     week_offset = row[1]
     now_boss_week = (row[2], row[3], row[4], row[5], row[6])
-    now_boss = row[7]
-    table_channel_id = row[8]
-    table_message_id = row[9]
-    knife_pool_message_id = row[10]
+    table_channel_id = row[7]
+    table_message_id = row[8]
+    knife_pool_message_id = row[9]
 
     if table_message_id:
       embed_msg = Embed(title='第' + str(group_serial) + '戰隊刀表', color=0xD98B99)
       # 刀表部分，從當前週目開始印
-      index_boss = now_boss # 僅第一個週目由此王開始
       for i in range(now_week, now_week + week_offset + 1):
         week_stage = Module.week_stage.week_stage(i)
         week_msg = ''
-        for j in range(index_boss,6):  
+        for j in range(1,6):  
           kinfe_msg = ''
           if i < now_boss_week[j-1]: # 如果王的週目小於主週目(王死)則不顯示報刀資訊
             title_msg = '**'+ str(j) + '**王(**0**/**' + str(Module.define_value.BOSS_HP[week_stage][j-1]) +'**)\n'
@@ -86,7 +84,6 @@ async def UpdateEmbed(connection, message, server_id, group_serial): # 更新刀
             cursor.close()
             title_msg = '**'+ str(j) + '**王(**' + str(Module.define_value.BOSS_HP[week_stage][j-1] - estimated_sum_damage) + '**/**' + str(Module.define_value.BOSS_HP[week_stage][j-1]) +'**)\n'
           week_msg = week_msg + title_msg + kinfe_msg
-        index_boss = 1
         embed_msg.add_field(name='\u200b', value='-   -   -   -   -   -   -   -   ', inline=False)
         embed_msg.add_field(name='第' + str(i) + '週目', value=week_msg , inline=False)
             
@@ -145,7 +142,7 @@ async def UpdateEmbed(connection, message, server_id, group_serial): # 更新刀
 async def UpdateTraditional(connection, message, server_id, group_serial): # 更新刀表
   # 查詢當前周目、王、刀表訊息、保留刀訊息
   cursor = connection.cursor(prepared=True)
-  sql = "SELECT now_week, week_offset, now_week_1, now_week_2, now_week_3, now_week_4, now_week_5, now_boss, table_channel_id, table_message_id, knife_pool_message_id FROM princess_connect.group WHERE server_id = ? and group_serial = ? LIMIT 0, 1"
+  sql = "SELECT now_week, week_offset, now_week_1, now_week_2, now_week_3, now_week_4, now_week_5, table_channel_id, table_message_id, knife_pool_message_id FROM princess_connect.group WHERE server_id = ? and group_serial = ? LIMIT 0, 1"
   data = (server_id, group_serial)
   cursor.execute(sql, data)
   row = cursor.fetchone()
@@ -154,19 +151,17 @@ async def UpdateTraditional(connection, message, server_id, group_serial): # 更
     now_week = row[0]
     week_offset = row[1]
     now_boss_week = (row[2], row[3], row[4], row[5], row[6])
-    now_boss = row[7]
-    table_channel_id = row[8]
-    table_message_id = row[9]
-    knife_pool_message_id = row[10]
+    table_channel_id = row[7]
+    table_message_id = row[8]
+    knife_pool_message_id = row[9]
 
     if table_message_id:
       # 刀表部分，從當前週目開始印
       send_msg = '```asciidoc\n'
-      index_boss = now_boss # 僅第一個週目由此王開始
       for i in range(now_week, now_week + week_offset + 1):
         week_msg = ''
         week_stage = Module.week_stage.week_stage(i)
-        for j in range(index_boss,6):
+        for j in range(1,6):
           title_msg = ''
           knife_msg = ''
           if i < now_boss_week[j-1]: # 如果王的週目小於主週目(死了)則不顯示
@@ -203,7 +198,6 @@ async def UpdateTraditional(connection, message, server_id, group_serial): # 更
             title_msg = ' ' + str(j) + '王(' + str(Module.define_value.BOSS_HP[week_stage][j-1] - estimated_sum_damage) + '/' + str(Module.define_value.BOSS_HP[week_stage][j-1]) + ')\n'
           
           week_msg = week_msg + title_msg + knife_msg  
-        index_boss = 1
         send_msg = send_msg + '第' + str(i) + '週目:\n' + week_msg    
       send_msg = send_msg + '```'
             
