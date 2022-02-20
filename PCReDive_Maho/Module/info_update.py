@@ -104,7 +104,7 @@ async def info_update(message ,server_id, group_serial):
           if msg == '':
             msg = '尚無成員資訊!'
           else:
-            msg = '（序號）　偏好　已出刀數　Ｒ　名稱\n-------------------------------------------\n' + msg + '-------------------------------------------\n'
+            msg = '（序號）　偏好　　出刀　　Ｒ　名稱\n-------------------------------------------\n' + msg + '-------------------------------------------\n'
             msg = msg + '（總計）　　　　{}正{}補'.format(Module.half_string_to_full.half_string_to_full(str(normal_total)), Module.half_string_to_full.half_string_to_full(str(reversed_total)))
 
           embed_msg.add_field(name='\u200b', value=msg , inline=False)
