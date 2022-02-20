@@ -35,15 +35,23 @@ async def delete_group(ctx, group_serial, member):
         # 尋找戰隊有無存在
         row = Module.Authentication.IsExistGroup(ctx,connection, ctx.guild.id, group_serial)
         if row: 
-          # 停用隊長權限
-          sql = "UPDATE princess_connect.members SET is_captain = '0' where server_id = ? and group_serial = ? and member_id = ?"
-          data = (ctx.guild.id, group_serial, member.id)
+          # 檢查成員是否為該戰隊隊長
+          sql = "SELECT serial_number FROM princess_connect.members WHERE server_id=? and member_id=? and group_serial=? and is_captain = '1'"
+          data = (ctx.guild.id, member.id, group_serial)
           cursor.execute(sql, data)
-          cursor.close
-          connection.commit() # 資料庫存檔
-          await ctx.send('已移除 ' + member.name + ' 第' + str(group_serial) + '戰隊隊長身分。')
+          row = cursor.fetchone()
+          if row:
+            # 停用隊長權限
+            sql = "UPDATE princess_connect.members SET is_captain = '0' where serial_number = ?"
+            data = (row[0],)
+            cursor.execute(sql, data)
+            connection.commit() # 資料庫存檔
+            await ctx.send('已移除 ' + member.name + ' 第' + str(group_serial) + '戰隊隊長身分。')
+          else:
+            await ctx.send(member.name + ' 並非第' + str(group_serial) + '戰隊隊長!')    
         else:
           await ctx.send('第' + str(group_serial) + '戰隊不存在!')    
+        cursor.close
         await Module.DB_control.CloseConnection(connection, ctx)
   else:
     await ctx.send('戰隊編號只能是正整數。')
