@@ -18,6 +18,7 @@ import Module.check_boss
 import Module.full_string_to_half_and_lower
 import Module.define_value
 import Module.get_closest_end_time
+import Module.info_update
 
 
 def checktime(number): # 檢查是不是合法的時間
@@ -815,6 +816,170 @@ async def on_message(message):
           else:
             await message.channel.send('這裡不是報刀頻道喔，請在所屬戰隊報刀頻道使用!')
           await Module.DB_control.CloseConnection(connection, message)
+
+      #!add_puppet
+      elif tokens[0] == '!add_puppet':
+        connection = await Module.DB_control.OpenConnection(message)
+        if connection:
+          cursor = connection.cursor(prepared=True)
+          sql = "SELECT now_week, now_week_1, now_week_2, now_week_3, now_week_4, now_week_5, week_offset, group_serial FROM princess_connect.group WHERE server_id = ? and sign_channel_id = ? order by group_serial limit 0, 1"
+          data = (message.guild.id, message.channel.id)
+          cursor.execute(sql, data) # 認證身分
+          row = cursor.fetchone()
+          cursor.close
+          if row:
+            group_serial = row[7]
+            if len(tokens) == 1:
+              # 檢查成員是否存, 並找出最大的puppet number
+              cursor = connection.cursor(prepared=True)
+              sql = "SELECT MAX(sockpuppet) FROM princess_connect.members WHERE server_id=? and group_serial = ? and member_id=?"
+              data = (message.guild.id, group_serial, message.author.id)
+              cursor.execute(sql, data)
+              row = cursor.fetchone()
+              cursor.close
+              if not row[0] == None:
+                # Insert 一條新的，puppet number + 1，並使其禁用
+                sockpuppet = int(row[0]) + 1
+                cursor = connection.cursor(prepared=True)
+                sql = "INSERT INTO princess_connect.members (server_id, group_serial, member_id, sockpuppet, now_using) VALUES (?, ?, ?, ?, ?)"
+                data = (message.guild.id, group_serial, message.author.id, sockpuppet, 0)
+                cursor.execute(sql, data)
+                cursor.close
+                connection.commit() # 資料庫存檔
+
+                await message.channel.send('您已取得分身{}，請使用!use {}進行切換'.format(sockpuppet, sockpuppet))
+                await Module.info_update.info_update(message ,message.guild.id, group_serial)
+              else:
+                await message.channel.send('該成員不在此戰隊中')
+            else:
+              await message.channel.send('格式錯誤，應為:\n!add_puppet')
+          else:
+            pass #非指定頻道 不反應
+          await Module.DB_control.CloseConnection(connection, message)
+
+      #!del_puppet
+      elif tokens[0] == '!del_puppet':
+        if len(tokens) == 1:
+          connection = await Module.DB_control.OpenConnection(message)
+          if connection:
+            cursor = connection.cursor(prepared=True)
+            sql = "SELECT now_week, now_week_1, now_week_2, now_week_3, now_week_4, now_week_5, week_offset, group_serial FROM princess_connect.group WHERE server_id = ? and sign_channel_id = ? order by group_serial limit 0, 1"
+            data = (message.guild.id, message.channel.id)
+            cursor.execute(sql, data) # 認證身分
+            row = cursor.fetchone()
+            cursor.close
+            if row:
+              group_serial = row[7]
+              # 檢查成員是否存, 並找出最大的puppet number
+              sql = "SELECT MAX(sockpuppet) FROM princess_connect.members WHERE server_id=? and group_serial = ? and member_id=?"
+              data = (message.guild.id, group_serial, message.author.id)
+              cursor.execute(sql, data)
+              row = cursor.fetchone()
+              cursor.close
+              if not row[0] == None:
+                sockpuppet = int(row[0])
+                if sockpuppet != 0:
+                  # Delect 最大隻的 puppet
+                  # 刪除帳務資訊
+                  sockpuppet = int(row[0])
+                  cursor = connection.cursor(prepared=True)
+                  sql = "Delete FROM princess_connect.members WHERE server_id = ? and group_serial = ? AND member_id = ? AND sockpuppet = ?"
+                  data = (message.guild.id, group_serial, message.author.id, sockpuppet)
+                  cursor.execute(sql, data)
+                  cursor.close
+
+                  # 切換帳號
+                  # 先關閉持有的所有帳號，再開啟要使用的帳號
+                  # 關閉
+                  cursor = connection.cursor(prepared=True)
+                  sql = "UPDATE princess_connect.members SET now_using = '0' WHERE server_id = ? and group_serial = ? AND member_id = ?"
+                  data = (message.guild.id, group_serial, message.author.id)
+                  cursor.execute(sql, data)
+                  cursor.close
+
+                  # 開啟本尊
+                  cursor = connection.cursor(prepared=True)
+                  sql = "UPDATE princess_connect.members SET now_using = '1' WHERE server_id = ? and group_serial = ? AND member_id = ? AND sockpuppet = '0' "
+                  data = (message.guild.id, group_serial, message.author.id)
+                  cursor.execute(sql, data)
+                  cursor.close
+
+                  connection.commit() # 資料庫存檔
+              
+                  await message.channel.send('您已刪除分身{}，為您切換至本尊'.format(sockpuppet))
+                  await Module.info_update.info_update(message ,message.guild.id, group_serial)
+                else:
+                  await message.channel.send('您已無分身')
+              else:
+                await message.channel.send('該成員不在此戰隊中')
+
+              await Module.DB_control.CloseConnection(connection, message)
+            else:
+              pass #非指定頻道 不反應
+            await Module.DB_control.CloseConnection(connection, message)
+        else:
+          await message.channel.send('格式錯誤，應為:\n!del_puppet')
+
+      #!use [分身編號]
+      elif tokens[0] == '!use':
+        if len(tokens) == 2:
+          if tokens[1].isdigit():
+            use_sockpuppet = int(tokens[1])
+            connection = await Module.DB_control.OpenConnection(message)
+            if connection:
+              cursor = connection.cursor(prepared=True)
+              sql = "SELECT now_week, now_week_1, now_week_2, now_week_3, now_week_4, now_week_5, week_offset, group_serial FROM princess_connect.group WHERE server_id = ? and sign_channel_id = ? order by group_serial limit 0, 1"
+              data = (message.guild.id, message.channel.id)
+              cursor.execute(sql, data) # 認證身分
+              row = cursor.fetchone()
+              cursor.close
+              if row:
+                group_serial = row[7]
+                # 檢查成員是否存在，並取得最大隻的分身編號
+                cursor = connection.cursor(prepared=True)
+                sql = "SELECT MAX(sockpuppet) FROM princess_connect.members WHERE server_id=? and group_serial = ? and member_id=?"
+                data = (message.guild.id, group_serial, message.author.id)
+                cursor.execute(sql, data)
+                row = cursor.fetchone()
+                cursor.close
+                if row[0] != None:
+                  max_sockpuppet = int(row[0])
+                  if 0 <= use_sockpuppet and use_sockpuppet <= max_sockpuppet:
+                    # 先關閉持有的所有帳號，再開啟要使用的帳號
+                    # 關閉
+                    cursor = connection.cursor(prepared=True)
+                    sql = "UPDATE princess_connect.members SET now_using = '0' WHERE server_id = ? and group_serial = ? AND member_id = ?"
+                    data = (message.guild.id, group_serial, message.author.id)
+                    cursor.execute(sql, data)
+                    cursor.close
+
+                    # 開啟
+                    cursor = connection.cursor(prepared=True)
+                    sql = "UPDATE princess_connect.members SET now_using = '1' WHERE server_id = ? and group_serial = ? AND member_id = ? AND sockpuppet = ? "
+                    data = (message.guild.id, group_serial, message.author.id, use_sockpuppet)
+                    cursor.execute(sql, data)
+                    cursor.close
+
+                    connection.commit() # 資料庫存檔
+              
+                    if use_sockpuppet == 0:
+                      await message.channel.send('為您切換至本尊')
+                    else:
+                      await message.channel.send('為您切換至分身{}'.format(use_sockpuppet))
+                    await Module.info_update.info_update(message ,message.guild.id, group_serial)
+                  else:
+                    await message.channel.send('你沒有這隻分身喔')
+                else:
+                  await message.channel.send('該成員不在此戰隊中')
+
+                await Module.DB_control.CloseConnection(connection, message)
+              else:
+                pass #非指定頻道 不反應
+              await Module.DB_control.CloseConnection(connection, message)
+          else:
+            await message.channel.send('[分身編號] 僅能使用阿拉伯數字')
+        else:
+          await message.channel.send('格式錯誤，應為:\n!del_puppet')
 
          
 
