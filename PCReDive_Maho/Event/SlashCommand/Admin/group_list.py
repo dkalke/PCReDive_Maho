@@ -20,7 +20,7 @@ async def group_list(ctx):
       if connection2:
         # 列出所有戰隊
         cursor = connection.cursor(prepared=True)
-        sql = "SELECT server_id, group_serial, controller_role_id, table_channel_id, sign_channel_id, policy, week_offset_1, week_offset_2, week_offset_3, week_offset_4, week_offset_5,info_channel_id FROM princess_connect.group WHERE server_id = ? order by group_serial"
+        sql = "SELECT server_id, group_serial, controller_role_id, table_channel_id, sign_channel_id, week_offset_1, week_offset_2, week_offset_3, week_offset_4, week_offset_5,info_channel_id FROM princess_connect.group WHERE server_id = ? order by group_serial"
         data = (ctx.guild.id, )
         cursor.execute(sql, data)
         row = cursor.fetchone()
@@ -34,18 +34,9 @@ async def group_list(ctx):
           controller_role_id = row[2]
           table_channel_id = row[3]
           sign_channel_id = row[4]
-          policy = row[5]
-          week_offsets = [row[6], row[7], row[8], row[9], row[10]]
-          info_channel_id = row[11]
+          week_offsets = [row[5], row[6], row[7], row[8], row[9]]
+          info_channel_id = row[10]
           
-          # 戰隊政策
-          policy_msg = ''
-          if policy == Module.define_value.Policy.YES.value:
-            policy_msg = '需回報傷害'
-          elif policy == Module.define_value.Policy.NO.value:
-            policy_msg = '不回報傷害(部分功能無法使用)'
-          else:
-            policy_msg = '[N/A]'
 
           # 提前週目設定
           week_offset_msg = \
@@ -131,7 +122,7 @@ async def group_list(ctx):
           else:
             msg_send = msg_send + '控刀手身分組:'+ controller_role_msg +'\n'
 
-          msg_send = msg_send + '戰隊政策:' + policy_msg + '\n' + '提前週目數:' + week_offset_msg + '\n'
+          msg_send = msg_send + '提前週目數:' + week_offset_msg + '\n'
 
           if table_msg == '':
             msg_send = msg_send + '刀表頻道:尚未指派!\n'
