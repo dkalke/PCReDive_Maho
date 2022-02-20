@@ -97,6 +97,7 @@
     <Compile Include="Event\SlashCommand\General\done_proposal.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Event\SlashCommand\General\set_personal_status.py" />
     <Compile Include="Event\SlashCommand\General\use_sl.py" />
     <Compile Include="Event\SlashCommand\General\help.py">
       <SubType>Code</SubType>
