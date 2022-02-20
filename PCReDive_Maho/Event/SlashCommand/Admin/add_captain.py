@@ -37,11 +37,11 @@ async def add_captain(ctx, group_serial, member):
         if row: 
           user_db_id = None
           # 檢查成員是否有在該戰隊成員表內
-          sql = "SELECT serial_number FROM princess_connect.members WHERE server_id=? and member_id=? and group_serial=?"
+          sql = "SELECT serial_number FROM princess_connect.members WHERE server_id=? and member_id=? and group_serial=? and sockpuppet='0'"
           data = (ctx.guild.id, member.id, group_serial)
           cursor.execute(sql, data)
           row = cursor.fetchone()
-          if row:# 若無則新增
+          if not row:# 若無則新增
             sql = "INSERT INTO princess_connect.members (server_id, group_serial, member_id) VALUES (?, ?, ?) RETURNING serial_number"
             data = (ctx.guild.id, group_serial, member.id)
             cursor.execute(sql, data)
