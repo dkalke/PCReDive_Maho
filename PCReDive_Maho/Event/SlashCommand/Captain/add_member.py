@@ -40,8 +40,8 @@ async def add_captain(ctx, member):
         row = cursor.fetchone()
         if not row:
           # 寫入成員名單
-          sql = "INSERT INTO princess_connect.members (server_id, group_serial, member_id, knifes, period, last_sl_time) VALUES (?, ?, ?, ?, ?, ?)"
-          data = (ctx.guild.id, group_serial, member.id, 3, Module.define_value.Period.UNKNOW.value, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) # 預設三刀
+          sql = "INSERT INTO princess_connect.members (server_id, group_serial, member_id, period, last_sl_time) VALUES (?, ?, ?, ?, ?, ?)"
+          data = (ctx.guild.id, group_serial, member.id, Module.define_value.Period.UNKNOW.value, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) # 預設三刀
           cursor.execute(sql, data)
         
           connection.commit() # 資料庫存檔
