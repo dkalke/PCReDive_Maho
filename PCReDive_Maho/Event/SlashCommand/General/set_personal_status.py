@@ -32,7 +32,7 @@ import Module.get_closest_end_time
                      ]
                  )
              ],
-             connector={"已出正刀數": "normal","剩餘補償數": "reversed"}
+             connector={"剩餘正刀數": "normal","剩餘補償數": "reversed"}
              )
 async def set_personal_status(ctx, normal, reversed):
   connection = await Module.DB_control.OpenConnection(ctx)
@@ -54,7 +54,7 @@ async def set_personal_status(ctx, normal, reversed):
         data = (row[0], Module.get_closest_end_time.get_closest_end_time(datetime.datetime.now()) - datetime.timedelta(days = 1), normal, reversed, normal, reversed)
         cursor.execute(sql, data)
         connection.commit() # 資料庫存檔
-        await ctx.send('更新完成，正刀已出:{}，補償剩餘:{}!'.format(normal, reversed))
+        await ctx.send('更新完成，正刀剩餘:{}，補償剩餘:{}!'.format(normal, reversed))
         await Module.info_update.info_update(ctx ,ctx.guild.id, group_serial)
       else:
         await ctx.send('找不到你的資料，請通知戰隊隊長協助加入戰隊名單!')

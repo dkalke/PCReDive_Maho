@@ -51,9 +51,9 @@ async def info_update(message ,server_id, group_serial):
           cursor = connection.cursor(prepared=True)
           sql = "SELECT a.serial_number, a.member_id, a.period, a.sockpuppet, a.last_sl_time, b.normal, b.reserved\
                   FROM princess_connect.members a\
-                  LEFT JOIN princess_connect.knife_summary b ON a.serial_number = b.serial_number\
+                  LEFT JOIN princess_connect.knife_summary b ON a.serial_number = b.serial_number and day = ?\
                   WHERE server_id = ?  and group_serial = ?"
-          data = (server_id, group_serial)
+          data = (start_time, server_id, group_serial)
           cursor.execute(sql, data)
           row = cursor.fetchone()
           msg = ''
@@ -72,10 +72,10 @@ async def info_update(message ,server_id, group_serial):
             if row[4] >= end_time:
               have_sl = 'N'
 
-            normal = 0
+            normal = 3
             if row[5] != None:
               normal = row[5]
-            reserved = 0
+            reserved = 3
             if row[6] != None:
               reserved = row[6]
             if period == Module.define_value.Period.UNKNOW.value:

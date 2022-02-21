@@ -18,8 +18,5 @@ async def CloseConnection(connection, message):
     connection.close
     return True
   else:
-    if not message == None:
-      await message.channel.send('連線不存在!!')
-    else:
-      print('連線不存在!!')
+    print('連線不存在!!')
     return False
