@@ -61,6 +61,7 @@
     <Compile Include="Event\SlashCommand\Captain\export_table.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Event\SlashCommand\Captain\force_set_status.py" />
     <Compile Include="Event\SlashCommand\Captain\set_info_channel_here.py" />
     <Compile Include="Event\SlashCommand\Captain\set_sign_channel_here.py">
       <SubType>Code</SubType>
@@ -97,6 +98,8 @@
     <Compile Include="Event\SlashCommand\General\done_proposal.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Event\SlashCommand\General\join.py" />
+    <Compile Include="Event\SlashCommand\General\leave.py" />
     <Compile Include="Event\SlashCommand\General\set_personal_status.py" />
     <Compile Include="Event\SlashCommand\General\use_sl.py" />
     <Compile Include="Event\SlashCommand\General\help.py">
