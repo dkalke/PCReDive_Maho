@@ -18,7 +18,7 @@ async def auto_clear():
     cursor.execute(sql)
 
     # 重設boss次序
-    sql = "UPDATE princess_connect.group SET now_week='1', now_week_1='1', now_week_2='1', now_week_3='1', now_week_4='1', now_week_5='1', now_boss='1'"
+    sql = "UPDATE princess_connect.group SET now_week='1', now_week_1='1', now_week_2='1', now_week_3='1', now_week_4='1', now_week_5='1'"
     cursor.execute(sql)
 
     connection.commit()
