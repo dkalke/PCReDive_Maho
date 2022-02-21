@@ -77,7 +77,7 @@ async def info_update(message ,server_id, group_serial):
               normal = row[5]
             reserved = 0
             if row[6] != None:
-              reserved = row[5]
+              reserved = row[6]
             if period == Module.define_value.Period.UNKNOW.value:
               period = '不定'
             elif period == Module.define_value.Period.DAY.value:
