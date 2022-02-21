@@ -14,8 +14,8 @@ import Module.get_closest_end_time
              description="出刀狀態設定",
              options= [
                  create_option(
-                     name="已出正刀數",
-                     description="本日已出刀數",
+                     name="剩餘正刀數",
+                     description="本日剩餘正刀數量",
                      option_type=4,
                      required=True,
                      choices=[
@@ -24,7 +24,7 @@ import Module.get_closest_end_time
                  ),
                  create_option(
                      name="剩餘補償數",
-                     description="本日剩餘補償數",
+                     description="本日剩餘補償數量",
                      option_type=4,
                      required=True,
                      choices=[
