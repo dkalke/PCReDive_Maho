@@ -3,6 +3,7 @@ import Discord_client
 from discord_slash.utils.manage_commands import create_option
 import Module.DB_control
 import Module.Authentication
+import Module.info_update
 
 @Discord_client.slash.subcommand( base="admin",
                                   name="add_captain" ,
@@ -63,6 +64,7 @@ async def add_captain(ctx, group_serial, member):
             cursor.close
             connection.commit() # 資料庫存檔
             await ctx.send( member.name + ' 已新增為第' + str(group_serial) + '戰隊隊長。')
+            await Module.info_update.info_update(ctx ,ctx.guild.id, group_serial)
           else:
             await ctx.send( member.name + ' 目前已有戰隊隊長身分，不可重複指派。')
         else:
