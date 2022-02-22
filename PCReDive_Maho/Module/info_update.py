@@ -75,7 +75,7 @@ async def info_update(message ,server_id, group_serial):
             normal = 3
             if row[5] != None:
               normal = row[5]
-            reserved = 3
+            reserved = 0
             if row[6] != None:
               reserved = row[6]
             if period == Module.define_value.Period.UNKNOW.value:
