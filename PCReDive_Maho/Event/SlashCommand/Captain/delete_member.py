@@ -2,6 +2,7 @@
 # 新增資料庫 table:members
 # server_id、member_id、group_serial、knifes(該帳號一天有幾刀)、period(偏好時段)
 
+import datetime
 import Discord_client
 from discord_slash.utils.manage_commands import create_option
 import Module.DB_control
@@ -34,8 +35,10 @@ async def delete_member(ctx, index):
         if await Module.Authentication.IsSignChannel(ctx,connection,group_serial):
           # 檢查成員是否已存在戰隊中
           cursor = connection.cursor(prepared=True)
-          sql = "SELECT member_id from princess_connect.members where server_id=? and group_serial=? order by member_id AND server_id limit ?,1"
-          data = (ctx.guild.id, group_serial, index-1)
+          sql = "SELECT a.member_id FROM princess_connect.members a \
+          LEFT JOIN princess_connect.knife_summary b ON a.serial_number = b.serial_number and day = ?\
+          WHERE server_id = ?  and group_serial = ? limit ?,1"
+          data = (Module.get_closest_end_time.get_closest_end_time(datetime.datetime.now()) - datetime.timedelta(days=1), ctx.guild.id, group_serial, index-1)
           cursor.execute(sql, data)
           row = cursor.fetchone()
           if row:
