@@ -74,10 +74,12 @@ async def IsSignChannel(message, connection, group_serial):
   if row:
     if row[0] == None:
       await message.send('請戰隊隊長設定報刀頻道!')
+      return False
     elif row[0] == message.channel.id:
       return True
     else:
       await message.send('請在戰隊內報刀頻道使用!')
+      return False
   else:
     await message.send('發生錯誤，該戰隊編號不存在!')
     return False
