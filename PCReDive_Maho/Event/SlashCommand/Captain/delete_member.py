@@ -35,7 +35,8 @@ async def delete_member(ctx, index):
         if await Module.Authentication.IsSignChannel(ctx,connection,group_serial):
           # 檢查成員是否已存在戰隊中
           cursor = connection.cursor(prepared=True)
-          sql = "SELECT a.member_id FROM princess_connect.members a \
+          sql = "SELECT a.serial_number, a.member_id, a.period, a.sockpuppet, a.last_sl_time, b.normal, b.reserved \
+          FROM princess_connect.members a \
           LEFT JOIN princess_connect.knife_summary b ON a.serial_number = b.serial_number and day = ?\
           WHERE server_id = ?  and group_serial = ? limit ?,1"
           data = (Module.get_closest_end_time.get_closest_end_time(datetime.datetime.now()) - datetime.timedelta(days=1), ctx.guild.id, group_serial, index-1)
@@ -43,7 +44,7 @@ async def delete_member(ctx, index):
           row = cursor.fetchone()
           if row:
             # 移除成員
-            member_id = row[0]
+            member_id = row[1]
             sql = "Delete from princess_connect.members where server_id=? and member_id=? and group_serial=?"
             data = (ctx.guild.id, member_id, group_serial)
             cursor.execute(sql, data)
