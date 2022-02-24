@@ -21,13 +21,13 @@ async def cancel_keep_proposal(ctx, index):
   connection = await Module.DB_control.OpenConnection(ctx)
   if connection:
     cursor = connection.cursor(prepared=True)
-    sql = "SELECT  now_week, now_boss, week_offset, group_serial FROM princess_connect.group WHERE server_id = ? and sign_channel_id = ? order by group_serial limit 0, 1"
+    sql = "SELECT  now_week, week_offset, group_serial FROM princess_connect.group WHERE server_id = ? and sign_channel_id = ? order by group_serial limit 0, 1"
     data = (ctx.guild.id, ctx.channel.id)
     cursor.execute(sql, data) # 認證身分
     row = cursor.fetchone()
     cursor.close
     if row:
-      group_serial = row[3]
+      group_serial = row[2]
       if index > 0:
         # 尋找要刪除刀的序號
         cursor = connection.cursor(prepared=True)

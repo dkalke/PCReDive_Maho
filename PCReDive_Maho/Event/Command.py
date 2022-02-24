@@ -364,13 +364,13 @@ async def on_message(message):
         connection = await Module.DB_control.OpenConnection(message)
         if connection:
           cursor = connection.cursor(prepared=True)
-          sql = "SELECT  now_week, now_boss, week_offset, group_serial FROM princess_connect.group WHERE server_id = ? and sign_channel_id = ? order by group_serial limit 0, 1"
+          sql = "SELECT  now_week, week_offset, group_serial FROM princess_connect.group WHERE server_id = ? and sign_channel_id = ? order by group_serial limit 0, 1"
           data = (message.guild.id, message.channel.id)
           cursor.execute(sql, data) # 認證身分
           row = cursor.fetchone()
           cursor.close
           if row:
-            group_serial = row[3]
+            group_serial = row[2]
             if len(tokens) == 2:
               if tokens[1].isdigit():
                 index = int(tokens[1]) # TODO check index 不可為負數
