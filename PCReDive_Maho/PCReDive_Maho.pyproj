@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>440c10cf-573f-4766-8806-7e1928d0d52a</ProjectGuid>
+    <ProjectGuid>47e2f354-7652-4d9b-926a-bbb8e64f3e38</ProjectGuid>
     <ProjectHome>.</ProjectHome>
     <StartupFile>PCReDive_Maho.py</StartupFile>
     <SearchPath>
@@ -11,11 +11,7 @@
     <OutputPath>.</OutputPath>
     <Name>PCReDive_Maho</Name>
     <RootNamespace>PCReDive_Maho</RootNamespace>
-    <InterpreterId>CondaEnv|CondaEnv|env</InterpreterId>
-    <IsWindowsApplication>False</IsWindowsApplication>
-    <LaunchProvider>Standard Python launcher</LaunchProvider>
-    <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
-    <SuppressEnvironmentCreationPrompt>True</SuppressEnvironmentCreationPrompt>
+    <InterpreterId>MSBuild|env|$(MSBuildProjectFullPath)</InterpreterId>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -26,163 +22,96 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Discord_client.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Event\Command.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Event\Ready.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Event\SlashCommand\Admin\add_captain.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Event\SlashCommand\Admin\create_group.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Event\SlashCommand\Admin\delete_group.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Event\SlashCommand\Admin\group_list.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Event\SlashCommand\Admin\remove_captain.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Event\SlashCommand\Admin\__init__.py">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="Discord_client.py" />
+    <Compile Include="Event\Command.py" />
+    <Compile Include="Event\Ready.py" />
+    <Compile Include="Event\SlashCommand\Admin\add_captain.py" />
+    <Compile Include="Event\SlashCommand\Admin\create_group.py" />
+    <Compile Include="Event\SlashCommand\Admin\delete_group.py" />
+    <Compile Include="Event\SlashCommand\Admin\group_list.py" />
+    <Compile Include="Event\SlashCommand\Admin\remove_captain.py" />
+    <Compile Include="Event\SlashCommand\Admin\__init__.py" />
     <Compile Include="Event\SlashCommand\Captain\add_member.py" />
-    <Compile Include="Event\SlashCommand\Captain\clear_table.py">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="Event\SlashCommand\Captain\clear_table.py" />
     <Compile Include="Event\SlashCommand\Captain\delete_member.py" />
-    <Compile Include="Event\SlashCommand\Captain\export_table.py">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="Event\SlashCommand\Captain\export_table.py" />
     <Compile Include="Event\SlashCommand\Captain\force_set_status.py" />
+    <Compile Include="Event\SlashCommand\Captain\set_controller_role.py" />
     <Compile Include="Event\SlashCommand\Captain\set_info_channel_here.py" />
-    <Compile Include="Event\SlashCommand\Captain\set_sign_channel_here.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Event\SlashCommand\Captain\set_table_channel_here.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Event\SlashCommand\Captain\set_controller_role.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Event\SlashCommand\Captain\set_table_style.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Event\SlashCommand\Captain\set_weeks_offset.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Event\SlashCommand\Captain\__init__.py">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="Event\SlashCommand\Captain\set_sign_channel_here.py" />
+    <Compile Include="Event\SlashCommand\Captain\set_table_channel_here.py" />
+    <Compile Include="Event\SlashCommand\Captain\set_table_style.py" />
+    <Compile Include="Event\SlashCommand\Captain\set_weeks_offset.py" />
+    <Compile Include="Event\SlashCommand\Captain\__init__.py" />
     <Compile Include="Event\SlashCommand\Controller\delete_keep_knife.py" />
     <Compile Include="Event\SlashCommand\Controller\delete_knife.py" />
-    <Compile Include="Event\SlashCommand\Controller\move_knife.py" />
     <Compile Include="Event\SlashCommand\Controller\keep_knife.py" />
+    <Compile Include="Event\SlashCommand\Controller\move_knife.py" />
     <Compile Include="Event\SlashCommand\Controller\proposal_knife.py" />
     <Compile Include="Event\SlashCommand\Controller\set_progress.py" />
-    <Compile Include="Event\SlashCommand\Controller\__init__.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Event\SlashCommand\General\cancel_keep_proposal.py">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="Event\SlashCommand\Controller\__init__.py" />
+    <Compile Include="Event\SlashCommand\General\cancel_keep_proposal.py" />
     <Compile Include="Event\SlashCommand\General\cancel_proposal.py" />
+    <Compile Include="Event\SlashCommand\General\done_proposal.py" />
     <Compile Include="Event\SlashCommand\General\done_skip_proposal.py" />
-    <Compile Include="Event\SlashCommand\General\done_proposal.py">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="Event\SlashCommand\General\help.py" />
+    <Compile Include="Event\SlashCommand\General\hit_boss.py" />
     <Compile Include="Event\SlashCommand\General\join.py" />
-    <Compile Include="Event\SlashCommand\General\leave.py" />
-    <Compile Include="Event\SlashCommand\General\set_personal_status.py" />
-    <Compile Include="Event\SlashCommand\General\use_sl.py" />
-    <Compile Include="Event\SlashCommand\General\help.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Event\SlashCommand\General\hit_boss.py">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Event\SlashCommand\General\keep_proposal.py" />
-    <Compile Include="Event\SlashCommand\General\previous_boss.py" />
-    <Compile Include="Event\SlashCommand\General\next_boss.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Event\SlashCommand\General\now_progeass.py">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="Event\SlashCommand\General\leave.py" />
+    <Compile Include="Event\SlashCommand\General\next_boss.py" />
+    <Compile Include="Event\SlashCommand\General\now_progeass.py" />
     <Compile Include="Event\SlashCommand\General\prefer_time.py" />
+    <Compile Include="Event\SlashCommand\General\previous_boss.py" />
     <Compile Include="Event\SlashCommand\General\proposal_knife.py" />
+    <Compile Include="Event\SlashCommand\General\set_personal_status.py" />
     <Compile Include="Event\SlashCommand\General\use_keep_proposal.py" />
+    <Compile Include="Event\SlashCommand\General\use_sl.py" />
     <Compile Include="Event\SlashCommand\General\__init__.py" />
-    <Compile Include="Event\SlashCommand\__init__.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Event\SlashCommand\slash_command.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Event\__init__.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Module\Authentication.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Module\auto_clear.py">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="Event\SlashCommand\slash_command.py" />
+    <Compile Include="Event\SlashCommand\__init__.py" />
+    <Compile Include="Event\__init__.py" />
+    <Compile Include="Module\Authentication.py" />
+    <Compile Include="Module\auto_clear.py" />
     <Compile Include="Module\check_boss.py" />
     <Compile Include="Module\check_week.py" />
-    <Compile Include="Module\DB_control.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Module\define_value.py">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="Module\DB_control.py" />
+    <Compile Include="Module\define_value.py" />
     <Compile Include="Module\full_string_to_half_and_lower.py" />
-    <Compile Include="Module\get_closest_end_time.py">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="Module\General\proposal_knife.py" />
+    <Compile Include="Module\General\__init__.py" />
+    <Compile Include="Module\get_closest_end_time.py" />
     <Compile Include="Module\half_string_to_full.py" />
     <Compile Include="Module\info_update.py" />
-    <Compile Include="Module\Offset_manager.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Module\show_knifes.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Module\Update.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Module\week_stage.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Module\__init__.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Name_manager.py">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="Module\Offset_manager.py" />
+    <Compile Include="Module\show_knifes.py" />
+    <Compile Include="Module\Update.py" />
+    <Compile Include="Module\week_stage.py" />
+    <Compile Include="Module\__init__.py" />
+    <Compile Include="Name_manager.py" />
     <Compile Include="PCReDive_Maho.py" />
-    <Compile Include="Topgg.py">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="TopGG.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <Interpreter Include="env\">
+      <Id>env</Id>
+      <Version>3.9</Version>
+      <Description>env (Python 3.9 (64-bit))</Description>
+      <InterpreterPath>Scripts\python.exe</InterpreterPath>
+      <WindowsInterpreterPath>Scripts\pythonw.exe</WindowsInterpreterPath>
+      <PathEnvironmentVariable>PYTHONPATH</PathEnvironmentVariable>
+      <Architecture>X64</Architecture>
+    </Interpreter>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Event\" />
     <Folder Include="Event\SlashCommand\" />
     <Folder Include="Event\SlashCommand\Admin\" />
-    <Folder Include="Event\SlashCommand\Controller\" />
     <Folder Include="Event\SlashCommand\Captain\" />
+    <Folder Include="Event\SlashCommand\Controller\" />
     <Folder Include="Event\SlashCommand\General\" />
     <Folder Include="Module\" />
-  </ItemGroup>
-  <ItemGroup>
-    <InterpreterReference Include="CondaEnv|CondaEnv|env" />
+    <Folder Include="Module\General\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
