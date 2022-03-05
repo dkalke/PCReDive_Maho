@@ -52,15 +52,11 @@
     <Compile Include="Event\SlashCommand\Controller\__init__.py" />
     <Compile Include="Event\SlashCommand\General\cancel_keep_proposal.py" />
     <Compile Include="Event\SlashCommand\General\cancel_proposal.py" />
-    <Compile Include="Event\SlashCommand\General\done_proposal.py" />
-    <Compile Include="Event\SlashCommand\General\done_skip_proposal.py" />
     <Compile Include="Event\SlashCommand\General\help.py" />
-    <Compile Include="Event\SlashCommand\General\hit_boss.py" />
     <Compile Include="Event\SlashCommand\General\join.py" />
     <Compile Include="Event\SlashCommand\General\keep_proposal.py" />
     <Compile Include="Event\SlashCommand\General\leave.py" />
     <Compile Include="Event\SlashCommand\General\next_boss.py" />
-    <Compile Include="Event\SlashCommand\General\now_progeass.py" />
     <Compile Include="Event\SlashCommand\General\prefer_time.py" />
     <Compile Include="Event\SlashCommand\General\previous_boss.py" />
     <Compile Include="Event\SlashCommand\General\proposal_knife.py" />
