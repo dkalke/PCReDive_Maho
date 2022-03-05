@@ -13,7 +13,7 @@ USE `princess_connect`;
 -- 傾印  資料表 princess_connect.group 結構
 CREATE TABLE IF NOT EXISTS `group` (
   `server_id` bigint(20) unsigned NOT NULL DEFAULT 0,
-  `group_serial` int(11) NOT NULL,
+  `group_serial` int(11) unsigned NOT NULL,
   `now_week` int(10) unsigned NOT NULL,
   `now_week_1` int(10) unsigned NOT NULL,
   `now_week_2` int(10) unsigned NOT NULL,
@@ -26,7 +26,6 @@ CREATE TABLE IF NOT EXISTS `group` (
   `week_offset_3` tinyint(3) unsigned NOT NULL DEFAULT 3,
   `week_offset_4` tinyint(3) unsigned NOT NULL DEFAULT 3,
   `week_offset_5` tinyint(3) unsigned NOT NULL DEFAULT 1,
-  `now_boss` int(10) unsigned NOT NULL,
   `table_channel_id` bigint(20) DEFAULT NULL,
   `sign_channel_id` bigint(20) DEFAULT NULL,
   `info_channel_id` bigint(20) DEFAULT NULL,
@@ -35,7 +34,6 @@ CREATE TABLE IF NOT EXISTS `group` (
   `knife_pool_message_id` bigint(20) DEFAULT NULL,
   `info_message_id` bigint(20) DEFAULT NULL,
   `controller_role_id` bigint(20) DEFAULT NULL,
-  `boss_change` datetime NOT NULL DEFAULT current_timestamp(),
   `boss_change_1` datetime NOT NULL DEFAULT current_timestamp(),
   `boss_change_2` datetime NOT NULL DEFAULT current_timestamp(),
   `boss_change_3` datetime NOT NULL DEFAULT current_timestamp(),
@@ -43,7 +41,6 @@ CREATE TABLE IF NOT EXISTS `group` (
   `boss_change_5` datetime NOT NULL DEFAULT current_timestamp(),
   `table_style` tinyint(4) NOT NULL DEFAULT 0,
   `upload` tinyint(1) unsigned zerofill DEFAULT 0,
-  `policy` int(10) unsigned NOT NULL DEFAULT 0,
   PRIMARY KEY (`server_id`,`group_serial`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='設定檔';
 
@@ -57,7 +54,7 @@ CREATE TABLE IF NOT EXISTS `keep_knifes` (
   `member_id` bigint(20) unsigned NOT NULL DEFAULT 0,
   `comment` varchar(150) NOT NULL DEFAULT '',
   PRIMARY KEY (`serial_number`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=309 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=319 DEFAULT CHARSET=utf8mb4;
 
 -- 取消選取資料匯出。
 
@@ -67,6 +64,7 @@ CREATE TABLE IF NOT EXISTS `knifes` (
   `server_id` bigint(20) unsigned NOT NULL DEFAULT 0,
   `group_serial` tinyint(4) unsigned NOT NULL,
   `member_id` bigint(20) unsigned NOT NULL DEFAULT 0,
+  `sockpuppet` int(10) unsigned NOT NULL DEFAULT 0,
   `week` tinyint(4) unsigned NOT NULL,
   `boss` tinyint(4) unsigned NOT NULL,
   `comment` varchar(150) NOT NULL,
@@ -76,72 +74,37 @@ CREATE TABLE IF NOT EXISTS `knifes` (
   `real_damage` int(10) unsigned NOT NULL DEFAULT 0,
   `estimated_damage` int(10) unsigned NOT NULL DEFAULT 0,
   PRIMARY KEY (`serial_number`)
-) ENGINE=InnoDB AUTO_INCREMENT=5412 DEFAULT CHARSET=utf8mb4 COMMENT='每刀資料';
+) ENGINE=InnoDB AUTO_INCREMENT=5441 DEFAULT CHARSET=utf8mb4 COMMENT='每刀資料\r\nsockpuppet固定為0，跟隨本尊(報刀不區分本尊分身，此處留下是為了外鍵)';
 
 -- 取消選取資料匯出。
 
 -- 傾印  資料表 princess_connect.knife_summary 結構
 CREATE TABLE IF NOT EXISTS `knife_summary` (
-  `serial_number` int(11) NOT NULL,
-  `normal` int(11) DEFAULT 3,
-  `reserved` int(11) DEFAULT 3,
-  PRIMARY KEY (`serial_number`),
-  CONSTRAINT `123` FOREIGN KEY (`serial_number`) REFERENCES `members` (`serial_number`) ON DELETE CASCADE ON UPDATE CASCADE
+  `serial_number` int(11) unsigned NOT NULL,
+  `day` datetime NOT NULL DEFAULT current_timestamp(),
+  `normal` int(11) DEFAULT 0,
+  `reserved` int(11) DEFAULT 0,
+  PRIMARY KEY (`serial_number`,`day`) USING BTREE,
+  CONSTRAINT `FK_knife_summary_members` FOREIGN KEY (`serial_number`) REFERENCES `members` (`serial_number`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='統計刀表';
 
 -- 取消選取資料匯出。
 
 -- 傾印  資料表 princess_connect.members 結構
 CREATE TABLE IF NOT EXISTS `members` (
-  `serial_number` int(11) NOT NULL AUTO_INCREMENT,
+  `serial_number` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `server_id` bigint(20) unsigned NOT NULL,
-  `group_serial` int(11) DEFAULT NULL,
-  `member_id` bigint(20) NOT NULL,
-  `sockpuppet` int(11) NOT NULL DEFAULT 0,
+  `group_serial` int(11) unsigned NOT NULL,
+  `member_id` bigint(20) unsigned NOT NULL,
+  `sockpuppet` int(11) unsigned NOT NULL DEFAULT 0,
   `period` tinyint(3) unsigned NOT NULL DEFAULT 0,
-  `knifes` tinyint(3) unsigned NOT NULL DEFAULT 0,
   `is_captain` tinyint(3) unsigned NOT NULL DEFAULT 0,
+  `last_sl_time` datetime NOT NULL DEFAULT current_timestamp(),
+  `now_using` tinyint(3) unsigned NOT NULL DEFAULT 1,
   PRIMARY KEY (`serial_number`),
   KEY `FK_members_group` (`server_id`,`group_serial`),
   CONSTRAINT `FK_members_group` FOREIGN KEY (`server_id`, `group_serial`) REFERENCES `group` (`server_id`, `group_serial`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4;
-
--- 取消選取資料匯出。
-
--- 傾印  資料表 princess_connect.month 結構
-CREATE TABLE IF NOT EXISTS `month` (
-  `day1` timestamp NULL DEFAULT NULL,
-  `day2` timestamp NULL DEFAULT NULL,
-  `day3` timestamp NULL DEFAULT NULL,
-  `day4` timestamp NULL DEFAULT NULL,
-  `day5` timestamp NULL DEFAULT NULL,
-  `day6` timestamp NULL DEFAULT NULL,
-  `boss1_s1` int(11) DEFAULT NULL,
-  `boss1_s2` int(11) DEFAULT NULL,
-  `boss1_s3` int(11) DEFAULT NULL,
-  `boss1_s4` int(11) DEFAULT NULL,
-  `boss1_s5` int(11) DEFAULT NULL,
-  `boss2_s1` int(11) DEFAULT NULL,
-  `boss2_s2` int(11) DEFAULT NULL,
-  `boss2_s3` int(11) DEFAULT NULL,
-  `boss2_s4` int(11) DEFAULT NULL,
-  `boss2_s5` int(11) DEFAULT NULL,
-  `boss3_s1` int(11) DEFAULT NULL,
-  `boss3_s2` int(11) DEFAULT NULL,
-  `boss3_s3` int(11) DEFAULT NULL,
-  `boss3_s4` int(11) DEFAULT NULL,
-  `boss3_s5` int(11) DEFAULT NULL,
-  `boss4_s1` int(11) DEFAULT NULL,
-  `boss4_s2` int(11) DEFAULT NULL,
-  `boss4_s3` int(11) DEFAULT NULL,
-  `boss4_s4` int(11) DEFAULT NULL,
-  `boss4_s5` int(11) DEFAULT NULL,
-  `boss5_s1` int(11) DEFAULT NULL,
-  `boss5_s2` int(11) DEFAULT NULL,
-  `boss5_s3` int(11) DEFAULT NULL,
-  `boss5_s4` int(11) DEFAULT NULL,
-  `boss5_s5` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='每月王的血量，開戰日期與時間';
+) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8mb4;
 
 -- 取消選取資料匯出。
 
