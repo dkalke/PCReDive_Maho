@@ -1,12 +1,20 @@
 # PCReDive_Maho
 Princess Connect Discord Bot  
-Discord 公主連結報刀機器人
+Discord 公主連結報刀機器人   
+  
+此機器人為報刀機器人，可支援同一DC群多戰隊同時使用。  
+權限由高而低主要區分為四者:管理員、戰隊隊長、控刀手、一般成員，  
+各自擁有不同的指令可以使用。  
+  
+指令全方面支援全形半形繁體/簡體/英文，亦有斜線指令可供使用。  
+此外，英文縮寫對照表可於[Wiki常見問題](https://github.com/dkalke/PCReDive_Maho/wiki/5.-%E5%B8%B8%E8%A6%8B%E5%95%8F%E9%A1%8C)中查詢。
 
-## 機器人邀請連結
-邀請即用  
-https://discord.com/oauth2/authorize?client_id=806421470368104449&scope=bot
+邀請連結 : https://discord.com/oauth2/authorize?client_id=806421470368104449&scope=bot  
+使用說明:  https://github.com/dkalke/PCReDive_Maho/wiki  
 
-## 部屬
+如果需要自行部屬，請參考以下章節。
+
+## 部屬須知
 ### 環境
 - python 3.9
 - MariaDB 10.5.15
@@ -46,7 +54,6 @@ python3 PCReDive_Maho.py
 
 
 ## 外部連結
-- [使用者說明書](https://hackmd.io/7xSl9FBESkqW20sAv0SHPA)  
 - [TOPGG](https://top.gg/bot/806421470368104449)
 
 ## 特別感謝
