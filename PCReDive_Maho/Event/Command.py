@@ -1009,7 +1009,7 @@ async def on_message(message):
                         else:
                             tmp += c
                     filter = tmp.replace(":", "").replace("\t", "") # 過濾特殊字元
-                    match = re.match(r'(\D*)(\d{2,3})((\s*.\s*)(\d{2,3}))?(.*)?', filter) # 擷取時間
+                    match = re.match(r'(\D*)(\d{2,3})((\s*[~-]\s*)(\d{2,3}))?(.*)?', filter) # 擷取時間
                     if match:
                         content1 = match.group(1) # 時間前面的文字
                         timerange = match.group(3) # 056~057 這種有範圍的時間
@@ -1028,7 +1028,7 @@ async def on_message(message):
                             if match.group(5) is None:
                                 result = content1 + transform_time(newtime1) + content2
                             else:
-                                totaltime2 = time2 % 100 + time2 // 100 # time2的秒數
+                                totaltime2 = time2 % 100 + time2 // 100 * 60 # time2的秒數
                                 newtime2 = totaltime2 - (90 - time)
                                 result = content1 + transform_time(newtime1) + rangecontent + transform_time(newtime2) + content2
                             resultline += result
@@ -1041,7 +1041,7 @@ async def on_message(message):
             else:
                 await message.author.send("您輸入的補償秒數錯誤，秒數必須要在 1～90 之間！")
         else:
-            await message.author.send("您輸入的秒數格式錯誤，正確的格式為\n.tr 補償秒數\n文字軸")
+            await message.author.send("您輸入的秒數格式錯誤！正確的格式為\n.tr 補償秒數\n文字軸\n\n(補償秒數後面請直接換行，不要有其他字元)")
       
       #!幫助
       elif tokens[0] == '!幫助' or tokens[0] == '!帮助' or tokens[0] == '!h':
