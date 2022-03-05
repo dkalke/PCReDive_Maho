@@ -10,7 +10,7 @@ Discord 公主連結報刀機器人
 此外，英文縮寫對照表可於[Wiki常見問題](https://github.com/dkalke/PCReDive_Maho/wiki/5.-%E5%B8%B8%E8%A6%8B%E5%95%8F%E9%A1%8C)中查詢。
 
 邀請連結 : https://discord.com/oauth2/authorize?client_id=806421470368104449&scope=bot  
-使用說明:  https://github.com/dkalke/PCReDive_Maho/wiki  
+使用說明 : https://github.com/dkalke/PCReDive_Maho/wiki  
 
 如果需要自行部屬，請參考以下章節。
 
