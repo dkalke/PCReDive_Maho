@@ -802,7 +802,7 @@ async def on_message(message):
             row = cursor.fetchone()
             if row:
               # 修改SL時間
-              closest_end_time = Module.Kernel.get_closest_end_time.get_closest_day_end(datetime.datetime.now())
+              closest_end_time = Module.Kernel.get_closest_end_time.get_closest_end_time(datetime.datetime.now())
               if row[0] < closest_end_time:
                 cursor = connection.cursor(prepared=True)
                 sql = "update princess_connect.members SET last_sl_time=? WHERE server_id = ? and group_serial = ? and member_id = ?"
