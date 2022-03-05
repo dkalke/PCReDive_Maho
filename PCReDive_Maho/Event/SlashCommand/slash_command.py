@@ -1,4 +1,4 @@
-import Module.Kernel.DB_control
+﻿import Module.Kernel.DB_control
 import Module.Kernel.Authentication
 import Module.Kernel.Update
 import Module.Kernel.Offset_manager
