@@ -19,17 +19,17 @@ import Module.Kernel.Authentication
                                 )
 async def create_group(ctx, group_serial):
   if group_serial > 0:
-    if await Module.Authentication.IsAdmin(ctx , '/create_group'):
-      connection = await Module.DB_control.OpenConnection(ctx)
+    if await Module.Kernel.Authentication.IsAdmin(ctx , '/create_group'):
+      connection = await Module.Kernel.DB_control.OpenConnection(ctx)
       if connection:
         # 尋找戰隊有無存在
-        row = Module.Authentication.IsExistGroup(ctx,connection, ctx.guild.id, group_serial)
-                
+        row = Module.Kernel.Authentication.IsExistGroup(ctx,connection, ctx.guild.id, group_serial)
+
         # 查無該戰隊資料，新增一筆，預設1週目1王，除當前週目外，可往後預約4週目
         if not row: 
           cursor = connection.cursor(prepared=True)
-          sql = "INSERT INTO princess_connect.group (server_id, group_serial, now_boss, now_week, now_week_1, now_week_2, now_week_3, now_week_4, now_week_5 ,week_offset, week_offset_1, week_offset_2, week_offset_3, week_offset_4, week_offset_5, boss_change) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-          data = (ctx.guild.id, group_serial, 1, 1, 1, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) #
+          sql = "INSERT INTO princess_connect.group (server_id, group_serial, now_week, now_week_1, now_week_2, now_week_3, now_week_4, now_week_5 ,week_offset, week_offset_1, week_offset_2, week_offset_3, week_offset_4, week_offset_5) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+          data = (ctx.guild.id, group_serial, 1, 1, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4)
           cursor.execute(sql, data)
           cursor.close
           connection.commit() # 資料庫存檔
