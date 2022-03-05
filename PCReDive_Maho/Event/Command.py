@@ -8,7 +8,6 @@ from mysql.connector import Error
 import discord
 from discord import Embed
 from Module.Kernel.Discord_client import client
-import Module.Kernel.Name_manager
 import Module.Kernel.DB_control
 import Module.Kernel.Authentication
 import Module.Kernel.Update
@@ -19,6 +18,8 @@ import Module.Kernel.full_string_to_half_and_lower
 import Module.Kernel.define_value
 import Module.Kernel.get_closest_end_time
 import Module.Kernel.info_update
+import Module.General.proposal_knife
+import Module.General.cancel_proposal
 
 
 def checktime(number): # 檢查是不是合法的時間
@@ -85,44 +86,12 @@ async def on_message(message):
   if message.author == client.user:
     return
 
-  async def RemindUpdate(connection, server_id):
-    cursor = connection.cursor(prepared=True)
-    sql = "SELECT upload FROM princess_connect.group WHERE server_id = ? limit 0, 1"
-    data = (server_id,)
-    cursor.execute(sql, data)
-    row = cursor.fetchone()
-    cursor.close
-    if row:
-      if row[0] == 1:
-        await message.channel.send('機器人指令有更新囉! 請重新輸入!h以便更新指令表!')
-        sql = "UPDATE princess_connect.group SET upload=? WHERE server_id=?"
-        data = (0, message.guild.id)
-        cursor.execute(sql, data)
-        cursor.close
-        connection.commit()
-
-    
-
   # --------------------------------------------------------------------指令部分------------------------------------------------------------------------------------------------------
   try:
     tokens = message.content.split()
     if len(tokens) > 0: # 邊界檢查
       tokens[0] = Module.Kernel.full_string_to_half_and_lower.full_string_to_half_and_lower(tokens[0])
 
-      if tokens[0][0] == '!': # 檢查有無更新訊息
-        connection = await Module.Kernel.DB_control.OpenConnection(message)
-        if connection:
-          await RemindUpdate(connection, message.guild.id)
-
-      # --------------------------------------------------------------------分盟管理 僅限管理者使用------------------------------------------------------------------------------------------------------
-      # 轉移至斜線指令
-
-      # --------------------------------------------------------------------戰隊管理 僅限戰隊隊長使用------------------------------------------------------------------------------------------------------
-      # 轉移至斜線指令
-      
-      # --------------------------------------------------------------------出刀管理 僅限控刀手使用------------------------------------------------------------------------------------------------------
-      # 轉移至斜線指令
-      
       # --------------------------------------------------------------------一般成員 僅限報刀頻道使用------------------------------------------------------------------------------------------------------          
       #報刀指令 !預約 [周目] [幾王] [註解]
       if tokens[0] == '!預約' or tokens[0] == '!预约' or tokens[0] == '!p':
@@ -243,9 +212,9 @@ async def on_message(message):
           else:
             pass #非指定頻道 不反應
           await Module.Kernel.DB_control.CloseConnection(connection, message)
+        
+        
 
-        
-        
       #!報保留刀 [備註]
       elif tokens[0] == '!報保留刀' or tokens[0] == '!报保留刀' or tokens[0] == '!kp':
         # check頻道，並找出所屬組別
@@ -1047,34 +1016,6 @@ async def on_message(message):
       
       #!幫助
       elif tokens[0] == '!幫助' or tokens[0] == '!帮助' or tokens[0] == '!h':
-        embed_msg = Embed(title='使用說明書', url='https://github.com/dkalke/PCReDive_Maho/wiki', description='網頁版使用說明書\nhttps://github.com/dkalke/PCReDive_Maho/wiki', color=0xB37084)
-        embed_msg.set_footer(text='當前版本可能會有些許BUG，歡迎反應或許願新功能!')
-        await message.channel.send(embed=embed_msg)
-
-
-      # TODO 2021/10/23指令廢棄一律改用網頁版，過一陣子移除該指令。
-      elif tokens[0] == '!管理員專用指令' or tokens[0] == '!管理员专用指令' or tokens[0] == '!admcmd':
-        embed_msg = Embed(title='使用說明書', url='https://github.com/dkalke/PCReDive_Maho/wiki', description='網頁版使用說明書\nhttps://github.com/dkalke/PCReDive_Maho/wiki', color=0xB37084)
-        embed_msg.set_footer(text='當前版本可能會有些許BUG，歡迎反應或許願新功能!')
-        await message.channel.send(embed=embed_msg)
-
-
-      # TODO 2021/10/23指令廢棄一律改用網頁版，過一陣子移除該指令。
-      elif tokens[0] == '!戰隊隊長專用指令' or tokens[0] == '!战队队长专用指令' or tokens[0] == '!pricmd':
-        embed_msg = Embed(title='使用說明書', url='https://github.com/dkalke/PCReDive_Maho/wiki', description='網頁版使用說明書\nhttps://github.com/dkalke/PCReDive_Maho/wiki', color=0xB37084)
-        embed_msg.set_footer(text='當前版本可能會有些許BUG，歡迎反應或許願新功能!')
-        await message.channel.send(embed=embed_msg)
-
-
-      # TODO 2021/10/23指令廢棄一律改用網頁版，過一陣子移除該指令。
-      elif tokens[0] == '!控刀手專用指令' or tokens[0] == '!控刀手专用指令' or tokens[0] == '!concmd':
-        embed_msg = Embed(title='使用說明書', url='https://github.com/dkalke/PCReDive_Maho/wiki', description='網頁版使用說明書\nhttps://github.com/dkalke/PCReDive_Maho/wiki', color=0xB37084)
-        embed_msg.set_footer(text='當前版本可能會有些許BUG，歡迎反應或許願新功能!')
-        await message.channel.send(embed=embed_msg)
-
-
-      # TODO 2021/10/23指令廢棄一律改用網頁版，過一陣子移除該指令。
-      elif tokens[0] == '!一般指令' or tokens[0] == '!norcmd':
         embed_msg = Embed(title='使用說明書', url='https://github.com/dkalke/PCReDive_Maho/wiki', description='網頁版使用說明書\nhttps://github.com/dkalke/PCReDive_Maho/wiki', color=0xB37084)
         embed_msg.set_footer(text='當前版本可能會有些許BUG，歡迎反應或許願新功能!')
         await message.channel.send(embed=embed_msg)
