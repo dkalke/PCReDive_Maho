@@ -95,126 +95,43 @@ async def on_message(message):
       # --------------------------------------------------------------------一般成員 僅限報刀頻道使用------------------------------------------------------------------------------------------------------          
       #報刀指令 !預約 [周目] [幾王] [註解]
       if tokens[0] == '!預約' or tokens[0] == '!预约' or tokens[0] == '!p':
-        # check頻道，並找出所屬組別
-        group_serial = 0
-        
-        connection = await Module.Kernel.DB_control.OpenConnection(message)
-        if connection:
-          cursor = connection.cursor(prepared=True)
-          sql = "SELECT now_week, now_week_1, now_week_2, now_week_3, now_week_4, now_week_5, week_offset, group_serial FROM princess_connect.group WHERE server_id = ? and sign_channel_id = ? order by group_serial limit 0, 1"
-          data = (message.guild.id, message.channel.id)
-          cursor.execute(sql, data) # 認證身分
-          row = cursor.fetchone()
-          cursor.close
-          if row:
-            group_serial = row[7]
-            # 檢測預估傷害格式
-            token_5_pass_flag = True
-            estimated_damage = 0
-            if len(tokens) == 5:
-              token_5_pass_flag = False
-              if tokens[4].isdigit():
-                token_5_pass_flag = True
-                estimated_damage = int(tokens[4])
-
-            if len(tokens) == 4 or len(tokens) == 5 :
-              if tokens[1].isdigit() and tokens[2].isdigit() and token_5_pass_flag:
-                week = int(tokens[1])
-                boss = int(tokens[2])
-                comment = tokens[3]
-                if Module.Kernel.check_week.Check_week((row[0], row[6]), week):
-                  if Module.Kernel.check_boss.Check_boss((row[1], row[2], row[3], row[4], row[5]),week, boss):
-                    if not (Module.Kernel.week_stage.week_stage(week) == 4 and estimated_damage == 0):
-                      # 新增刀
-                      sql = "SELECT SUM(estimated_damage) from knifes WHERE server_id = ? and group_serial = ? and week = ? and boss = ?"
-                      data = (message.guild.id, group_serial, week, boss)
-                      cursor.execute(sql, data)
-                      row = cursor.fetchone()
-                      cursor.close
-                      sum_estimated_damage = 0
-                      if row[0]:
-                        sum_estimated_damage = int(row[0])
-                      if (Module.Kernel.define_value.BOSS_HP[Module.Kernel.week_stage.week_stage(week)][boss-1] - sum_estimated_damage) > 0:
-                        cursor = connection.cursor(prepared=True)
-                        sql = "INSERT INTO princess_connect.knifes (server_id, group_serial, week, boss, member_id, comment, estimated_damage) VALUES (?, ?, ?, ?, ?, ?, ?)"
-                        data = (message.guild.id, group_serial, week, boss, message.author.id, comment ,estimated_damage)
-                        cursor.execute(sql, data)
-                        cursor.close
-                        connection.commit()
-                        await message.channel.send('第' + str(week) + '週目' + str(boss) + '王，備註:' + comment + '，報刀成功!')
-                        await Module.Kernel.Update.Update(message, message.guild.id, group_serial) # 更新刀表
-                      else:
-                        await message.channel.send('偵測到溢傷，請改報其他週目!')
-                    else:
-                      await message.channel.send('發生錯誤，五階段報刀格式為: !p [週目] [boss] [備註] [預估傷害(萬)]')
-                  else:
-                    await message.channel.send('該王不存在喔!')
-                else:
-                  await message.channel.send('該週目不存在喔!')
-              else:
-                await message.channel.send('[週目] [王] [預估傷害]請使用阿拉伯數字!')
-            else:
-              await message.channel.send('!預約 格式錯誤，應為 !預約 [週目] [王] [註解]')
+        if len(tokens) == 4:
+          if tokens[1].isdigit() and tokens[2].isdigit():
+            comment = tokens[3]
+            await Module.General.proposal_knife.proposal_knife(
+              send_obj = message.channel, 
+              server_id = message.guild.id, 
+              sign_channel_id = message.channel.id, 
+              member_id = message.author.id, 
+              week = int(tokens[1]), 
+              boss = int(tokens[2]), 
+              comment = tokens[3]
+            )
           else:
-            pass #非指定頻道 不反應
-          await Module.Kernel.DB_control.CloseConnection(connection, message)
+            await message.channel.send('[週目] [王] [預估傷害]請使用阿拉伯數字!')
+        else:
+          await message.channel.send('!預約 格式錯誤，應為 !預約 [週目] [王] [註解]')
 
       #!取消報刀  !取消預約 [周目] [幾王] [第幾刀]
       elif tokens[0] == '!取消預約' or tokens[0] == '!取消预约' or tokens[0] == '!cp':
-        group_serial = 0
-        connection = await Module.Kernel.DB_control.OpenConnection(message)
-        if connection:
-          cursor = connection.cursor(prepared=True)
-          sql = "SELECT now_week, now_week_1, now_week_2, now_week_3, now_week_4, now_week_5, week_offset, group_serial FROM princess_connect.group WHERE server_id = ? and sign_channel_id = ? order by group_serial limit 0, 1"
-          data = (message.guild.id, message.channel.id)
-          cursor.execute(sql, data) # 認證身分
-          row = cursor.fetchone()
-          cursor.close
-          if row:
-            group_serial = row[7]
-            if len(tokens) == 4:
-              if tokens[1].isdigit() and tokens[2].isdigit() and tokens[3].isdigit():
-                week = int(tokens[1])
-                boss = int(tokens[2])
-                index = int(tokens[3]) # TODO check index 不可為負數
-                if Module.Kernel.check_week.Check_week((row[0], row[6]), week):
-                  if Module.Kernel.check_boss.Check_boss((row[1], row[2], row[3], row[4], row[5]), week, boss):
-                    # 尋找要刪除刀的序號
-                    delete_index = 0
-                    cursor = connection.cursor(prepared=True)
-                    sql = "SELECT serial_number,member_id from princess_connect.knifes where server_id=? and group_serial=? and week=? and boss=? order by serial_number limit ?,1"
-                    data = (message.guild.id, group_serial, week, boss,index-1)
-                    cursor.execute(sql, data)
-                    row = cursor.fetchone()
-                    cursor.close()
-                    if row:
-                      if message.author.id == row[1]:
-                        cursor = connection.cursor(prepared=True)
-                        sql = "DELETE from princess_connect.knifes where serial_number=?"
-                        data = (row[0],)
-                        row = cursor.execute(sql, data)
-                        cursor.close()
-                        connection.commit()
-                        await message.channel.send('取消成功!')
-                        await Module.Kernel.Update.Update(message, message.guild.id, group_serial) # 更新刀表
-                      else:
-                        await message.channel.send('您並非該刀主人喔!')
-                    else:
-                      await message.channel.send('該刀不存在喔!')
-                  else:
-                    await message.channel.send('該王不存在喔!')
-                else:
-                  await message.channel.send('該週目不存在喔!')
-              else:
-                await message.channel.send('[週目] [王] [第幾刀]請使用阿拉伯數字!')
-            else:
-              await message.channel.send('!取消預約 格式錯誤，應為 !取消預約 [週目] [王] [第幾刀]')
+        if len(tokens) == 4:
+          if tokens[1].isdigit() and tokens[2].isdigit() and tokens[3].isdigit():
+            await Module.General.cancel_proposal.cancel_proposal(
+              send_obj = message.channel, 
+              server_id = message.guild.id, 
+              sign_channel_id = message.channel.id, 
+              member_id = message.author.id, 
+              week = int(tokens[1]), 
+              boss = int(tokens[2]), 
+              index = int(tokens[3])
+            )
           else:
-            pass #非指定頻道 不反應
-          await Module.Kernel.DB_control.CloseConnection(connection, message)
-        
-        
+            await message.channel.send('[週目] [王] [第幾刀]請使用阿拉伯數字!')
+        else:
+          await message.channel.send('!取消預約 格式錯誤，應為 !取消預約 [週目] [王] [第幾刀]')
 
+        
+        
       #!報保留刀 [備註]
       elif tokens[0] == '!報保留刀' or tokens[0] == '!报保留刀' or tokens[0] == '!kp':
         # check頻道，並找出所屬組別
