@@ -1,14 +1,14 @@
 import os
 import mysql.connector
 from discord import Embed
-import Discord_client
-import Name_manager
-import Module.DB_control
-import Module.define_value
-import Module.week_stage
+import Module.Kernel.Discord_client
+import Module.Kernel.Name_manager
+import Module.Kernel.DB_control
+import Module.Kernel.define_value
+import Module.Kernel.week_stage
 
-async def Update(message ,server_id, group_serial):
-  connection = await Module.DB_control.OpenConnection(message)
+async def Update(send_obj ,server_id, group_serial):
+  connection = await Module.Kernel.DB_control.OpenConnection(send_obj)
   if connection.is_connected():
     cursor = connection.cursor(prepared=True)
     sql = "SELECT table_style FROM princess_connect.group WHERE server_id = ? and group_serial = ? LIMIT 0, 1"
@@ -18,13 +18,13 @@ async def Update(message ,server_id, group_serial):
     cursor.close
     if row:
       if row[0] == 0:
-        await UpdateEmbed(connection, message, server_id, group_serial)
+        await UpdateEmbed(connection, send_obj, server_id, group_serial)
       else:
-        await UpdateTraditional(connection, message, server_id, group_serial)
+        await UpdateTraditional(connection, send_obj, server_id, group_serial)
     else:
-      await message.channel.send(content='查無戰隊資料!')
+      await send_obj.send(content='查無戰隊資料!')
 
-    await Module.DB_control.CloseConnection(connection, message)
+    await Module.Kernel.DB_control.CloseConnection(connection, send_obj)
   
 async def UpdateEmbed(connection, message, server_id, group_serial): # 更新刀表
   # 查詢當前周目、王、刀表訊息、保留刀訊息
@@ -46,12 +46,12 @@ async def UpdateEmbed(connection, message, server_id, group_serial): # 更新刀
       embed_msg = Embed(title='第' + str(group_serial) + '戰隊刀表', color=0xD98B99)
       # 刀表部分，從當前週目開始印
       for i in range(now_week, now_week + week_offset + 1):
-        week_stage = Module.week_stage.week_stage(i)
+        week_stage = Module.Kernel.week_stage.week_stage(i)
         week_msg = ''
         for j in range(1,6):  
           kinfe_msg = ''
           if i < now_boss_week[j-1]: # 如果王的週目小於主週目(王死)則不顯示報刀資訊
-            title_msg = '**'+ str(j) + '**王(**0**/**' + str(Module.define_value.BOSS_HP[week_stage][j-1]) +'**)\n'
+            title_msg = '**'+ str(j) + '**王(**0**/**' + str(Module.Kernel.define_value.BOSS_HP[week_stage][j-1]) +'**)\n'
             kinfe_msg = '　(已討伐)\n'
           else:
             # 刀表SQL
@@ -65,7 +65,7 @@ async def UpdateEmbed(connection, message, server_id, group_serial): # 更新刀
             estimated_sum_damage = 0 # 報刀傷害總和(萬)
             while row:
               # 出刀狀況
-              nick_name = await Name_manager.get_nick_name(message, row[0]) # 取得DC暱稱
+              nick_name = await Module.Kernel.Name_manager.get_nick_name(message, row[0]) # 取得DC暱稱
               comment = row[1]
               knife_status = ''
 
@@ -82,7 +82,7 @@ async def UpdateEmbed(connection, message, server_id, group_serial): # 更新刀
               index = index +1
               row = cursor.fetchone()
             cursor.close()
-            title_msg = '**'+ str(j) + '**王(**' + str(Module.define_value.BOSS_HP[week_stage][j-1] - estimated_sum_damage) + '**/**' + str(Module.define_value.BOSS_HP[week_stage][j-1]) +'**)\n'
+            title_msg = '**'+ str(j) + '**王(**' + str(Module.Kernel.define_value.BOSS_HP[week_stage][j-1] - estimated_sum_damage) + '**/**' + str(Module.Kernel.define_value.BOSS_HP[week_stage][j-1]) +'**)\n'
           week_msg = week_msg + title_msg + kinfe_msg
         embed_msg.add_field(name='\u200b', value='-   -   -   -   -   -   -   -   ', inline=False)
         embed_msg.add_field(name='第' + str(i) + '週目', value=week_msg , inline=False)
@@ -90,7 +90,7 @@ async def UpdateEmbed(connection, message, server_id, group_serial): # 更新刀
   
           
       try:
-        guild = Discord_client.client.get_guild(server_id)
+        guild = Module.Kernel.Discord_client.client.get_guild(server_id)
         channel = guild.get_channel(table_channel_id)
         message_obj = await channel.fetch_message(table_message_id)
         await message_obj.edit(embed=embed_msg)
@@ -109,7 +109,7 @@ async def UpdateEmbed(connection, message, server_id, group_serial): # 更新刀
       row = cursor.fetchone()
       while row:  
         # {index} nickname\tcomment\n
-        name = await Name_manager.get_nick_name(message, row[0])
+        name = await Module.Kernel.Name_manager.get_nick_name(message, row[0])
         msg = msg + '{' +str(index) + '} ' + name + '\n　' + row[1] + '\n'
         index = index + 1
         row = cursor.fetchone()
@@ -126,7 +126,7 @@ async def UpdateEmbed(connection, message, server_id, group_serial): # 更新刀
 
       # 取得訊息物件
       try:
-        guild = Discord_client.client.get_guild(server_id)
+        guild = Module.Kernel.Discord_client.client.get_guild(server_id)
         channel = guild.get_channel(table_channel_id)
         message_obj = await channel.fetch_message(knife_pool_message_id)
         await message_obj.edit(embed=embed_msg)
@@ -160,12 +160,12 @@ async def UpdateTraditional(connection, message, server_id, group_serial): # 更
       send_msg = '```asciidoc\n'
       for i in range(now_week, now_week + week_offset + 1):
         week_msg = ''
-        week_stage = Module.week_stage.week_stage(i)
+        week_stage = Module.Kernel.week_stage.week_stage(i)
         for j in range(1,6):
           title_msg = ''
           knife_msg = ''
           if i < now_boss_week[j-1]: # 如果王的週目小於主週目(死了)則不顯示
-            title_msg = ' ' + str(j) + '王(0/' + str(Module.define_value.BOSS_HP[week_stage][j-1]) + ')\n'
+            title_msg = ' ' + str(j) + '王(0/' + str(Module.Kernel.define_value.BOSS_HP[week_stage][j-1]) + ')\n'
             knife_msg = '　(已討伐)\n'
           else:
             # 刀表SQL
@@ -178,7 +178,7 @@ async def UpdateTraditional(connection, message, server_id, group_serial): # 更
             estimated_sum_damage = 0
             while row:
               # 出刀狀況
-              nick_name = await Name_manager.get_nick_name(message, row[0])
+              nick_name = await Module.Kernel.Name_manager.get_nick_name(message, row[0])
               comment = row[1]
               knife_status = ''
               estimated_sum_damage = estimated_sum_damage + row[5]
@@ -195,7 +195,7 @@ async def UpdateTraditional(connection, message, server_id, group_serial): # 更
               row = cursor.fetchone()
               index = index +1
             cursor.close()
-            title_msg = ' ' + str(j) + '王(' + str(Module.define_value.BOSS_HP[week_stage][j-1] - estimated_sum_damage) + '/' + str(Module.define_value.BOSS_HP[week_stage][j-1]) + ')\n'
+            title_msg = ' ' + str(j) + '王(' + str(Module.Kernel.define_value.BOSS_HP[week_stage][j-1] - estimated_sum_damage) + '/' + str(Module.Kernel.define_value.BOSS_HP[week_stage][j-1]) + ')\n'
           
           week_msg = week_msg + title_msg + knife_msg  
         send_msg = send_msg + '第' + str(i) + '週目:\n' + week_msg    
@@ -203,7 +203,7 @@ async def UpdateTraditional(connection, message, server_id, group_serial): # 更
             
       # 取得訊息物件
       try:
-        guild = Discord_client.client.get_guild(server_id)
+        guild = Module.Kernel.Discord_client.client.get_guild(server_id)
         channel = guild.get_channel(table_channel_id)
         message_obj = await channel.fetch_message(table_message_id)
         await message_obj.edit(content = send_msg)
@@ -222,7 +222,7 @@ async def UpdateTraditional(connection, message, server_id, group_serial): # 更
       row = cursor.fetchone()
       while row:  
         # {index} nickname\tcomment\n
-        name = await Name_manager.get_nick_name(message, row[0])
+        name = await Module.Kernel.Name_manager.get_nick_name(message, row[0])
         msg = msg + '{' +str(index) + '} ' + name + '\t' + row[1] + '\n'
         index = index + 1
         row = cursor.fetchone()
@@ -230,7 +230,7 @@ async def UpdateTraditional(connection, message, server_id, group_serial): # 更
 
       # 取得訊息物件
       try:
-        guild = Discord_client.client.get_guild(server_id)
+        guild = Module.Kernel.Discord_client.client.get_guild(server_id)
         channel = guild.get_channel(table_channel_id)
         message_obj = await channel.fetch_message(knife_pool_message_id)
         if msg == '```asciidoc\n保留刀:\n':

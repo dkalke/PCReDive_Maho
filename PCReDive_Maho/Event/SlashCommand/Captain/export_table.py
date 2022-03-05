@@ -2,23 +2,23 @@ import os
 import csv
 import datetime
 import discord
-import Discord_client
-import Name_manager
-import Module.DB_control
-import Module.Authentication
+import Module.Kernel.Discord_client
+import Module.Kernel.Name_manager
+import Module.Kernel.DB_control
+import Module.Kernel.Authentication
 
-@Discord_client.slash.subcommand( base="captain",
+@Module.Kernel.Discord_client.slash.subcommand( base="captain",
                                   name="export_table" ,
                                   description="匯出csv刀表",                                 
                                 )
 async def export_table(ctx):
   await ctx.defer()
-  connection = await Module.DB_control.OpenConnection(ctx)
+  connection = await Module.Kernel.DB_control.OpenConnection(ctx)
   if connection:
-    row = await Module.Authentication.IsCaptain(ctx ,'/captain export_table', connection, ctx.guild.id, ctx.author.id)
+    row = await Module.Kernel.Authentication.IsCaptain(ctx ,'/captain export_table', connection, ctx.guild.id, ctx.author.id)
     if row:
       group_serial = row[0]
-      if await Module.Authentication.IsSignChannel(ctx,connection,group_serial):
+      if await Module.Kernel.Authentication.IsSignChannel(ctx,connection,group_serial):
         server_id = ctx.guild.id
             
         msg = [['序號', '週目', 'BOSS', '隊員識別碼', '隊員姓名', '備註', '報刀時間', '完刀時間', '實際傷害']]
@@ -31,7 +31,7 @@ async def export_table(ctx):
         row = cursor.fetchone()
         index = 1
         while row:
-          nick_name = await Name_manager.get_nick_name(ctx, row[0])
+          nick_name = await Module.Kernel.Name_manager.get_nick_name(ctx, row[0])
           msg.append([index,row[1] ,row[2] ,row[0] ,nick_name, row[3], row[4], row[5], row[6]])
           row = cursor.fetchone()
           index = index +1
@@ -51,4 +51,4 @@ async def export_table(ctx):
 
         os.remove(filename) # 移除檔案
 
-    await Module.DB_control.CloseConnection(connection, ctx)
+    await Module.Kernel.DB_control.CloseConnection(connection, ctx)

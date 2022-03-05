@@ -1,14 +1,14 @@
-﻿import Discord_client
-import Module.DB_control
-import Name_manager
+﻿import Module.Kernel.Discord_client
+import Module.Kernel.DB_control
+import Module.Kernel.Name_manager
 
-@Discord_client.slash.slash( 
+@Module.Kernel.Discord_client.slash.slash( 
              name="leave" ,
              description="離開該頻道所屬戰隊。",
              )
 async def leave(ctx):
   # check頻道，並找出所屬組別
-  connection = await Module.DB_control.OpenConnection(ctx)
+  connection = await Module.Kernel.DB_control.OpenConnection(ctx)
   if connection:
     # 尋找該頻道所屬戰隊
     cursor = connection.cursor(prepared=True)
@@ -31,8 +31,8 @@ async def leave(ctx):
         
         connection.commit() # 資料庫存檔
         await ctx.send( ctx.author.name + ' 已退出第' + str(group_serial) + '戰隊。')
-        await Module.info_update.info_update(ctx ,ctx.guild.id, group_serial)
+        await Module.Kernel.info_update.info_update(ctx ,ctx.guild.id, group_serial)
       else:
         await ctx.send( ctx.author.name + ' 你不是第' + str(group_serial) + '戰隊成員喔。')
     cursor.close
-    await Module.DB_control.CloseConnection(connection, ctx)
+    await Module.Kernel.DB_control.CloseConnection(connection, ctx)

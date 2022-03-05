@@ -1,7 +1,7 @@
-import Discord_client
-import Module.DB_control
-import Module.Offset_manager
-import Module.Update
+import Module.Kernel.Discord_client
+import Module.Kernel.DB_control
+import Module.Kernel.Offset_manager
+import Module.Kernel.Update
 
 
 async def auto_clear():
@@ -34,7 +34,7 @@ async def auto_clear():
       sign_channel_id = row[3]
 
       
-      guild = Discord_client.client.get_guild(server_id)
+      guild = Module.Kernel.Discord_client.client.get_guild(server_id)
       if not guild == None:
         # 取得報刀頻道
         message_obj = None

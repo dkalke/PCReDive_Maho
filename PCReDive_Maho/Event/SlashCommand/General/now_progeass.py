@@ -1,12 +1,12 @@
-import Discord_client
-import Module.DB_control
+import Module.Kernel.Discord_client
+import Module.Kernel.DB_control
 
-@Discord_client.slash.slash( 
+@Module.Kernel.Discord_client.slash.slash( 
              name="ns" ,  # TODO: 舊版為ns(now_schedule)，考慮改成np(now_progress)比較適合?
              description="顯示目前進度!",
              )
 async def now_progeass(ctx):      
-  connection = await Module.DB_control.OpenConnection(ctx)
+  connection = await Module.Kernel.DB_control.OpenConnection(ctx)
   if connection:
     cursor = connection.cursor(prepared=True)
     sql = "SELECT now_week, now_boss, group_serial FROM princess_connect.group WHERE server_id = ? and sign_channel_id = ? limit 0, 1"
@@ -19,4 +19,4 @@ async def now_progeass(ctx):
     else:
       await ctx.send('這裡不是報刀頻道喔!')
 
-    await Module.DB_control.CloseConnection(connection, ctx)
+    await Module.Kernel.DB_control.CloseConnection(connection, ctx)

@@ -1,7 +1,7 @@
-import Discord_client
+import Module.Kernel.Discord_client
 from discord import Embed
 
-@Discord_client.slash.slash( 
+@Module.Kernel.Discord_client.slash.slash( 
              name="h" ,
              description="機器人使用說明",
              )

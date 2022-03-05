@@ -1,8 +1,8 @@
 from discord_slash.utils.manage_commands import create_option, create_choice
-import Discord_client
-import Module.DB_control
+import Module.Kernel.Discord_client
+import Module.Kernel.DB_control
 
-@Discord_client.slash.slash( 
+@Module.Kernel.Discord_client.slash.slash( 
              name="kp" ,
              description="報保留刀",
              options= [
@@ -16,7 +16,7 @@ import Module.DB_control
              connector={"備註": "comment"}
              )
 async def keep_proposal(ctx, comment):
-  connection = await Module.DB_control.OpenConnection(ctx)
+  connection = await Module.Kernel.DB_control.OpenConnection(ctx)
   if connection:
     cursor = connection.cursor(prepared=True)
     sql = "SELECT group_serial FROM princess_connect.group WHERE server_id = ? and sign_channel_id = ? order by group_serial limit 0, 1"
@@ -34,7 +34,7 @@ async def keep_proposal(ctx, comment):
       cursor.close()
       connection.commit()
       await ctx.send('備註:' + comment + '，**保留刀**報刀成功!')
-      await Module.Update.Update(ctx, ctx.guild.id, group_serial) # 更新刀表
+      await Module.Kernel.Update.Update(ctx, ctx.guild.id, group_serial) # 更新刀表
     else:
       await ctx.send('這裡不是報刀頻道喔!')
-    await Module.DB_control.CloseConnection(connection, ctx)
+    await Module.Kernel.DB_control.CloseConnection(connection, ctx)

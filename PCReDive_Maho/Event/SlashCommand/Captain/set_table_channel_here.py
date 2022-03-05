@@ -1,16 +1,16 @@
 from discord import Embed
-import Discord_client
-import Module.DB_control
-import Module.Authentication
+import Module.Kernel.Discord_client
+import Module.Kernel.DB_control
+import Module.Kernel.Authentication
 
-@Discord_client.slash.subcommand( base="captain", 
+@Module.Kernel.Discord_client.slash.subcommand( base="captain", 
                                   name="set_table_channel_here", 
                                   description="將目前位置做為刀表頻道"
                                 )
 async def set_table_channel_here(ctx):
-  connection = await Module.DB_control.OpenConnection(ctx)
+  connection = await Module.Kernel.DB_control.OpenConnection(ctx)
   if connection:
-    row = await Module.Authentication.IsCaptain(ctx, '/captain set_table_channel_here', connection, ctx.guild.id, ctx.author.id)
+    row = await Module.Kernel.Authentication.IsCaptain(ctx, '/captain set_table_channel_here', connection, ctx.guild.id, ctx.author.id)
     if row:
       group_serial = int(row[0])
       cursor = connection.cursor(prepared=True)
@@ -45,10 +45,10 @@ async def set_table_channel_here(ctx):
           cursor.execute(sql, data)
           cursor.close
           connection.commit()
-          await Module.Update.Update(ctx, ctx.guild.id, group_serial)
+          await Module.Kernel.Update.Update(ctx, ctx.guild.id, group_serial)
         else:
           await ctx.send('查無戰隊資料!') 
       else:
         await ctx.send('這裡是第'+ str(row[0]) +'戰隊的刀表頻道，請重新選擇!')
 
-    await Module.DB_control.CloseConnection(connection, ctx)
+    await Module.Kernel.DB_control.CloseConnection(connection, ctx)

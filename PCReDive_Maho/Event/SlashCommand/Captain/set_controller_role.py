@@ -1,9 +1,9 @@
-import Discord_client
+import Module.Kernel.Discord_client
 from discord_slash.utils.manage_commands import create_option
-import Module.DB_control
-import Module.Authentication
+import Module.Kernel.DB_control
+import Module.Kernel.Authentication
 
-@Discord_client.slash.subcommand( base="captain",
+@Module.Kernel.Discord_client.slash.subcommand( base="captain",
                                   name="set_controller_role" ,
                                   description="設定控刀手身分組",
                                   options=[
@@ -19,12 +19,12 @@ import Module.Authentication
                                   }
                                 )
 async def set_controller_role(ctx, role):
-  connection = await Module.DB_control.OpenConnection(ctx)
+  connection = await Module.Kernel.DB_control.OpenConnection(ctx)
   if connection:
-    row = await Module.Authentication.IsCaptain(ctx ,'/captain set_controller_role', connection, ctx.guild.id, ctx.author.id)
+    row = await Module.Kernel.Authentication.IsCaptain(ctx ,'/captain set_controller_role', connection, ctx.guild.id, ctx.author.id)
     if row:
       group_serial = int(row[0])
-      if await Module.Authentication.IsSignChannel(ctx,connection,group_serial):
+      if await Module.Kernel.Authentication.IsSignChannel(ctx,connection,group_serial):
         # 檢查有無重複
         cursor = connection.cursor(prepared=True)
         sql = "SELECT group_serial FROM princess_connect.group WHERE server_id=? and controller_role_id =? LIMIT 0, 1"
@@ -46,4 +46,4 @@ async def set_controller_role(ctx, role):
           else: # 指派一樣的身分組，SQL不處理但再次顯示成功訊息
             await ctx.send(role.mention + '身分組已指派為第' + str(group_serial) + '戰隊控刀手!')
       
-    await Module.DB_control.CloseConnection(connection, ctx)
+    await Module.Kernel.DB_control.CloseConnection(connection, ctx)

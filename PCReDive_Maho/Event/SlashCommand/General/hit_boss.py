@@ -1,14 +1,14 @@
-import Discord_client
-import Module.DB_control
-import Name_manager
+import Module.Kernel.Discord_client
+import Module.Kernel.DB_control
+import Module.Kernel.Name_manager
 
-@Discord_client.slash.slash( 
+@Module.Kernel.Discord_client.slash.slash( 
              name="hb" ,
              description="tag現在要打王的人",
              )
 async def hit_boss(ctx):
   # check頻道，並找出所屬組別
-  connection = await Module.DB_control.OpenConnection(ctx)
+  connection = await Module.Kernel.DB_control.OpenConnection(ctx)
   if connection:
     cursor = connection.cursor(prepared=True)
     sql = "SELECT now_week, now_boss, group_serial FROM princess_connect.group WHERE server_id = ? and sign_channel_id = ? order by group_serial limit 0, 1"
@@ -39,4 +39,4 @@ async def hit_boss(ctx):
     else:
       await ctx.send('這裡不是報刀頻道喔!')
 
-    await Module.DB_control.CloseConnection(connection, ctx)
+    await Module.Kernel.DB_control.CloseConnection(connection, ctx)

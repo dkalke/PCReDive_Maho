@@ -22,9 +22,9 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Discord_client.py" />
+    <Compile Include="Module\Kernel\Discord_client.py" />
     <Compile Include="Event\Command.py" />
-    <Compile Include="Event\Ready.py" />
+    <Compile Include="Module\Kernel\Ready.py" />
     <Compile Include="Event\SlashCommand\Admin\add_captain.py" />
     <Compile Include="Event\SlashCommand\Admin\create_group.py" />
     <Compile Include="Event\SlashCommand\Admin\delete_group.py" />
@@ -71,26 +71,30 @@
     <Compile Include="Event\SlashCommand\slash_command.py" />
     <Compile Include="Event\SlashCommand\__init__.py" />
     <Compile Include="Event\__init__.py" />
-    <Compile Include="Module\Authentication.py" />
-    <Compile Include="Module\auto_clear.py" />
-    <Compile Include="Module\check_boss.py" />
-    <Compile Include="Module\check_week.py" />
-    <Compile Include="Module\DB_control.py" />
-    <Compile Include="Module\define_value.py" />
-    <Compile Include="Module\full_string_to_half_and_lower.py" />
+    <Compile Include="Module\Kernel\Authentication.py" />
+    <Compile Include="Module\Kernel\auto_clear.py" />
+    <Compile Include="Module\Kernel\check_boss.py" />
+    <Compile Include="Module\Kernel\check_week.py" />
+    <Compile Include="Module\Kernel\DB_control.py" />
+    <Compile Include="Module\Kernel\define_value.py" />
+    <Compile Include="Module\Kernel\full_string_to_half_and_lower.py" />
+    <Compile Include="Module\General\cancel_proposal.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Module\General\proposal_knife.py" />
     <Compile Include="Module\General\__init__.py" />
-    <Compile Include="Module\get_closest_end_time.py" />
-    <Compile Include="Module\half_string_to_full.py" />
-    <Compile Include="Module\info_update.py" />
-    <Compile Include="Module\Offset_manager.py" />
-    <Compile Include="Module\show_knifes.py" />
-    <Compile Include="Module\Update.py" />
-    <Compile Include="Module\week_stage.py" />
+    <Compile Include="Module\Kernel\get_closest_end_time.py" />
+    <Compile Include="Module\Kernel\half_string_to_full.py" />
+    <Compile Include="Module\Kernel\info_update.py" />
+    <Compile Include="Module\Kernel\__init__.py" />
+    <Compile Include="Module\Kernel\Offset_manager.py" />
+    <Compile Include="Module\Kernel\show_knifes.py" />
+    <Compile Include="Module\Kernel\Update.py" />
+    <Compile Include="Module\Kernel\week_stage.py" />
     <Compile Include="Module\__init__.py" />
-    <Compile Include="Name_manager.py" />
+    <Compile Include="Module\Kernel\Name_manager.py" />
     <Compile Include="PCReDive_Maho.py" />
-    <Compile Include="TopGG.py" />
+    <Compile Include="Module\Kernel\TopGG.py" />
   </ItemGroup>
   <ItemGroup>
     <Interpreter Include="env\">
@@ -112,6 +116,7 @@
     <Folder Include="Event\SlashCommand\General\" />
     <Folder Include="Module\" />
     <Folder Include="Module\General\" />
+    <Folder Include="Module\Kernel\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="requirements.txt" />

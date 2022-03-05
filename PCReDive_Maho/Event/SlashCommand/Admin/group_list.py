@@ -1,22 +1,22 @@
 import datetime
 from discord import Embed
 from discord_slash.utils.manage_commands import create_option
-import Discord_client
-import Module.DB_control
-import Module.Authentication
-import Name_manager
-import Module.define_value
+import Module.Kernel.Discord_client
+import Module.Kernel.DB_control
+import Module.Kernel.Authentication
+import Module.Kernel.Name_manager
+import Module.Kernel.define_value
 
-@Discord_client.slash.subcommand( base="admin",
+@Module.Kernel.Discord_client.slash.subcommand( base="admin",
                                   name="group_list" ,
                                   description="顯示戰隊列表。",
                                 )
 async def group_list(ctx):
-  if await Module.Authentication.IsAdmin(ctx ,'/group_list'):
+  if await Module.Kernel.Authentication.IsAdmin(ctx ,'/group_list'):
     # 找出該伺服器戰隊
-    connection = await Module.DB_control.OpenConnection(ctx)
+    connection = await Module.Kernel.DB_control.OpenConnection(ctx)
     if connection:
-      connection2 = await Module.DB_control.OpenConnection(ctx)
+      connection2 = await Module.Kernel.DB_control.OpenConnection(ctx)
       if connection2:
         # 列出所有戰隊
         cursor = connection.cursor(prepared=True)
@@ -105,7 +105,7 @@ async def group_list(ctx):
           inner_row = cursor2.fetchone()
           captain_msg = ''
           while inner_row:
-            member_name = await Name_manager.get_nick_name(ctx, inner_row[0])
+            member_name = await Module.Kernel.Name_manager.get_nick_name(ctx, inner_row[0])
             captain_msg = captain_msg + member_name + ', '
             inner_row = cursor2.fetchone()
           cursor2.close
@@ -148,6 +148,6 @@ async def group_list(ctx):
         else:
           await ctx.send(embed = embed_msg)
 
-        await Module.DB_control.CloseConnection(connection2, ctx)
+        await Module.Kernel.DB_control.CloseConnection(connection2, ctx)
 
-      await Module.DB_control.CloseConnection(connection, ctx)
+      await Module.Kernel.DB_control.CloseConnection(connection, ctx)

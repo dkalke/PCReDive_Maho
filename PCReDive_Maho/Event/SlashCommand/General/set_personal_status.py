@@ -1,15 +1,15 @@
 ﻿import datetime
 from discord_slash.utils.manage_commands import create_option, create_choice
-import Discord_client
-import Module.DB_control
-import Module.check_boss
-import Module.check_week
-import Module.Update
-import Module.week_stage
-import Module.define_value
-import Module.get_closest_end_time
+import Module.Kernel.Discord_client
+import Module.Kernel.DB_control
+import Module.Kernel.check_boss
+import Module.Kernel.check_week
+import Module.Kernel.Update
+import Module.Kernel.week_stage
+import Module.Kernel.define_value
+import Module.Kernel.get_closest_end_time
 
-@Discord_client.slash.slash( 
+@Module.Kernel.Discord_client.slash.slash( 
              name="f" ,
              description="出刀狀態設定",
              options= [
@@ -35,7 +35,7 @@ import Module.get_closest_end_time
              connector={"剩餘正刀數": "normal","剩餘補償數": "reversed"}
              )
 async def set_personal_status(ctx, normal, reversed):
-  connection = await Module.DB_control.OpenConnection(ctx)
+  connection = await Module.Kernel.DB_control.OpenConnection(ctx)
   if connection:
     cursor = connection.cursor(prepared=True)
     sql = "SELECT now_week, now_week_1, now_week_2, now_week_3, now_week_4, now_week_5, week_offset, group_serial FROM princess_connect.group WHERE server_id = ? and sign_channel_id = ? order by group_serial limit 0, 1"
@@ -51,15 +51,15 @@ async def set_personal_status(ctx, normal, reversed):
       row = cursor.fetchone()
       if row:
         sql = "INSERT INTO princess_connect.knife_summary VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE normal = ?, reserved = ?"
-        data = (row[0], Module.get_closest_end_time.get_closest_end_time(datetime.datetime.now()) - datetime.timedelta(days = 1), normal, reversed, normal, reversed)
+        data = (row[0], Module.Kernel.get_closest_end_time.get_closest_end_time(datetime.datetime.now()) - datetime.timedelta(days = 1), normal, reversed, normal, reversed)
         cursor.execute(sql, data)
         connection.commit() # 資料庫存檔
         await ctx.send('更新完成，正刀剩餘:{}，補償剩餘:{}!'.format(normal, reversed))
-        await Module.info_update.info_update(ctx ,ctx.guild.id, group_serial)
+        await Module.Kernel.info_update.info_update(ctx ,ctx.guild.id, group_serial)
       else:
         await ctx.send('找不到你的資料，請通知戰隊隊長協助加入戰隊名單!')
       cursor.close()
 
     else:
       await ctx.send('這裡不是報刀頻道喔!')
-    await Module.DB_control.CloseConnection(connection, ctx)
+    await Module.Kernel.DB_control.CloseConnection(connection, ctx)

@@ -1,11 +1,11 @@
 import datetime
-import Discord_client
+import Module.Kernel.Discord_client
 from discord_slash.utils.manage_commands import create_option
-import Module.DB_control
-import Module.Authentication
-import Module.info_update
+import Module.Kernel.DB_control
+import Module.Kernel.Authentication
+import Module.Kernel.info_update
 
-@Discord_client.slash.subcommand( base="admin",
+@Module.Kernel.Discord_client.slash.subcommand( base="admin",
                                   name="add_captain" ,
                                   description="新增隊長到指定戰隊。",
                                   options=[
@@ -29,11 +29,11 @@ import Module.info_update
                                 )
 async def add_captain(ctx, group_serial, member):
   if group_serial > 0:
-    if await Module.Authentication.IsAdmin(ctx ,'/add_captain'):
-      connection = await Module.DB_control.OpenConnection(ctx)
+    if await Module.Kernel.Authentication.IsAdmin(ctx ,'/add_captain'):
+      connection = await Module.Kernel.DB_control.OpenConnection(ctx)
       if connection:
         # 尋找戰隊有無存在
-        row = Module.Authentication.IsExistGroup(ctx,connection, ctx.guild.id, group_serial)
+        row = Module.Kernel.Authentication.IsExistGroup(ctx,connection, ctx.guild.id, group_serial)
         cursor = connection.cursor(prepared=True)
         if row: 
           user_db_id = None
@@ -64,11 +64,11 @@ async def add_captain(ctx, group_serial, member):
             cursor.close
             connection.commit() # 資料庫存檔
             await ctx.send( member.name + ' 已新增為第' + str(group_serial) + '戰隊隊長。')
-            await Module.info_update.info_update(ctx ,ctx.guild.id, group_serial)
+            await Module.Kernel.info_update.info_update(ctx ,ctx.guild.id, group_serial)
           else:
             await ctx.send( member.name + ' 目前已有戰隊隊長身分，不可重複指派。')
         else:
           await ctx.send('第' + str(group_serial) + '戰隊不存在!')    
-        await Module.DB_control.CloseConnection(connection, ctx)
+        await Module.Kernel.DB_control.CloseConnection(connection, ctx)
   else:
     await ctx.send('戰隊編號只能是正整數。')

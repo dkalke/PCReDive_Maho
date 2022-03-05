@@ -1,13 +1,13 @@
 ﻿from discord_slash.utils.manage_commands import create_option, create_choice
-import Discord_client
-import Module.DB_control
-import Module.Authentication
-import Module.Offset_manager
-import Module.Update
+import Module.Kernel.Discord_client
+import Module.Kernel.DB_control
+import Module.Kernel.Authentication
+import Module.Kernel.Offset_manager
+import Module.Kernel.Update
 
 
 # !設定 [週目] [幾王]
-@Discord_client.slash.subcommand( base="controller", 
+@Module.Kernel.Discord_client.slash.subcommand( base="controller", 
                                   name="set_progress", 
                                   description="強制切換至指定boss的週目",
                                   options=[
@@ -46,9 +46,9 @@ import Module.Update
                                 )
 async def set_progress(ctx, week1, week2, week3, week4, week5):
   # check身分，並找出所屬組別
-  connection = await Module.DB_control.OpenConnection(ctx)
+  connection = await Module.Kernel.DB_control.OpenConnection(ctx)
   if connection:
-    ( main_week, now_week, week_offset, group_serial ) = await Module.Authentication.IsController(ctx ,'/controller set_progress', connection, ctx.guild.id)
+    ( main_week, now_week, week_offset, group_serial ) = await Module.Kernel.Authentication.IsController(ctx ,'/controller set_progress', connection, ctx.guild.id)
     if not group_serial == 0: # 如果是是控刀手
       if week1 > 0 and week2 > 0 and week3 > 0 and week4 > 0 and week5 > 0:
         cursor = connection.cursor(prepared=True)
@@ -65,9 +65,9 @@ async def set_progress(ctx, week1, week2, week3, week4, week5):
                        '3王:**'+ str(week3) + '**週目!\n' + 
                        '4王:**'+ str(week4) + '**週目!\n' + 
                        '5王:**'+ str(week5) + '**週目!\n')
-        Module.Offset_manager.AutoOffset(connection, ctx.guild.id, group_serial)
-        await Module.Update.Update(ctx, ctx.guild.id, group_serial) # 更新刀表
+        Module.Kernel.Offset_manager.AutoOffset(connection, ctx.guild.id, group_serial)
+        await Module.Kernel.Update.Update(ctx, ctx.guild.id, group_serial) # 更新刀表
       else:
         await ctx.send('週目必須要大於0!')
 
-    await Module.DB_control.CloseConnection(connection, ctx)
+    await Module.Kernel.DB_control.CloseConnection(connection, ctx)

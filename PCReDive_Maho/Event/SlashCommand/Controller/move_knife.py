@@ -1,14 +1,14 @@
 ﻿from discord_slash.utils.manage_commands import create_option, create_choice
-import Discord_client
-import Module.DB_control
-import Module.Authentication
-import Module.check_week
-import Module.check_boss
-import Module.Update
+import Module.Kernel.Discord_client
+import Module.Kernel.DB_control
+import Module.Kernel.Authentication
+import Module.Kernel.check_week
+import Module.Kernel.check_boss
+import Module.Kernel.Update
 
 # 20211209棄用
 # !移動 [週目] [幾王] [第幾刀] 到 [週目] [幾王]
-@Discord_client.slash.subcommand( base="controller", 
+@Module.Kernel.Discord_client.slash.subcommand( base="controller", 
                                   name="move_knife", 
                                   description="調動某刀",
                                   options=[
@@ -60,12 +60,12 @@ import Module.Update
                                   connector={"週目": "source_week", "boss": "source_boss", "刀表序號": "source_knife", "新週目": "destination_week", "新boss": "destination_boss"}
                                 )
 async def move_knife(ctx, source_week, source_boss, source_knife, destination_week, destination_boss):
-  connection = await Module.DB_control.OpenConnection(ctx)
+  connection = await Module.Kernel.DB_control.OpenConnection(ctx)
   if connection:
-    ( main_week, now_week, week_offset, group_serial ) = await Module.Authentication.IsController(ctx, '/controller move_knife', connection, ctx.guild.id) # check身分，並找出所屬組別
+    ( main_week, now_week, week_offset, group_serial ) = await Module.Kernel.Authentication.IsController(ctx, '/controller move_knife', connection, ctx.guild.id) # check身分，並找出所屬組別
     if not group_serial == 0: # 如果是控刀手
-      if Module.check_week.Check_week((main_week, week_offset), source_week) and Module.check_week.Check_week((main_week, week_offset), destination_week):
-        if Module.check_boss.Check_boss(now_week, source_week, source_boss) and Module.check_boss.Check_boss(now_week, destination_week, destination_boss):
+      if Module.Kernel.check_week.Check_week((main_week, week_offset), source_week) and Module.Kernel.check_week.Check_week((main_week, week_offset), destination_week):
+        if Module.Kernel.check_boss.Check_boss(now_week, source_week, source_boss) and Module.Kernel.check_boss.Check_boss(now_week, destination_week, destination_boss):
           # 尋找要刪除刀的序號
           delete_index = 0
           cursor = connection.cursor(prepared=True)
@@ -90,7 +90,7 @@ async def move_knife(ctx, source_week, source_boss, source_knife, destination_we
             cursor.close()
             connection.commit()
             await ctx.send('第' + str(source_week) + '週目' + str(source_boss) + '王，移動完成!')
-            await Module.Update.Update(ctx, ctx.guild.id, group_serial) # 更新刀表
+            await Module.Kernel.Update.Update(ctx, ctx.guild.id, group_serial) # 更新刀表
           else:
             await ctx.send('該刀不存在喔!')
         else:
@@ -98,4 +98,4 @@ async def move_knife(ctx, source_week, source_boss, source_knife, destination_we
       else:
         await ctx.send('該週目不存在喔!')
 
-    await Module.DB_control.CloseConnection(connection, ctx)
+    await Module.Kernel.DB_control.CloseConnection(connection, ctx)

@@ -1,11 +1,11 @@
 ﻿from discord_slash.utils.manage_commands import create_option, create_choice
-import Discord_client
-import Module.DB_control
-import Module.Authentication
-import Module.Update
+import Module.Kernel.Discord_client
+import Module.Kernel.DB_control
+import Module.Kernel.Authentication
+import Module.Kernel.Update
 
 #!幫報保留刀 [幾王] [註解] [mention]
-@Discord_client.slash.subcommand( base="controller", 
+@Module.Kernel.Discord_client.slash.subcommand( base="controller", 
                                   name="keep_knife", 
                                   description="幫成員報一個保留刀",
                                   options=[
@@ -39,9 +39,9 @@ import Module.Update
                                 )
 async def keep_knife(ctx, boss, comment, member):
   # check身分，並找出所屬組別
-  connection = await Module.DB_control.OpenConnection(ctx)
+  connection = await Module.Kernel.DB_control.OpenConnection(ctx)
   if connection:
-    ( main_week, now_week, week_offset, group_serial ) = await Module.Authentication.IsController(ctx ,'/controller keep_knife', connection, ctx.guild.id)
+    ( main_week, now_week, week_offset, group_serial ) = await Module.Kernel.Authentication.IsController(ctx ,'/controller keep_knife', connection, ctx.guild.id)
     if not group_serial == 0: # 如果是是控刀手
       # 寫入保留刀表
       cursor = connection.cursor(prepared=True)
@@ -51,6 +51,6 @@ async def keep_knife(ctx, boss, comment, member):
       cursor.close()
       connection.commit()
       await ctx.send(str(boss) + '王，備註:' + comment + '，**保留刀**報刀成功!')
-      await Module.Update.Update(ctx, ctx.guild.id, group_serial) # 更新刀表
+      await Module.Kernel.Update.Update(ctx, ctx.guild.id, group_serial) # 更新刀表
 
-    await Module.DB_control.CloseConnection(connection, ctx)
+    await Module.Kernel.DB_control.CloseConnection(connection, ctx)

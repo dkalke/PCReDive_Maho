@@ -1,4 +1,4 @@
-import Name_manager
+﻿import Module.Kernel.Name_manager
 async def show_knifes(connection, ctx, group_serial, week, boss):
   knifes = ''
   cursor = connection.cursor(prepared=True)

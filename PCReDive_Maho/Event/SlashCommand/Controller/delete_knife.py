@@ -1,13 +1,13 @@
 ﻿from discord_slash.utils.manage_commands import create_option, create_choice
-import Discord_client
-import Module.DB_control
-import Module.Authentication
-import Module.check_week
-import Module.check_boss
-import Module.Update
+import Module.Kernel.Discord_client
+import Module.Kernel.DB_control
+import Module.Kernel.Authentication
+import Module.Kernel.check_week
+import Module.Kernel.check_boss
+import Module.Kernel.Update
 
 # !刪除 [週目] [幾王] [第幾刀]
-@Discord_client.slash.subcommand( base="controller", 
+@Module.Kernel.Discord_client.slash.subcommand( base="controller", 
                                   name="delete_knife", 
                                   description="強制刪除刀表上的某一刀",
                                   options=[
@@ -41,12 +41,12 @@ import Module.Update
                                 )
 async def delete_knife(ctx, week, boss, knife):
   # check身分，並找出所屬組別
-  connection = await Module.DB_control.OpenConnection(ctx)
+  connection = await Module.Kernel.DB_control.OpenConnection(ctx)
   if connection:
-    ( main_week, now_week, week_offset, group_serial ) = await Module.Authentication.IsController(ctx ,'/controller delete_knife', connection, ctx.guild.id)
+    ( main_week, now_week, week_offset, group_serial ) = await Module.Kernel.Authentication.IsController(ctx ,'/controller delete_knife', connection, ctx.guild.id)
     if not group_serial == 0: # 如果是是控刀手
-      if Module.check_week.Check_week((main_week, week_offset), week):
-        if Module.check_boss.Check_boss(now_week, week,boss):
+      if Module.Kernel.check_week.Check_week((main_week, week_offset), week):
+        if Module.Kernel.check_boss.Check_boss(now_week, week,boss):
           # 尋找要刪除刀的序號
           cursor = connection.cursor(prepared=True)
           sql = "SELECT serial_number,server_id, group_serial, boss, member_id, comment from princess_connect.knifes where server_id=? and group_serial=? and week=? and boss=? order by serial_number limit ?,1"
@@ -63,7 +63,7 @@ async def delete_knife(ctx, week, boss, knife):
             cursor.close()
             connection.commit()
             await ctx.send('刪除成功!')
-            await Module.Update.Update(ctx, ctx.guild.id, group_serial) # 更新刀表
+            await Module.Kernel.Update.Update(ctx, ctx.guild.id, group_serial) # 更新刀表
           else:
             await ctx.send('該刀不存在喔!')
         else:
@@ -71,4 +71,4 @@ async def delete_knife(ctx, week, boss, knife):
       else:
         await ctx.send('該週目不存在喔!')
 
-    await Module.DB_control.CloseConnection(connection, ctx)
+    await Module.Kernel.DB_control.CloseConnection(connection, ctx)

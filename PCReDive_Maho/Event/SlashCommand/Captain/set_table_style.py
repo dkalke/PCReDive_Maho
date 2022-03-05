@@ -1,10 +1,10 @@
 from discord import Embed
 from discord_slash.utils.manage_commands import create_option, create_choice
-import Discord_client
-import Module.DB_control
-import Module.Authentication
+import Module.Kernel.Discord_client
+import Module.Kernel.DB_control
+import Module.Kernel.Authentication
 
-@Discord_client.slash.subcommand( base="captain",
+@Module.Kernel.Discord_client.slash.subcommand( base="captain",
                                   name="set_table_style" ,
                                   description="設定刀表樣式",
                                   options=[
@@ -22,13 +22,13 @@ import Module.Authentication
                                   connector={"樣式": "style"}
                                 )
 async def set_table_style(ctx, style):
-  connection = await Module.DB_control.OpenConnection(ctx)
+  connection = await Module.Kernel.DB_control.OpenConnection(ctx)
   if connection:
     server_id = ctx.guild.id
-    row = await Module.Authentication.IsCaptain(ctx ,'/captain set_table_style', connection, server_id, ctx.author.id)
+    row = await Module.Kernel.Authentication.IsCaptain(ctx ,'/captain set_table_style', connection, server_id, ctx.author.id)
     if row:
       group_serial = row[0]
-      if await Module.Authentication.IsSignChannel(ctx,connection,group_serial):
+      if await Module.Kernel.Authentication.IsSignChannel(ctx,connection,group_serial):
         # 查詢刀表訊息、保留刀訊息
         cursor = connection.cursor(prepared=True)
         sql = "SELECT table_channel_id, table_message_id, knife_pool_message_id FROM princess_connect.group WHERE server_id = ? and group_serial = ? LIMIT 0, 1"
@@ -73,10 +73,10 @@ async def set_table_style(ctx, style):
             cursor.execute(sql, data)
             cursor.close
             connection.commit()
-            await Module.Update.Update(ctx, ctx.guild.id, group_serial)
+            await Module.Kernel.Update.Update(ctx, ctx.guild.id, group_serial)
           except:
             await ctx.send('刀表訊息已被移除，請重新設定刀表頻道!')
         else:
           await ctx.send('查無戰隊資料!')
      
-    await Module.DB_control.CloseConnection(connection, ctx)
+    await Module.Kernel.DB_control.CloseConnection(connection, ctx)

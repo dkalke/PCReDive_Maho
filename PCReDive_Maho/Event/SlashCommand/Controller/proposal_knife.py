@@ -1,13 +1,13 @@
 ﻿from discord_slash.utils.manage_commands import create_option, create_choice
-import Discord_client
-import Module.DB_control
-import Module.Authentication
-import Module.check_week
-import Module.check_boss
-import Module.Update
+import Module.Kernel.Discord_client
+import Module.Kernel.DB_control
+import Module.Kernel.Authentication
+import Module.Kernel.check_week
+import Module.Kernel.check_boss
+import Module.Kernel.Update
 
 # !幫報 [周目] [幾王] [註解] [mention]
-@Discord_client.slash.subcommand( base="controller", 
+@Module.Kernel.Discord_client.slash.subcommand( base="controller", 
                                   name="proposal_knife", 
                                   description="幫成員報刀",
                                   options=[
@@ -53,17 +53,17 @@ import Module.Update
                                 )
 async def proposal_knife(ctx, week, boss, comment, member, **kwargs):
   # check身分，並找出所屬組別
-  connection = await Module.DB_control.OpenConnection(ctx)
+  connection = await Module.Kernel.DB_control.OpenConnection(ctx)
   if connection:
-    ( main_week, now_week, week_offset, group_serial ) = await Module.Authentication.IsController(ctx ,'/controller proposal_knife', connection, ctx.guild.id)
+    ( main_week, now_week, week_offset, group_serial ) = await Module.Kernel.Authentication.IsController(ctx ,'/controller proposal_knife', connection, ctx.guild.id)
     if not group_serial == 0: # 如果是是控刀手
-      if Module.check_week.Check_week((main_week, week_offset), week):
-        if Module.check_boss.Check_boss(now_week, week, boss):
+      if Module.Kernel.check_week.Check_week((main_week, week_offset), week):
+        if Module.Kernel.check_boss.Check_boss(now_week, week, boss):
           try:
             estimated_damage = kwargs["estimated_damage"]
           except KeyError as e:
             estimated_damage = 0
-          if not (Module.week_stage.week_stage(week) == 4 and estimated_damage == 0):
+          if not (Module.Kernel.week_stage.week_stage(week) == 4 and estimated_damage == 0):
             # 新增進刀表
             cursor = connection.cursor(prepared=True)
             sql = "INSERT INTO princess_connect.knifes (server_id, group_serial, week, boss, member_id, comment, estimated_damage) VALUES (?, ?, ?, ?, ?, ?, ?)"
@@ -72,7 +72,7 @@ async def proposal_knife(ctx, week, boss, comment, member, **kwargs):
             cursor.close
             connection.commit()
             await ctx.send('幫報完成! 第' + str(week) + '週目' + str(boss) + '王，備註:' + comment + '。')
-            await Module.Update.Update(ctx, ctx.guild.id, group_serial) # 更新刀表
+            await Module.Kernel.Update.Update(ctx, ctx.guild.id, group_serial) # 更新刀表
           else:
             await ctx.send('發生錯誤，五階段報刀請填寫可選參數[預估傷害]，單位為萬!')
         else:
@@ -80,4 +80,4 @@ async def proposal_knife(ctx, week, boss, comment, member, **kwargs):
       else:
         await ctx.send('該週目不存在喔!')
 
-    await Module.DB_control.CloseConnection(connection, ctx)
+    await Module.Kernel.DB_control.CloseConnection(connection, ctx)

@@ -1,10 +1,10 @@
 import datetime
-import Discord_client
+import Module.Kernel.Discord_client
 from discord_slash.utils.manage_commands import create_option
-import Module.DB_control
-import Module.Authentication
+import Module.Kernel.DB_control
+import Module.Kernel.Authentication
 
-@Discord_client.slash.subcommand( base="admin",
+@Module.Kernel.Discord_client.slash.subcommand( base="admin",
                                   name="delete_group" ,
                                   description="刪除一個戰隊。",
                                   options=[
@@ -19,11 +19,11 @@ import Module.Authentication
                                 )
 async def delete_group(ctx, group_serial):
   if group_serial > 0:
-    if await Module.Authentication.IsAdmin(ctx ,'/delete_group'):
+    if await Module.Kernel.Authentication.IsAdmin(ctx ,'/delete_group'):
       # 尋找戰隊有無存在
-      connection = await Module.DB_control.OpenConnection(ctx)
+      connection = await Module.Kernel.DB_control.OpenConnection(ctx)
       if connection:
-        row = Module.Authentication.IsExistGroup(ctx ,connection, ctx.guild.id, group_serial)
+        row = Module.Kernel.Authentication.IsExistGroup(ctx ,connection, ctx.guild.id, group_serial)
         if row: # 找到該戰隊資料，刪除之! (設有外鍵關聯，其餘相關資料將一併並刪除)
           # 刪除戰隊
           cursor = connection.cursor(prepared=True)
@@ -36,6 +36,6 @@ async def delete_group(ctx, group_serial):
         else: 
           await ctx.send('第' + str(group_serial) + '戰隊不存在!')
 
-        await Module.DB_control.CloseConnection(connection, ctx)
+        await Module.Kernel.DB_control.CloseConnection(connection, ctx)
   else:
     await ctx.send('[編號] 只能是正整數!')

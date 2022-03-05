@@ -1,9 +1,7 @@
-import Discord_client
-from discord_slash.utils.manage_commands import create_option, create_choice
-import Module.DB_control
-import Module.Authentication
-import Module.Update
-import Module.Offset_manager
+import Module.Kernel.DB_control
+import Module.Kernel.Authentication
+import Module.Kernel.Update
+import Module.Kernel.Offset_manager
 
 
 import Event.SlashCommand.Admin.create_group
@@ -50,6 +48,3 @@ import Event.SlashCommand.General.use_sl
 import Event.SlashCommand.General.set_personal_status
 import Event.SlashCommand.General.join
 import Event.SlashCommand.General.leave
-
-
-# import Event.SlashCommand.General.hit_boss # 擾民棄用，實際狀況可直接使用discord內建tag功能提醒尚未出刀者。

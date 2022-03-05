@@ -1,15 +1,15 @@
-import Discord_client
-import Module.DB_control
-import Module.Authentication
+import Module.Kernel.Discord_client
+import Module.Kernel.DB_control
+import Module.Kernel.Authentication
 
-@Discord_client.slash.subcommand( base="captain",
+@Module.Kernel.Discord_client.slash.subcommand( base="captain",
                                   name="set_sign_channel_here" ,
                                   description="將目前位置做為報刀頻道"
                                 )
 async def set_sign_channel_here(ctx):
-  connection = await Module.DB_control.OpenConnection(ctx)
+  connection = await Module.Kernel.DB_control.OpenConnection(ctx)
   if connection:
-    row = await Module.Authentication.IsCaptain(ctx, '/captain set_sign_channel_here', connection, ctx.guild.id, ctx.author.id)
+    row = await Module.Kernel.Authentication.IsCaptain(ctx, '/captain set_sign_channel_here', connection, ctx.guild.id, ctx.author.id)
     if row:
       group_serial = int(row[0])
       cursor = connection.cursor(prepared=True)
@@ -30,4 +30,4 @@ async def set_sign_channel_here(ctx):
       else:
         await ctx.send('這裡是第'+ str(row[0]) +'戰隊的報刀頻道，請重新選擇!')
             
-    await Module.DB_control.CloseConnection(connection, ctx)
+    await Module.Kernel.DB_control.CloseConnection(connection, ctx)

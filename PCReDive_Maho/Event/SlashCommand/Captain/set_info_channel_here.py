@@ -1,16 +1,16 @@
-﻿import Discord_client
-import Module.DB_control
-import Module.Authentication
-import Module.info_update
+﻿import Module.Kernel.Discord_client
+import Module.Kernel.DB_control
+import Module.Kernel.Authentication
+import Module.Kernel.info_update
 
-@Discord_client.slash.subcommand( base="captain",
+@Module.Kernel.Discord_client.slash.subcommand( base="captain",
                                   name="set_info_channel_here" ,
                                   description="將目前位置做為資訊頻道"
                                 )
 async def set_info_channel_here(ctx):
-  connection = await Module.DB_control.OpenConnection(ctx)
+  connection = await Module.Kernel.DB_control.OpenConnection(ctx)
   if connection:
-    row = await Module.Authentication.IsCaptain(ctx, '/captain set_info_channel_here', connection, ctx.guild.id, ctx.author.id)
+    row = await Module.Kernel.Authentication.IsCaptain(ctx, '/captain set_info_channel_here', connection, ctx.guild.id, ctx.author.id)
     if row:
       group_serial = int(row[0])
       info_message = await ctx.send('資訊是吧，了解!')
@@ -22,6 +22,6 @@ async def set_info_channel_here(ctx):
       cursor.execute(sql, data)
       cursor.close
       connection.commit()
-      await Module.info_update.info_update(ctx ,ctx.guild.id, group_serial)
+      await Module.Kernel.info_update.info_update(ctx ,ctx.guild.id, group_serial)
             
-    await Module.DB_control.CloseConnection(connection, ctx)
+    await Module.Kernel.DB_control.CloseConnection(connection, ctx)

@@ -7,18 +7,18 @@ from mysql.connector import Error
 
 import discord
 from discord import Embed
-from Discord_client import client
-import Name_manager
-import Module.DB_control
-import Module.Authentication
-import Module.Update
-import Module.Offset_manager
-import Module.check_week
-import Module.check_boss
-import Module.full_string_to_half_and_lower
-import Module.define_value
-import Module.get_closest_end_time
-import Module.info_update
+from Module.Kernel.Discord_client import client
+import Module.Kernel.Name_manager
+import Module.Kernel.DB_control
+import Module.Kernel.Authentication
+import Module.Kernel.Update
+import Module.Kernel.Offset_manager
+import Module.Kernel.check_week
+import Module.Kernel.check_boss
+import Module.Kernel.full_string_to_half_and_lower
+import Module.Kernel.define_value
+import Module.Kernel.get_closest_end_time
+import Module.Kernel.info_update
 
 
 def checktime(number): # 檢查是不是合法的時間
@@ -66,15 +66,15 @@ def knife_type_normalized(knife_type): # 檢查是否吻合繁體、檢體、英
 
 def period_type_normalized(period):
   if period== "0" or period== "u" or period== "不定" or period== "不定??-??": # ??-??
-    return Module.define_value.Period.UNKNOW.value
+    return Module.Kernel.define_value.Period.UNKNOW.value
   elif period== "1" or period== "d" or period== "日班" or period== "日班08-16": # 08-16
-    return Module.define_value.Period.DAY.value
+    return Module.Kernel.define_value.Period.DAY.value
   elif period== "2" or period== "n" or period== "晚班" or period== "晚班16-24": # 16-24
-    return Module.define_value.Period.NIGHT.value
+    return Module.Kernel.define_value.Period.NIGHT.value
   elif period== "3" or period== "g" or period== "夜班" or period== "夜班00-08": # 00-08
-    return Module.define_value.Period.GRAVEYARD.value
+    return Module.Kernel.define_value.Period.GRAVEYARD.value
   elif period== "4" or period== "a" or period== "全日" or period== "全日00-24": # 00-24
-    return Module.define_value.Period.ALL.value
+    return Module.Kernel.define_value.Period.ALL.value
   else:
     return -1 # ERROR
 
@@ -107,10 +107,10 @@ async def on_message(message):
   try:
     tokens = message.content.split()
     if len(tokens) > 0: # 邊界檢查
-      tokens[0] = Module.full_string_to_half_and_lower.full_string_to_half_and_lower(tokens[0])
+      tokens[0] = Module.Kernel.full_string_to_half_and_lower.full_string_to_half_and_lower(tokens[0])
 
       if tokens[0][0] == '!': # 檢查有無更新訊息
-        connection = await Module.DB_control.OpenConnection(message)
+        connection = await Module.Kernel.DB_control.OpenConnection(message)
         if connection:
           await RemindUpdate(connection, message.guild.id)
 
@@ -129,7 +129,7 @@ async def on_message(message):
         # check頻道，並找出所屬組別
         group_serial = 0
         
-        connection = await Module.DB_control.OpenConnection(message)
+        connection = await Module.Kernel.DB_control.OpenConnection(message)
         if connection:
           cursor = connection.cursor(prepared=True)
           sql = "SELECT now_week, now_week_1, now_week_2, now_week_3, now_week_4, now_week_5, week_offset, group_serial FROM princess_connect.group WHERE server_id = ? and sign_channel_id = ? order by group_serial limit 0, 1"
@@ -153,9 +153,9 @@ async def on_message(message):
                 week = int(tokens[1])
                 boss = int(tokens[2])
                 comment = tokens[3]
-                if Module.check_week.Check_week((row[0], row[6]), week):
-                  if Module.check_boss.Check_boss((row[1], row[2], row[3], row[4], row[5]),week, boss):
-                    if not (Module.week_stage.week_stage(week) == 4 and estimated_damage == 0):
+                if Module.Kernel.check_week.Check_week((row[0], row[6]), week):
+                  if Module.Kernel.check_boss.Check_boss((row[1], row[2], row[3], row[4], row[5]),week, boss):
+                    if not (Module.Kernel.week_stage.week_stage(week) == 4 and estimated_damage == 0):
                       # 新增刀
                       sql = "SELECT SUM(estimated_damage) from knifes WHERE server_id = ? and group_serial = ? and week = ? and boss = ?"
                       data = (message.guild.id, group_serial, week, boss)
@@ -165,7 +165,7 @@ async def on_message(message):
                       sum_estimated_damage = 0
                       if row[0]:
                         sum_estimated_damage = int(row[0])
-                      if (Module.define_value.BOSS_HP[Module.week_stage.week_stage(week)][boss-1] - sum_estimated_damage) > 0:
+                      if (Module.Kernel.define_value.BOSS_HP[Module.Kernel.week_stage.week_stage(week)][boss-1] - sum_estimated_damage) > 0:
                         cursor = connection.cursor(prepared=True)
                         sql = "INSERT INTO princess_connect.knifes (server_id, group_serial, week, boss, member_id, comment, estimated_damage) VALUES (?, ?, ?, ?, ?, ?, ?)"
                         data = (message.guild.id, group_serial, week, boss, message.author.id, comment ,estimated_damage)
@@ -173,7 +173,7 @@ async def on_message(message):
                         cursor.close
                         connection.commit()
                         await message.channel.send('第' + str(week) + '週目' + str(boss) + '王，備註:' + comment + '，報刀成功!')
-                        await Module.Update.Update(message, message.guild.id, group_serial) # 更新刀表
+                        await Module.Kernel.Update.Update(message, message.guild.id, group_serial) # 更新刀表
                       else:
                         await message.channel.send('偵測到溢傷，請改報其他週目!')
                     else:
@@ -188,12 +188,12 @@ async def on_message(message):
               await message.channel.send('!預約 格式錯誤，應為 !預約 [週目] [王] [註解]')
           else:
             pass #非指定頻道 不反應
-          await Module.DB_control.CloseConnection(connection, message)
+          await Module.Kernel.DB_control.CloseConnection(connection, message)
 
       #!取消報刀  !取消預約 [周目] [幾王] [第幾刀]
       elif tokens[0] == '!取消預約' or tokens[0] == '!取消预约' or tokens[0] == '!cp':
         group_serial = 0
-        connection = await Module.DB_control.OpenConnection(message)
+        connection = await Module.Kernel.DB_control.OpenConnection(message)
         if connection:
           cursor = connection.cursor(prepared=True)
           sql = "SELECT now_week, now_week_1, now_week_2, now_week_3, now_week_4, now_week_5, week_offset, group_serial FROM princess_connect.group WHERE server_id = ? and sign_channel_id = ? order by group_serial limit 0, 1"
@@ -208,8 +208,8 @@ async def on_message(message):
                 week = int(tokens[1])
                 boss = int(tokens[2])
                 index = int(tokens[3]) # TODO check index 不可為負數
-                if Module.check_week.Check_week((row[0], row[6]), week):
-                  if Module.check_boss.Check_boss((row[1], row[2], row[3], row[4], row[5]), week, boss):
+                if Module.Kernel.check_week.Check_week((row[0], row[6]), week):
+                  if Module.Kernel.check_boss.Check_boss((row[1], row[2], row[3], row[4], row[5]), week, boss):
                     # 尋找要刪除刀的序號
                     delete_index = 0
                     cursor = connection.cursor(prepared=True)
@@ -227,7 +227,7 @@ async def on_message(message):
                         cursor.close()
                         connection.commit()
                         await message.channel.send('取消成功!')
-                        await Module.Update.Update(message, message.guild.id, group_serial) # 更新刀表
+                        await Module.Kernel.Update.Update(message, message.guild.id, group_serial) # 更新刀表
                       else:
                         await message.channel.send('您並非該刀主人喔!')
                     else:
@@ -242,13 +242,15 @@ async def on_message(message):
               await message.channel.send('!取消預約 格式錯誤，應為 !取消預約 [週目] [王] [第幾刀]')
           else:
             pass #非指定頻道 不反應
-          await Module.DB_control.CloseConnection(connection, message)
+          await Module.Kernel.DB_control.CloseConnection(connection, message)
+
+        
         
       #!報保留刀 [備註]
       elif tokens[0] == '!報保留刀' or tokens[0] == '!报保留刀' or tokens[0] == '!kp':
         # check頻道，並找出所屬組別
         group_serial = 0
-        connection = await Module.DB_control.OpenConnection(message)
+        connection = await Module.Kernel.DB_control.OpenConnection(message)
         if connection:
           cursor = connection.cursor(prepared=True)
           sql = "SELECT group_serial FROM princess_connect.group WHERE server_id = ? and sign_channel_id = ? order by group_serial limit 0, 1"
@@ -267,16 +269,16 @@ async def on_message(message):
               cursor.close()
               connection.commit()
               await message.channel.send( '備註:' + tokens[1] + '，**保留刀**報刀成功!')
-              await Module.Update.Update(message, message.guild.id, group_serial) # 更新刀表
+              await Module.Kernel.Update.Update(message, message.guild.id, group_serial) # 更新刀表
             else:
               await message.channel.send('!報保留刀 格式錯誤，應為 !報保留刀 [註解]')
           else:
             pass #非指定頻道 不反應
-          await Module.DB_control.CloseConnection(connection, message)
+          await Module.Kernel.DB_control.CloseConnection(connection, message)
         
       #!使用保留刀 [第幾刀] [週目] [boss]
       elif tokens[0] == '!使用保留刀' or tokens[0] == '!使用保留刀' or tokens[0] == '!ukp':
-        connection = await Module.DB_control.OpenConnection(message)
+        connection = await Module.Kernel.DB_control.OpenConnection(message)
         if connection:
           cursor = connection.cursor(prepared=True)
           sql = "SELECT  now_week, now_week_1, now_week_2, now_week_3, now_week_4, now_week_5, week_offset, group_serial FROM princess_connect.group WHERE server_id = ? and sign_channel_id = ? order by group_serial limit 0, 1"
@@ -301,9 +303,9 @@ async def on_message(message):
                 index = int(tokens[1]) # TODO check index 不可為負數
                 week = int(tokens[2])
                 boss = int(tokens[3])
-                if Module.check_week.Check_week((row[0], row[6]), week):
-                  if Module.check_boss.Check_boss((row[1], row[2], row[3], row[4], row[5]),week, boss):  
-                    if not (Module.week_stage.week_stage(week) == 4 and estimated_damage == 0):
+                if Module.Kernel.check_week.Check_week((row[0], row[6]), week):
+                  if Module.Kernel.check_boss.Check_boss((row[1], row[2], row[3], row[4], row[5]),week, boss):  
+                    if not (Module.Kernel.week_stage.week_stage(week) == 4 and estimated_damage == 0):
                       # 檢查溢傷
                       sql = "SELECT SUM(estimated_damage) from knifes WHERE server_id = ? and group_serial = ? and week = ? and boss = ?"
                       data = (message.guild.id, group_serial, week, boss)
@@ -313,7 +315,7 @@ async def on_message(message):
                       sum_estimated_damage = 0
                       if row[0]:
                         sum_estimated_damage = int(row[0])
-                      if (Module.define_value.BOSS_HP[Module.week_stage.week_stage(week)][boss-1] - sum_estimated_damage) > 0:
+                      if (Module.Kernel.define_value.BOSS_HP[Module.Kernel.week_stage.week_stage(week)][boss-1] - sum_estimated_damage) > 0:
                         cursor = connection.cursor(prepared=True)
                         sql = "SELECT serial_number, member_id, comment from princess_connect.keep_knifes where server_id=? and group_serial=? order by serial_number limit ?,1"
                         data = (message.guild.id, group_serial, index-1)
@@ -338,7 +340,7 @@ async def on_message(message):
 
                             connection.commit()
                             await message.channel.send('第' + str(week) + '週目' + str(boss) + '王，備註:' + row[2] + '，報刀成功!')
-                            await Module.Update.Update(message, message.guild.id, group_serial) # 更新刀表
+                            await Module.Kernel.Update.Update(message, message.guild.id, group_serial) # 更新刀表
                           else:
                             await message.channel.send('您並非該刀主人喔!')
                         else:
@@ -357,11 +359,11 @@ async def on_message(message):
               await message.channel.send('!使用保留刀 格式錯誤，應為:\n 1~4階段: !使用保留刀 [第幾刀] [週目] [boss]\n5階段: !使用保留刀 [第幾刀] [週目] [boss] [預估傷害]')
           else:
             pass #非指定頻道 不反應
-          await Module.DB_control.CloseConnection(connection, message)
+          await Module.Kernel.DB_control.CloseConnection(connection, message)
 
       #!取消保留刀 [第幾刀]
       elif tokens[0] == '!取消保留刀' or tokens[0] == '!取消保留刀' or tokens[0] == '!ckp':
-        connection = await Module.DB_control.OpenConnection(message)
+        connection = await Module.Kernel.DB_control.OpenConnection(message)
         if connection:
           cursor = connection.cursor(prepared=True)
           sql = "SELECT  now_week, week_offset, group_serial FROM princess_connect.group WHERE server_id = ? and sign_channel_id = ? order by group_serial limit 0, 1"
@@ -391,7 +393,7 @@ async def on_message(message):
                     cursor.close()
                     connection.commit()
                     await message.channel.send('取消保留刀成功!')
-                    await Module.Update.Update(message, message.guild.id, group_serial) # 更新刀表
+                    await Module.Kernel.Update.Update(message, message.guild.id, group_serial) # 更新刀表
                   else:
                     await message.channel.send('您並非該刀主人喔!')
                 else:
@@ -402,11 +404,11 @@ async def on_message(message):
               await message.channel.send('!取消保留刀 格式錯誤，應為 !取消保留刀 [第幾刀]')
           else:
             pass #非指定頻道 不反應
-          await Module.DB_control.CloseConnection(connection, message)
+          await Module.Kernel.DB_control.CloseConnection(connection, message)
 
       #!報刀回傷 [boss] [序號] [類型] [傷害]
       elif tokens[0] == '!報刀回傷' or tokens[0] == '!报刀回伤' or tokens[0] == '!d':
-        connection = await Module.DB_control.OpenConnection(message)
+        connection = await Module.Kernel.DB_control.OpenConnection(message)
         if connection:
           cursor = connection.cursor(prepared=True)
           sql = "SELECT now_week_1, now_week_2, now_week_3, now_week_4, now_week_5, group_serial, policy FROM princess_connect.group WHERE server_id = ? and sign_channel_id = ? order by group_serial limit 0, 1"
@@ -424,11 +426,11 @@ async def on_message(message):
                     if real_damage.isdigit():
                       boss, index, real_damage = int(tokens[1]), int(tokens[2]), int(tokens[4])
                       if (0 < boss) and (boss < 6):
-                        if 0 <= real_damage and real_damage <= Module.define_value.MAX_DAMAGE:
+                        if 0 <= real_damage and real_damage <= Module.Kernel.define_value.MAX_DAMAGE:
                           now_week = [row[0], row[1], row[2], row[3], row[4]]
                           group_serial = row[5]
                           policy = row[6]
-                          if policy == Module.define_value.Policy.YES.value:
+                          if policy == Module.Kernel.define_value.Policy.YES.value:
                             if index > 0:
                               # 尋找該刀
                               cursor = connection.cursor(prepared=True)
@@ -446,8 +448,8 @@ async def on_message(message):
                                   cursor.close()
                                   connection.commit()
                                   await message.channel.send('回報成功!')
-                                  await Module.Update.Update(message, message.guild.id, group_serial) # 更新刀表
-                                  await Module.info_update.info_update(message ,message.guild.id, group_serial) # 更新資訊
+                                  await Module.Kernel.Update.Update(message, message.guild.id, group_serial) # 更新刀表
+                                  await Module.Kernel.info_update.info_update(message ,message.guild.id, group_serial) # 更新資訊
                                 else:
                                   await message.channel.send('您並非該刀主人喔!')
                               else:
@@ -457,7 +459,7 @@ async def on_message(message):
                           else:
                             await message.channel.send('目前戰隊政策為:**不回報傷害**! 指令無效，感謝你的自主回報!')
                         else:
-                          await message.channel.send('傷害異常，目前最高僅能紀載0至' + str(Module.define_value.MAX_DAMAGE) + '!')
+                          await message.channel.send('傷害異常，目前最高僅能紀載0至' + str(Module.Kernel.define_value.MAX_DAMAGE) + '!')
                       else:
                         await message.channel.send('[boss]只能輸入1~5!')
                     else:
@@ -472,11 +474,11 @@ async def on_message(message):
               await message.channel.send('!報刀回傷 格式錯誤，應為 !報刀回傷 [boss] [第幾刀] [類型] [傷害]')
           else:
             await message.channel.send('這裡不是報刀頻道喔!')
-          await Module.DB_control.CloseConnection(connection, message)
+          await Module.Kernel.DB_control.CloseConnection(connection, message)
 
       #!無報回傷 [週目] [boss] [類型] [傷害]
       elif tokens[0] == '!無報回傷' or tokens[0] == '!无报回伤' or tokens[0] == '!ds':
-        connection = await Module.DB_control.OpenConnection(message)
+        connection = await Module.Kernel.DB_control.OpenConnection(message)
         if connection:
           cursor = connection.cursor(prepared=True)
           sql = "SELECT now_week, now_week_1, now_week_2, now_week_3, now_week_4, now_week_5, week_offset, group_serial, policy FROM princess_connect.group WHERE server_id = ? and sign_channel_id = ? order by group_serial limit 0, 1"
@@ -494,13 +496,13 @@ async def on_message(message):
                     if real_damage.isdigit():
                       week, boss, real_damage = int(tokens[1]), int(tokens[2]), int(tokens[4])
                       if (0 < boss) and (boss < 6):
-                        if 0 <= real_damage and real_damage <= Module.define_value.MAX_DAMAGE:
+                        if 0 <= real_damage and real_damage <= Module.Kernel.define_value.MAX_DAMAGE:
                           now_week = row[0]
                           group_serial = row[7]
                           policy = row[8]
-                          if policy == Module.define_value.Policy.YES.value:
-                            if Module.check_week.Check_week((now_week, row[6]), week):
-                              if Module.check_boss.Check_boss((row[1], row[2], row[3], row[4], row[5]), week, boss):
+                          if policy == Module.Kernel.define_value.Policy.YES.value:
+                            if Module.Kernel.check_week.Check_week((now_week, row[6]), week):
+                              if Module.Kernel.check_boss.Check_boss((row[1], row[2], row[3], row[4], row[5]), week, boss):
                                 # 新增刀
                                 cursor = connection.cursor(prepared=True)
                                 sql = "INSERT INTO princess_connect.knifes (server_id, group_serial, week, boss, member_id, comment, knife_type, real_damage, done_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
@@ -509,8 +511,8 @@ async def on_message(message):
                                 cursor.close
                                 connection.commit()
                                 await message.channel.send('第' + str(week) + '週目' + str(boss) + '王，實際傷害:' + format(real_damage,",") + '，回報成功!')
-                                await Module.Update.Update(message, message.guild.id, group_serial) # 更新刀表
-                                await Module.info_update.info_update(message ,message.guild.id, group_serial) # 更新資訊
+                                await Module.Kernel.Update.Update(message, message.guild.id, group_serial) # 更新刀表
+                                await Module.Kernel.info_update.info_update(message ,message.guild.id, group_serial) # 更新資訊
                               else:
                                 await message.channel.send('該王不存在喔!')
                             else:
@@ -518,7 +520,7 @@ async def on_message(message):
                           else:
                             await message.channel.send('目前戰隊政策為:**不回報傷害**! 指令無效，感謝你的自主回報!')
                         else:
-                          await message.channel.send('傷害異常，目前最高僅能紀載0至' + str(Module.define_value.MAX_DAMAGE) + '!')
+                          await message.channel.send('傷害異常，目前最高僅能紀載0至' + str(Module.Kernel.define_value.MAX_DAMAGE) + '!')
                       else:
                         await message.channel.send('[boss]只能輸入1~5!')
                     else:
@@ -533,14 +535,14 @@ async def on_message(message):
               await message.channel.send('!無報回傷 格式錯誤，應為 !無報回傷 [週目] [boss] [類型] [傷害]')
           else:
             await message.channel.send('這裡不是報刀頻道喔!')
-          await Module.DB_control.CloseConnection(connection, message)
+          await Module.Kernel.DB_control.CloseConnection(connection, message)
 
       #!目前進度
       elif tokens[0] == '!目前進度' or tokens[0] == '!目前进度' or tokens[0] == '!ns':
         if len(tokens) == 1:
           # check頻道，並找出所屬組別
           group_serial = 0
-          connection = await Module.DB_control.OpenConnection(message)
+          connection = await Module.Kernel.DB_control.OpenConnection(message)
           if connection:
             cursor = connection.cursor(prepared=True)
             sql = "SELECT now_week, now_boss, group_serial FROM princess_connect.group WHERE server_id = ? and sign_channel_id = ? order by group_serial limit 0, 1"
@@ -553,7 +555,7 @@ async def on_message(message):
             else:
               pass #非指定頻道 不反應
 
-            await Module.DB_control.CloseConnection(connection, message)
+            await Module.Kernel.DB_control.CloseConnection(connection, message)
         else:
           await message.channel.send('!目前進度 格式錯誤，應為 !目前進度')
       
@@ -563,7 +565,7 @@ async def on_message(message):
           if tokens[1].isdigit():
             boss = int(tokens[1])
             if boss > 0 and boss < 6:
-              connection = await Module.DB_control.OpenConnection(message)
+              connection = await Module.Kernel.DB_control.OpenConnection(message)
               if connection:
                 cursor = connection.cursor(prepared=True)
                 sql = "SELECT now_week, now_week_1, now_week_2, now_week_3, now_week_4, now_week_5, boss_change_1, boss_change_2, boss_change_3, boss_change_4, boss_change_5, group_serial FROM princess_connect.group WHERE server_id = ? and sign_channel_id = ? order by group_serial limit 0, 1"
@@ -579,8 +581,8 @@ async def on_message(message):
                   group_serial = row[11]
       
                   # UTC+0   UTC+8   =>   UTC+8
-                  if ( not now_week[boss-1] >= main_week + 2 ) and (Module.week_stage.week_stage(now_week[boss-1]) == Module.week_stage.week_stage(main_week)):
-                    if message.created_at + datetime.timedelta(hours = 8) >= boss_change[boss-1] + datetime.timedelta(seconds = Module.define_value.CD_TIME): 
+                  if ( not now_week[boss-1] >= main_week + 2 ) and (Module.Kernel.week_stage.week_stage(now_week[boss-1]) == Module.Kernel.week_stage.week_stage(main_week)):
+                    if message.created_at + datetime.timedelta(hours = 8) >= boss_change[boss-1] + datetime.timedelta(seconds = Module.Kernel.define_value.CD_TIME): 
                       # 更新該王週目
                       now_week[boss-1] = now_week[boss-1]+1
                       cursor = connection.cursor(prepared=True)
@@ -604,7 +606,7 @@ async def on_message(message):
                       # 檢查main week是否需要更動
                       new_main_week = min(now_week)
                       if new_main_week > main_week:
-                        knifes = await Module.show_knifes.show_knifes(connection, message, group_serial, now_week[boss-1] ,boss)
+                        knifes = await Module.Kernel.show_knifes.show_knifes(connection, message, group_serial, now_week[boss-1] ,boss)
             
                         if knifes == '':
                           msg[boss-1] = '目前' + str(now_week[boss-1]) + '週' + str(boss) + '王沒人報刀喔，看在真步的面子上，快來報刀!\n'
@@ -617,13 +619,13 @@ async def on_message(message):
 
                         #如果其他王week位處main_week+2，一併tag上來
                         for index in boss_index:
-                          if new_main_week == Module.define_value.Stage.one.value or \
-                          new_main_week == Module.define_value.Stage.two.value or \
-                          new_main_week == Module.define_value.Stage.three.value or \
-                          new_main_week == Module.define_value.Stage.four.value or \
-                          new_main_week == Module.define_value.Stage.five.value or \
-                          (now_week[index-1] == main_week+2 and Module.week_stage.week_stage(now_week[index-1])== Module.week_stage.week_stage(new_main_week)):
-                            knifes = await Module.show_knifes.show_knifes(connection, message, group_serial, now_week[index-1] ,index)
+                          if new_main_week == Module.Kernel.define_value.Stage.one.value or \
+                          new_main_week == Module.Kernel.define_value.Stage.two.value or \
+                          new_main_week == Module.Kernel.define_value.Stage.three.value or \
+                          new_main_week == Module.Kernel.define_value.Stage.four.value or \
+                          new_main_week == Module.Kernel.define_value.Stage.five.value or \
+                          (now_week[index-1] == main_week+2 and Module.Kernel.week_stage.week_stage(now_week[index-1])== Module.Kernel.week_stage.week_stage(new_main_week)):
+                            knifes = await Module.Kernel.show_knifes.show_knifes(connection, message, group_serial, now_week[index-1] ,index)
 
                             if knifes == '':
                               msg[index-1] = '目前' + str(now_week[index-1]) + '週' + str(index) + '王沒人報刀喔，看在真步的面子上，快來報刀!\n'
@@ -641,10 +643,10 @@ async def on_message(message):
                         connection.commit()
 
                         # 自動周目控制
-                        Module.Offset_manager.AutoOffset(connection, message.guild.id, group_serial) 
+                        Module.Kernel.Offset_manager.AutoOffset(connection, message.guild.id, group_serial) 
                       else:
-                        if (now_week[boss-1] < main_week+2) and (Module.week_stage.week_stage(now_week[boss-1]) == Module.week_stage.week_stage(main_week)): # 檢查週目是否超出可出刀週目
-                          knifes = await Module.show_knifes.show_knifes(connection, message, group_serial, now_week[boss-1] ,boss)
+                        if (now_week[boss-1] < main_week+2) and (Module.Kernel.week_stage.week_stage(now_week[boss-1]) == Module.Kernel.week_stage.week_stage(main_week)): # 檢查週目是否超出可出刀週目
+                          knifes = await Module.Kernel.show_knifes.show_knifes(connection, message, group_serial, now_week[boss-1] ,boss)
 
                           if knifes == '':
                             msg[boss-1] = '目前' + str(now_week[boss-1]) + '週' + str(boss) + '王沒人報刀喔，看在真步的面子上，快來報刀!'
@@ -656,7 +658,7 @@ async def on_message(message):
 
                       await message.channel.send(msg[0]+msg[1]+msg[2]+msg[3]+msg[4])
 
-                      await Module.Update.Update(message, message.guild.id, group_serial) # 更新刀表
+                      await Module.Kernel.Update.Update(message, message.guild.id, group_serial) # 更新刀表
                     else:
                       await message.channel.send(str(boss) + '王目前CD中，上次使用時間:' + str(boss_change[boss-1]) + '。' )
                   else:
@@ -664,7 +666,7 @@ async def on_message(message):
                 else:
                   pass #非指定頻道 不反應
 
-                await Module.DB_control.CloseConnection(connection, message)
+                await Module.Kernel.DB_control.CloseConnection(connection, message)
             else:
               await message.channel.send('王只能是包含1~5的正整數!')
           else:
@@ -678,7 +680,7 @@ async def on_message(message):
           if tokens[1].isdigit():
             boss = int(tokens[1])
             if boss > 0 and boss < 6:
-              connection = await Module.DB_control.OpenConnection(message)
+              connection = await Module.Kernel.DB_control.OpenConnection(message)
               if connection:
                 cursor = connection.cursor(prepared=True)
                 sql = "SELECT now_week, now_week_1, now_week_2, now_week_3, now_week_4, now_week_5, boss_change_1, boss_change_2, boss_change_3, boss_change_4, boss_change_5, group_serial FROM princess_connect.group WHERE server_id = ? and sign_channel_id = ? order by group_serial limit 0, 1"
@@ -695,7 +697,7 @@ async def on_message(message):
       
                   # UTC+0   UTC+8   =>   UTC+8 
                   if boss_change[boss-1] <= message.created_at + datetime.timedelta(hours = 8):
-                    if message.created_at + datetime.timedelta(hours = 8) <= boss_change[boss-1] + datetime.timedelta(seconds = Module.define_value.NCD_TIME): 
+                    if message.created_at + datetime.timedelta(hours = 8) <= boss_change[boss-1] + datetime.timedelta(seconds = Module.Kernel.define_value.NCD_TIME): 
                       # 更新該王週目與主週目
                       # 注意，為避免濫用此功能，使用/cn後，會將/n的時間加上60秒，可達到以下效果
                       # 1. 避免/n /cn 重複來回使用
@@ -715,23 +717,23 @@ async def on_message(message):
                         sql = "UPDATE princess_connect.group SET now_week_4=?, now_week=?, boss_change_4=? WHERE server_id = ? and sign_channel_id = ?"
                       elif boss==5:
                         sql = "UPDATE princess_connect.group SET now_week_5=?, now_week=?, boss_change_5=? WHERE server_id = ? and sign_channel_id = ?"
-                      data = (now_week[boss-1], new_main_week, (boss_change[boss-1] + datetime.timedelta(seconds = Module.define_value.NCD_TIME)).strftime("%Y-%m-%d %H:%M:%S"), message.guild.id, message.channel.id)
+                      data = (now_week[boss-1], new_main_week, (boss_change[boss-1] + datetime.timedelta(seconds = Module.Kernel.define_value.NCD_TIME)).strftime("%Y-%m-%d %H:%M:%S"), message.guild.id, message.channel.id)
                       cursor.execute(sql, data)
                       cursor.close
                       connection.commit()
 
                       await message.channel.send(str(boss) + '王已退回' + str(now_week[boss-1]) + '週目，請務必提醒受影響成員，以免成員誤入!')
-                      Module.Offset_manager.AutoOffset(connection, message.guild.id, group_serial) # 自動周目控制
-                      await Module.Update.Update(message, message.guild.id, group_serial) # 更新刀表
+                      Module.Kernel.Offset_manager.AutoOffset(connection, message.guild.id, group_serial) # 自動周目控制
+                      await Module.Kernel.Update.Update(message, message.guild.id, group_serial) # 更新刀表
                     else:
-                      await message.channel.send(str(boss) + '王已超過可反悔時間，請聯繫控刀手!\n/n下次可用時間:' + str(boss_change[boss-1] + datetime.timedelta(seconds = Module.define_value.NCD_TIME + Module.define_value.CD_TIME )) + '。' )
+                      await message.channel.send(str(boss) + '王已超過可反悔時間，請聯繫控刀手!\n/n下次可用時間:' + str(boss_change[boss-1] + datetime.timedelta(seconds = Module.Kernel.define_value.NCD_TIME + Module.Kernel.define_value.CD_TIME )) + '。' )
                   else:
                     await message.channel.send('只能反悔一週，如有需要請聯繫控刀手!')
 
                 else:
                   pass #非指定頻道 不反應
 
-                await Module.DB_control.CloseConnection(connection, message)
+                await Module.Kernel.DB_control.CloseConnection(connection, message)
             else:
               await message.channel.send('王只能是包含1~5的正整數!')
           else:
@@ -741,7 +743,7 @@ async def on_message(message):
 
       #!偏好時段 [時段]
       elif tokens[0] == '!偏好時段' or tokens[0] == '!偏好时段' or tokens[0] == '!pt':
-        connection = await Module.DB_control.OpenConnection(message)
+        connection = await Module.Kernel.DB_control.OpenConnection(message)
         if connection:
           cursor = connection.cursor(prepared=True)
           sql = "SELECT group_serial FROM princess_connect.group WHERE server_id = ? and sign_channel_id = ? order by group_serial limit 0, 1"
@@ -767,7 +769,7 @@ async def on_message(message):
                   data = (period, message.guild.id, group_serial, message.author.id)
                   cursor.execute(sql, data)
                   connection.commit()
-                  await Module.info_update.info_update(message ,message.guild.id, group_serial)
+                  await Module.Kernel.info_update.info_update(message ,message.guild.id, group_serial)
                   await message.channel.send('您在第' + str(group_serial) + '戰隊的出刀偏好時段已修改完成!')
                 else:
                   await message.channel.send('您不屬於第' + str(group_serial) + '戰隊喔!')
@@ -777,11 +779,11 @@ async def on_message(message):
               await message.channel.send('!偏好時段 格式錯誤，應為 !偏好時段 [時段]')
           else:
             await message.channel.send('這裡不是報刀頻道喔，請在所屬戰隊報刀頻道使用!')
-          await Module.DB_control.CloseConnection(connection, message)
+          await Module.Kernel.DB_control.CloseConnection(connection, message)
 
       #!閃退
       elif tokens[0] == '!閃退' or tokens[0] == '!闪退' or tokens[0] == '!sl':
-        connection = await Module.DB_control.OpenConnection(message)
+        connection = await Module.Kernel.DB_control.OpenConnection(message)
         if connection:
           cursor = connection.cursor(prepared=True)
           sql = "SELECT group_serial FROM princess_connect.group WHERE server_id = ? and sign_channel_id = ? order by group_serial limit 0, 1"
@@ -800,7 +802,7 @@ async def on_message(message):
             row = cursor.fetchone()
             if row:
               # 修改SL時間
-              closest_end_time = Module.get_closest_end_time.get_closest_day_end(datetime.datetime.now())
+              closest_end_time = Module.Kernel.get_closest_end_time.get_closest_day_end(datetime.datetime.now())
               if row[0] < closest_end_time:
                 cursor = connection.cursor(prepared=True)
                 sql = "update princess_connect.members SET last_sl_time=? WHERE server_id = ? and group_serial = ? and member_id = ?"
@@ -808,18 +810,18 @@ async def on_message(message):
                 cursor.execute(sql, data)
                 connection.commit()
                 await message.channel.send('紀錄完成!')
-                await Module.info_update.info_update(message ,message.guild.id, group_serial)
+                await Module.Kernel.info_update.info_update(message ,message.guild.id, group_serial)
               else:
                 await message.channel.send('注意，今日已使用過SL，請勿退出遊戲!')
             else:
               await message.channel.send('您不屬於第' + str(group_serial) + '戰隊喔!')
           else:
             await message.channel.send('這裡不是報刀頻道喔，請在所屬戰隊報刀頻道使用!')
-          await Module.DB_control.CloseConnection(connection, message)
+          await Module.Kernel.DB_control.CloseConnection(connection, message)
 
       #!add_puppet
       elif tokens[0] == '!add_puppet':
-        connection = await Module.DB_control.OpenConnection(message)
+        connection = await Module.Kernel.DB_control.OpenConnection(message)
         if connection:
           cursor = connection.cursor(prepared=True)
           sql = "SELECT now_week, now_week_1, now_week_2, now_week_3, now_week_4, now_week_5, week_offset, group_serial FROM princess_connect.group WHERE server_id = ? and sign_channel_id = ? order by group_serial limit 0, 1"
@@ -848,19 +850,19 @@ async def on_message(message):
                 connection.commit() # 資料庫存檔
 
                 await message.channel.send('您已取得分身{}，請使用!use {}進行切換'.format(sockpuppet, sockpuppet))
-                await Module.info_update.info_update(message ,message.guild.id, group_serial)
+                await Module.Kernel.info_update.info_update(message ,message.guild.id, group_serial)
               else:
                 await message.channel.send('該成員不在此戰隊中')
             else:
               await message.channel.send('格式錯誤，應為:\n!add_puppet')
           else:
             pass #非指定頻道 不反應
-          await Module.DB_control.CloseConnection(connection, message)
+          await Module.Kernel.DB_control.CloseConnection(connection, message)
 
       #!del_puppet
       elif tokens[0] == '!del_puppet':
         if len(tokens) == 1:
-          connection = await Module.DB_control.OpenConnection(message)
+          connection = await Module.Kernel.DB_control.OpenConnection(message)
           if connection:
             cursor = connection.cursor(prepared=True)
             sql = "SELECT now_week, now_week_1, now_week_2, now_week_3, now_week_4, now_week_5, week_offset, group_serial FROM princess_connect.group WHERE server_id = ? and sign_channel_id = ? order by group_serial limit 0, 1"
@@ -907,16 +909,16 @@ async def on_message(message):
                   connection.commit() # 資料庫存檔
               
                   await message.channel.send('您已刪除分身{}，為您切換至本尊'.format(sockpuppet))
-                  await Module.info_update.info_update(message ,message.guild.id, group_serial)
+                  await Module.Kernel.info_update.info_update(message ,message.guild.id, group_serial)
                 else:
                   await message.channel.send('您已無分身')
               else:
                 await message.channel.send('該成員不在此戰隊中')
 
-              await Module.DB_control.CloseConnection(connection, message)
+              await Module.Kernel.DB_control.CloseConnection(connection, message)
             else:
               pass #非指定頻道 不反應
-            await Module.DB_control.CloseConnection(connection, message)
+            await Module.Kernel.DB_control.CloseConnection(connection, message)
         else:
           await message.channel.send('格式錯誤，應為:\n!del_puppet')
 
@@ -925,7 +927,7 @@ async def on_message(message):
         if len(tokens) == 2:
           if tokens[1].isdigit():
             use_sockpuppet = int(tokens[1])
-            connection = await Module.DB_control.OpenConnection(message)
+            connection = await Module.Kernel.DB_control.OpenConnection(message)
             if connection:
               cursor = connection.cursor(prepared=True)
               sql = "SELECT now_week, now_week_1, now_week_2, now_week_3, now_week_4, now_week_5, week_offset, group_serial FROM princess_connect.group WHERE server_id = ? and sign_channel_id = ? order by group_serial limit 0, 1"
@@ -966,16 +968,16 @@ async def on_message(message):
                       await message.channel.send('為您切換至本尊')
                     else:
                       await message.channel.send('為您切換至分身{}'.format(use_sockpuppet))
-                    await Module.info_update.info_update(message ,message.guild.id, group_serial)
+                    await Module.Kernel.info_update.info_update(message ,message.guild.id, group_serial)
                   else:
                     await message.channel.send('你沒有這隻分身喔')
                 else:
                   await message.channel.send('該成員不在此戰隊中')
 
-                await Module.DB_control.CloseConnection(connection, message)
+                await Module.Kernel.DB_control.CloseConnection(connection, message)
               else:
                 pass #非指定頻道 不反應
-              await Module.DB_control.CloseConnection(connection, message)
+              await Module.Kernel.DB_control.CloseConnection(connection, message)
           else:
             await message.channel.send('[分身編號] 僅能使用阿拉伯數字')
         else:

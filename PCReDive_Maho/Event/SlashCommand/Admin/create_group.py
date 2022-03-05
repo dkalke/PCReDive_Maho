@@ -1,10 +1,10 @@
 import datetime
-import Discord_client
+import Module.Kernel.Discord_client
 from discord_slash.utils.manage_commands import create_option
-import Module.DB_control
-import Module.Authentication
+import Module.Kernel.DB_control
+import Module.Kernel.Authentication
 
-@Discord_client.slash.subcommand( base="admin",
+@Module.Kernel.Discord_client.slash.subcommand( base="admin",
                                   name="create_group" ,
                                   description="新增一個戰隊。",
                                   options=[
@@ -36,6 +36,6 @@ async def create_group(ctx, group_serial):
           await ctx.send('已新增第' + str(group_serial) + '戰隊!')
         else:
           await ctx.send('第' + str(group_serial) + '戰隊已存在!')
-        await Module.DB_control.CloseConnection(connection, ctx)
+        await Module.Kernel.DB_control.CloseConnection(connection, ctx)
   else:
     await ctx.send('戰隊編號只能是正整數。')

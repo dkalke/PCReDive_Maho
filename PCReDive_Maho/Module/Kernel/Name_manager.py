@@ -4,7 +4,7 @@
 
 import gc
 from discord.ext import tasks
-import Discord_client
+import Module.Kernel.Discord_client
 
 
 
@@ -28,7 +28,7 @@ async def get_nick_name(message, member_id):
     return people_list[key]
   else:
     try:
-      user = await Discord_client.client.get_guild(message.guild.id).fetch_member(member_id)
+      user = await Module.Kernel.Discord_client.client.get_guild(message.guild.id).fetch_member(member_id)
       if user.nick == None:
         people_list[key] = str(user.name)
         return user.name
@@ -42,7 +42,7 @@ async def get_nick_name(message, member_id):
 
 async def get_mention(message, member_id):
   try:
-    user = await Discord_client.client.get_guild(message.guild.id).fetch_member(member_id)
+    user = await Module.Kernel.Discord_client.client.get_guild(message.guild.id).fetch_member(member_id)
     return user.mention
   except:
         print("get_mention查無此人!")
