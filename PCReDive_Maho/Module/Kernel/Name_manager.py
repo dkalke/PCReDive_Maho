@@ -1,13 +1,8 @@
-"""
-每6小時清空暫存的DC暱稱資料
-"""
-
 import gc
 from discord.ext import tasks
 import Module.Kernel.Discord_client
 
-
-
+# 每6小時清空暫存的DC暱稱資料
 @tasks.loop(hours=6)
 async def clear_list():
   global people_list
@@ -15,9 +10,6 @@ async def clear_list():
   people_list = dict()
   gc.collect()
   print('已重置雜湊表')
-
-def init():
-  clear_list.start()
 
 # 獲取使用者nick(若無則為本名)
 async def get_nick_name(message, member_id):

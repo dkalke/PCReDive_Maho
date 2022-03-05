@@ -32,16 +32,10 @@ BOSS_HP=[\
   [9500,10000,11000,12000,13000]]
 
 # 戰隊戰日期
-this_year = 2022
-this_month = 2
-this_day = 24
-BATTLE_DAY=[\
-  datetime.datetime(year=this_year, month=this_month, day=this_day, hour=5, minute=0, second=0),\
-  datetime.datetime(year=this_year, month=this_month, day=this_day, hour=5, minute=0, second=0) + datetime.timedelta(days=1),\
-  datetime.datetime(year=this_year, month=this_month, day=this_day, hour=5, minute=0, second=0) + datetime.timedelta(days=2),\
-  datetime.datetime(year=this_year, month=this_month, day=this_day, hour=5, minute=0, second=0) + datetime.timedelta(days=3),\
-  datetime.datetime(year=this_year, month=this_month, day=this_day, hour=5, minute=0, second=0) + datetime.timedelta(days=4),\
-  datetime.datetime(year=this_year, month=this_month, day=this_day, hour=0, minute=0, second=0) + datetime.timedelta(days=5)]
+this_year = None
+this_month = None
+this_day = None
+BATTLE_DAY= None
 
 CD_TIME = 10 # !n 的冷卻時間
 NCD_TIME = 60 # !cn 的冷卻時間
