@@ -22,36 +22,23 @@ Discord 公主連結報刀機器人
 
 ### 設定啟動參數
 修改[env](https://github.com/dkalke/PCReDive_Maho/blob/master/PCReDive_Maho/init-files/.env)內部參數，並置於PCReDive_Maho目錄下。
-- SQLHOST  
-  MariaDB ip位址
-- SQLPORT  
-  MariaDB 連接埠
-- SQLDB  
-  MariaDB 資料庫名稱
-- SQLID  
-  MariaDB 使用者名稱
-- SQLPW  
-  MariaDB 使用者密碼
-- TOPGG_TOKEN  
-  [top.gg](https://top.gg/)申請token填入
-- TOKEN  
-  [discord](https://discord.com/developers/applications)申請token填入
+- SQLHOST : MariaDB ip位址
+- SQLPORT : MariaDB 連接埠
+- SQLDB : MariaDB 資料庫名稱
+- SQLID : MariaDB 使用者名稱
+- SQLPW : MariaDB 使用者密碼
+- TOPGG_TOKEN : [top.gg](https://top.gg/)申請token填入
+- TOKEN : [discord](https://discord.com/developers/applications)申請token填入
 
-最終目錄結構如下  
+最終目錄必備結構如下  
 PCReDive_Maho/  
-├── .env  
-├── Discord_client.py  
+├── .env   
 ├── Event  
 ├── Module  
-├── Name_manager.py  
-├── PCReDive_Maho.py  
-├── PCReDive_Maho.pyproj  
-└── TopGG.py  
+└── PCReDive_Maho.py  
 
 ### 執行
-cd PCReDive_Maho  
 python3 PCReDive_Maho.py  
-
 
 ## 外部連結
 - [TOPGG](https://top.gg/bot/806421470368104449)
