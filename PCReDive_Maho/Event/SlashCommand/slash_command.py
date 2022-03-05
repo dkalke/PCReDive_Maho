@@ -31,6 +31,7 @@ import Event.SlashCommand.Controller.delete_knife
 import Event.SlashCommand.Controller.keep_knife
 import Event.SlashCommand.Controller.proposal_knife
 import Event.SlashCommand.Controller.set_progress
+import Event.SlashCommand.Controller.move_knife
 
 
 import Event.SlashCommand.General.cancel_keep_proposal
