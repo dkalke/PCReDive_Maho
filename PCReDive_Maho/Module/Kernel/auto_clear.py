@@ -5,7 +5,7 @@ import Module.Kernel.Update
 
 
 async def auto_clear():
-  connection = await Module.DB_control.OpenConnection(None)
+  connection = await Module.Kernel.DB_control.OpenConnection(None)
   if connection:
     cursor = connection.cursor(prepared=True)
 
@@ -34,7 +34,7 @@ async def auto_clear():
       sign_channel_id = row[3]
 
       
-      guild = Module.Kernel.Discord_client.client.get_guild(server_id)
+      guild = Module.Kernel.Discord_client.bot.get_guild(server_id)
       if not guild == None:
         # 取得報刀頻道
         message_obj = None
@@ -45,9 +45,9 @@ async def auto_clear():
           # 取得刀表頻道
           try:
             channel = guild.get_channel(table_channel_id)
-            Module.Offset_manager.AutoOffset(connection, server_id, group_serial) # 自動周目控制
-            await Module.Update.Update(message_obj, server_id, group_serial) # 更新刀表
-            message_obj.edit(content = '已完成戰前重置流程，刀表已清除!')
+            Module.Kernel.Offset_manager.AutoOffset(connection, server_id, group_serial) # 自動周目控制
+            await Module.Kernel.Update.Update(message_obj, server_id, group_serial) # 更新刀表
+            await message_obj.edit(content = '已完成戰前重置流程，刀表已清除!')
             print('伺服器:' + str(server_id) + ', 編號' + str(group_serial) + '頻道:' + str(table_channel_id) + '清除完成!')
           except:
             print('伺服器:' + str(server_id) + ', 編號' + str(group_serial) + '頻道:' + str(table_channel_id) + '刀表頻道不存在!')
@@ -65,5 +65,5 @@ async def auto_clear():
 
     connection.commit()
     cursor.close
-    await Module.DB_control.CloseConnection(connection, None)
+    await Module.Kernel.DB_control.CloseConnection(connection, None)
     print('已經清除所有刀表')
