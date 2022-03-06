@@ -22,6 +22,24 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Event\SlashCommand\General\del_puppet.py" />
+    <Compile Include="Event\SlashCommand\General\add_puppet.py" />
+    <Compile Include="Event\SlashCommand\General\use_puppet.py" />
+    <Compile Include="Module\General\add_puppet.py" />
+    <Compile Include="Module\General\cancel_keep_proposal.py" />
+    <Compile Include="Module\General\join.py" />
+    <Compile Include="Module\General\keep_proposal.py" />
+    <Compile Include="Module\General\help.py" />
+    <Compile Include="Module\General\leave.py" />
+    <Compile Include="Module\General\set_personal_status.py" />
+    <Compile Include="Module\General\use_puppet.py" />
+    <Compile Include="Module\General\next_boss.py" />
+    <Compile Include="Module\General\prefer_time.py" />
+    <Compile Include="Module\General\previous_boss.py" />
+    <Compile Include="Module\General\use_keep_proposal.py" />
+    <Compile Include="Module\General\del_puppet.py" />
+    <Compile Include="Module\General\timeline_shifter.py" />
+    <Compile Include="Module\General\use_sl.py" />
     <Compile Include="Module\Kernel\Discord_client.py" />
     <Compile Include="Event\Command.py" />
     <Compile Include="Module\Kernel\Ready.py" />

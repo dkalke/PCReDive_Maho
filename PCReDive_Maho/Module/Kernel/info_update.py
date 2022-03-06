@@ -1,5 +1,5 @@
 ﻿import datetime
-from enum import Enum
+
 from discord import Embed
 import Module.Kernel.Discord_client
 import Module.Kernel.Name_manager
@@ -63,7 +63,7 @@ async def info_update(message ,server_id, group_serial):
           while row:
             serial_number = row[0]
             member_id = row[1]
-            member_name = await Module.Kernel.Name_manager.get_nick_name(message, member_id)
+            member_name = await Module.Kernel.Name_manager.get_nick_name(server_id, member_id)
 
             period = row[2]
             sockpuppet = row[3]
@@ -111,7 +111,7 @@ async def info_update(message ,server_id, group_serial):
 
           # 取得訊息物件
           try:
-            guild = Module.Kernel.Discord_client.client.get_guild(server_id)
+            guild = Module.Kernel.Discord_client.bot.get_guild(server_id)
             channel = guild.get_channel(info_channel_id)
             message_obj = await channel.fetch_message(info_message_id)
             await message_obj.edit(embed=embed_msg)

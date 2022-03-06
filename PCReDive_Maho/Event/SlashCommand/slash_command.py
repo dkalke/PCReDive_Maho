@@ -40,8 +40,12 @@ import Event.SlashCommand.General.previous_boss
 import Event.SlashCommand.General.proposal_knife
 import Event.SlashCommand.General.use_keep_proposal
 import Event.SlashCommand.General.prefer_time
-import Event.SlashCommand.General.help
 import Event.SlashCommand.General.use_sl
+import Event.SlashCommand.General.add_puppet
+import Event.SlashCommand.General.del_puppet
+import Event.SlashCommand.General.use_puppet
+import Event.SlashCommand.General.help
+
 import Event.SlashCommand.General.set_personal_status
 import Event.SlashCommand.General.join
 import Event.SlashCommand.General.leave

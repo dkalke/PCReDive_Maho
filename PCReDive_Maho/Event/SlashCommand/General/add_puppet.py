@@ -1,14 +1,14 @@
 import Module.Kernel.Discord_client
 
-import Module.General.use_sl
+import Module.General.add_puppet
 
 
 @Module.Kernel.Discord_client.slash.slash( 
-             name="sl" ,
-             description="使用SL",
+             name="add_puppet" ,
+             description="增加一個分身",
              )
-async def use_sl(ctx):
-  await Module.General.use_sl.use_sl(
+async def add_puppet(ctx):
+  await Module.General.add_puppet.add_puppet(
     send_obj = ctx, 
     server_id = ctx.guild.id, 
     sign_channel_id = ctx.channel.id, 

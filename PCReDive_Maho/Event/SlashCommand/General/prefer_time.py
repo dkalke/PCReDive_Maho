@@ -1,8 +1,8 @@
 ﻿from discord_slash.utils.manage_commands import create_option, create_choice
+
 import Module.Kernel.Discord_client
 import Module.Kernel.define_value
-import Module.Kernel.DB_control
-import Module.Kernel.info_update
+import Module.General.prefer_time
 
 @Module.Kernel.Discord_client.slash.slash( 
              name="prefer_time" ,
@@ -23,34 +23,10 @@ import Module.Kernel.info_update
              connector={"時段": "period"}
              )
 async def proposal_knife(ctx, period):
-  connection = await Module.Kernel.DB_control.OpenConnection(ctx)
-  if connection:
-    cursor = connection.cursor(prepared=True)
-    sql = "SELECT group_serial FROM princess_connect.group WHERE server_id = ? and sign_channel_id = ? order by group_serial limit 0, 1"
-    data = (ctx.guild.id, ctx.channel.id)
-    cursor.execute(sql, data) # 認證身分
-    row = cursor.fetchone()
-    cursor.close
-    if row:
-      group_serial = row[0]
-
-      # 檢查使否屬於該戰隊
-      cursor = connection.cursor(prepared=True)
-      sql = "select * from princess_connect.members WHERE server_id = ? and group_serial = ? and member_id = ? limit 0,1"
-      data = (ctx.guild.id, group_serial, ctx.author.id)
-      cursor.execute(sql, data)
-      row = cursor.fetchone()
-      if row:
-        # 修改出刀偏好
-        cursor = connection.cursor(prepared=True)
-        sql = "update princess_connect.members SET period=? WHERE server_id = ? and group_serial = ? and member_id = ?"
-        data = (period, ctx.guild.id, group_serial, ctx.author.id)
-        cursor.execute(sql, data)
-        connection.commit()
-        await Module.Kernel.info_update.info_update(ctx ,ctx.guild.id, group_serial)
-        await ctx.send('您在第' + str(group_serial) + '戰隊的出刀偏好時段已修改完成!')
-      else:
-        await ctx.send('您不屬於第' + str(group_serial) + '戰隊喔!')
-    else:
-      await ctx.send('這裡不是報刀頻道喔，請在所屬戰隊報刀頻道使用!')
-    await Module.Kernel.DB_control.CloseConnection(connection, ctx)
+  await Module.General.prefer_time.proposal_knife(
+    send_obj = ctx, 
+    server_id = ctx.guild.id, 
+    sign_channel_id = ctx.channel.id, 
+    member_id = ctx.author.id, 
+    period = period
+  )

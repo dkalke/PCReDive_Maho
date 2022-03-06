@@ -31,7 +31,7 @@ async def export_table(ctx):
         row = cursor.fetchone()
         index = 1
         while row:
-          nick_name = await Module.Kernel.Name_manager.get_nick_name(ctx, row[0])
+          nick_name = await Module.Kernel.Name_manager.get_nick_name(server_id, row[0])
           msg.append([index,row[1] ,row[2] ,row[0] ,nick_name, row[3], row[4], row[5], row[6]])
           row = cursor.fetchone()
           index = index +1

@@ -1,4 +1,5 @@
-import discord
+from discord.ext import commands 
 import discord_slash
-client = discord.Client()
-slash = discord_slash.SlashCommand(client,sync_commands=True)
+
+bot = commands.Bot(command_prefix=('!','！'))
+slash = discord_slash.SlashCommand(bot, sync_commands=True)

@@ -105,7 +105,7 @@ async def group_list(ctx):
           inner_row = cursor2.fetchone()
           captain_msg = ''
           while inner_row:
-            member_name = await Module.Kernel.Name_manager.get_nick_name(ctx, inner_row[0])
+            member_name = await Module.Kernel.Name_manager.get_nick_name(server_id, inner_row[0])
             captain_msg = captain_msg + member_name + ', '
             inner_row = cursor2.fetchone()
           cursor2.close

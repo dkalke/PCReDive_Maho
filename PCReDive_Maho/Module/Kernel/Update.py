@@ -1,5 +1,3 @@
-import os
-import mysql.connector
 from discord import Embed
 import Module.Kernel.Discord_client
 import Module.Kernel.Name_manager
@@ -65,7 +63,7 @@ async def UpdateEmbed(connection, message, server_id, group_serial): # 更新刀
             estimated_sum_damage = 0 # 報刀傷害總和(萬)
             while row:
               # 出刀狀況
-              nick_name = await Module.Kernel.Name_manager.get_nick_name(message, row[0]) # 取得DC暱稱
+              nick_name = await Module.Kernel.Name_manager.get_nick_name(server_id, row[0]) # 取得DC暱稱
               comment = row[1]
               knife_status = ''
 
@@ -90,7 +88,7 @@ async def UpdateEmbed(connection, message, server_id, group_serial): # 更新刀
   
           
       try:
-        guild = Module.Kernel.Discord_client.client.get_guild(server_id)
+        guild = Module.Kernel.Discord_client.bot.get_guild(server_id)
         channel = guild.get_channel(table_channel_id)
         message_obj = await channel.fetch_message(table_message_id)
         await message_obj.edit(embed=embed_msg)
@@ -109,7 +107,7 @@ async def UpdateEmbed(connection, message, server_id, group_serial): # 更新刀
       row = cursor.fetchone()
       while row:  
         # {index} nickname\tcomment\n
-        name = await Module.Kernel.Name_manager.get_nick_name(message, row[0])
+        name = await Module.Kernel.Name_manager.get_nick_name(server_id, row[0])
         msg = msg + '{' +str(index) + '} ' + name + '\n　' + row[1] + '\n'
         index = index + 1
         row = cursor.fetchone()
@@ -126,7 +124,7 @@ async def UpdateEmbed(connection, message, server_id, group_serial): # 更新刀
 
       # 取得訊息物件
       try:
-        guild = Module.Kernel.Discord_client.client.get_guild(server_id)
+        guild = Module.Kernel.Discord_client.bot.get_guild(server_id)
         channel = guild.get_channel(table_channel_id)
         message_obj = await channel.fetch_message(knife_pool_message_id)
         await message_obj.edit(embed=embed_msg)
@@ -178,7 +176,7 @@ async def UpdateTraditional(connection, message, server_id, group_serial): # 更
             estimated_sum_damage = 0
             while row:
               # 出刀狀況
-              nick_name = await Module.Kernel.Name_manager.get_nick_name(message, row[0])
+              nick_name = await Module.Kernel.Name_manager.get_nick_name(server_id, row[0])
               comment = row[1]
               knife_status = ''
               estimated_sum_damage = estimated_sum_damage + row[5]
@@ -203,7 +201,7 @@ async def UpdateTraditional(connection, message, server_id, group_serial): # 更
             
       # 取得訊息物件
       try:
-        guild = Module.Kernel.Discord_client.client.get_guild(server_id)
+        guild = Module.Kernel.Discord_client.bot.get_guild(server_id)
         channel = guild.get_channel(table_channel_id)
         message_obj = await channel.fetch_message(table_message_id)
         await message_obj.edit(content = send_msg)
@@ -222,7 +220,7 @@ async def UpdateTraditional(connection, message, server_id, group_serial): # 更
       row = cursor.fetchone()
       while row:  
         # {index} nickname\tcomment\n
-        name = await Module.Kernel.Name_manager.get_nick_name(message, row[0])
+        name = await Module.Kernel.Name_manager.get_nick_name(server_id, row[0])
         msg = msg + '{' +str(index) + '} ' + name + '\t' + row[1] + '\n'
         index = index + 1
         row = cursor.fetchone()
@@ -230,7 +228,7 @@ async def UpdateTraditional(connection, message, server_id, group_serial): # 更
 
       # 取得訊息物件
       try:
-        guild = Module.Kernel.Discord_client.client.get_guild(server_id)
+        guild = Module.Kernel.Discord_client.bot.get_guild(server_id)
         channel = guild.get_channel(table_channel_id)
         message_obj = await channel.fetch_message(knife_pool_message_id)
         if msg == '```asciidoc\n保留刀:\n':
