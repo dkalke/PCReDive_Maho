@@ -9,16 +9,31 @@ Discord 公主連結報刀機器人
 指令全方面支援全形半形繁體/簡體/英文，亦有斜線指令可供使用。  
 此外，英文縮寫對照表可於[Wiki常見問題](https://github.com/dkalke/PCReDive_Maho/wiki/5.-%E5%B8%B8%E8%A6%8B%E5%95%8F%E9%A1%8C)中查詢。
 
+　    
 邀請連結 : https://discord.com/oauth2/authorize?client_id=806421470368104449&scope=bot  
+  
 使用說明 : https://github.com/dkalke/PCReDive_Maho/wiki  
+更新紀錄 : https://github.com/dkalke/PCReDive_Maho/wiki/4.-%E6%9B%B4%E6%96%B0%E6%AD%B7%E5%8F%B2  
+TOPGG :  https://top.gg/bot/806421470368104449
 
 如果需要自行部屬，請參考以下章節。
+　  
+　  
+   　  
 
+## 特別感謝
+[Fredrick9122](https://github.com/Fredrick9122) 協助code編寫  
+[hsuCasper](https://github.com/hsuCasper) 協助撰寫說明文件  
+[yungpingxu](https://github.com/YungPingXu) 提供[手動軸時移功能](https://github.com/YungPingXu/pcr-bot)  
+　      
+　    
 ## 部屬須知
 ### 環境
-- python 3.9
+- python 3.9 (mudule list in requirement.txt)
 - MariaDB 10.5.15
 可利用[script](https://github.com/dkalke/PCReDive_Maho/blob/master/PCReDive_Maho/init-files/priceseDB.sql)產生依賴資料表
+　    
+     
 
 ### 設定啟動參數
 修改[env](https://github.com/dkalke/PCReDive_Maho/blob/master/PCReDive_Maho/init-files/.env)內部參數，並置於PCReDive_Maho目錄下。
@@ -39,9 +54,3 @@ PCReDive_Maho/
 
 ### 執行
 python3 PCReDive_Maho.py  
-
-## 外部連結
-- [TOPGG](https://top.gg/bot/806421470368104449)
-
-## 特別感謝
-[yungpingxu](https://github.com/YungPingXu) 提供手動軸時移功能[pcr-bot](https://github.com/YungPingXu/pcr-bot)
