@@ -24,7 +24,7 @@ async def Update(send_obj ,server_id, group_serial):
 
     await Module.Kernel.DB_control.CloseConnection(connection, send_obj)
   
-async def UpdateEmbed(connection, message, server_id, group_serial): # 更新刀表
+async def UpdateEmbed(connection, send_obj, server_id, group_serial): # 更新刀表
   # 查詢當前周目、王、刀表訊息、保留刀訊息
   cursor = connection.cursor(prepared=True)
   sql = "SELECT now_week, week_offset, now_week_1, now_week_2, now_week_3, now_week_4, now_week_5, table_channel_id, table_message_id, knife_pool_message_id FROM princess_connect.group WHERE server_id = ? and group_serial = ? LIMIT 0, 1"
@@ -93,7 +93,7 @@ async def UpdateEmbed(connection, message, server_id, group_serial): # 更新刀
         message_obj = await channel.fetch_message(table_message_id)
         await message_obj.edit(embed=embed_msg)
       except:
-        await message.channel.send(content='刀表訊息已被移除，請重新設定刀表頻道!')
+        await send_obj.send(content='刀表訊息已被移除，請重新設定刀表頻道!')
 
       # 保留刀部分
       # 從一王印到五王
@@ -129,15 +129,15 @@ async def UpdateEmbed(connection, message, server_id, group_serial): # 更新刀
         message_obj = await channel.fetch_message(knife_pool_message_id)
         await message_obj.edit(embed=embed_msg)
       except:
-        await message.channel.send(content='保留區訊息已被移除，請重新設定刀表頻道!')
+        await send_obj.send(content='保留區訊息已被移除，請重新設定刀表頻道!')
 
     else:
-      await message.channel.send(content='請戰隊隊長設定刀表頻道!')
+      await send_obj.send(content='請戰隊隊長設定刀表頻道!')
   else:
-    await message.channel.send(content='查無戰隊資料!')
+    await send_obj.send(content='查無戰隊資料!')
 
 
-async def UpdateTraditional(connection, message, server_id, group_serial): # 更新刀表
+async def UpdateTraditional(connection, send_obj, server_id, group_serial): # 更新刀表
   # 查詢當前周目、王、刀表訊息、保留刀訊息
   cursor = connection.cursor(prepared=True)
   sql = "SELECT now_week, week_offset, now_week_1, now_week_2, now_week_3, now_week_4, now_week_5, table_channel_id, table_message_id, knife_pool_message_id FROM princess_connect.group WHERE server_id = ? and group_serial = ? LIMIT 0, 1"
@@ -206,7 +206,7 @@ async def UpdateTraditional(connection, message, server_id, group_serial): # 更
         message_obj = await channel.fetch_message(table_message_id)
         await message_obj.edit(content = send_msg)
       except:
-        await message.channel.send(content='刀表訊息已被移除，請重新設定刀表頻道!')
+        await send_obj.send(content='刀表訊息已被移除，請重新設定刀表頻道!')
 
       # 保留刀部分
       # 從一王印到五王
@@ -237,9 +237,9 @@ async def UpdateTraditional(connection, message, server_id, group_serial): # 更
           msg = msg + '```'
           await message_obj.edit(content = msg)
       except:
-        await message.channel.send(content='保留區訊息已被移除，請重新設定刀表頻道!')
+        await send_obj.send(content='保留區訊息已被移除，請重新設定刀表頻道!')
 
     else:
-      await message.channel.send(content='請戰隊隊長設定刀表頻道!')
+      await send_obj.send(content='請戰隊隊長設定刀表頻道!')
   else:
-    await message.channel.send(content='查無戰隊資料!')
+    await send_obj.send(content='查無戰隊資料!')
