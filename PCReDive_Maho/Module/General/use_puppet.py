@@ -10,33 +10,29 @@ async def use_puppet(send_obj, server_id, sign_channel_id, member_id, index):
     data = (server_id, sign_channel_id)
     cursor.execute(sql, data) # 認證身分
     row = cursor.fetchone()
-    cursor.close
     if row:
       group_serial = row[7]
-      # 檢查成員是否存在，並取得最大隻的分身編號
-      cursor = connection.cursor(prepared=True)
-      sql = "SELECT MAX(sockpuppet) FROM princess_connect.members WHERE server_id=? and group_serial = ? and member_id=?"
+      # 檢查成員是否存在
+      sql = "SELECT 1 FROM princess_connect.members WHERE server_id=? and group_serial = ? and member_id=? limit 0, 1"
       data = (server_id, group_serial, member_id)
       cursor.execute(sql, data)
       row = cursor.fetchone()
-      cursor.close
-      if row[0] != None:
-        max_sockpuppet = int(row[0])
-        if 0 <= index and index <= max_sockpuppet:
+      if row:
+        sql = "SELECT 1 FROM princess_connect.members WHERE server_id=? and group_serial = ? and member_id=? and sockpuppet = ? limit 0, 1"
+        data = (server_id, group_serial, member_id, index)
+        cursor.execute(sql, data)
+        row = cursor.fetchone()
+        if row:
           # 先關閉持有的所有帳號，再開啟要使用的帳號
           # 關閉
-          cursor = connection.cursor(prepared=True)
-          sql = "UPDATE princess_connect.members SET now_using = '0' WHERE server_id = ? and group_serial = ? AND member_id = ?"
+          sql = "UPDATE princess_connect.members SET now_using = '0' WHERE server_id = ? and group_serial = ? and member_id = ?"
           data = (server_id, group_serial, member_id)
           cursor.execute(sql, data)
-          cursor.close
 
           # 開啟
-          cursor = connection.cursor(prepared=True)
-          sql = "UPDATE princess_connect.members SET now_using = '1' WHERE server_id = ? and group_serial = ? AND member_id = ? AND sockpuppet = ? "
+          sql = "UPDATE princess_connect.members SET now_using = '1' WHERE server_id = ? and group_serial = ? AND member_id = ? and sockpuppet = ? "
           data = (server_id, group_serial, member_id, index)
           cursor.execute(sql, data)
-          cursor.close
 
           connection.commit() # 資料庫存檔
               
@@ -45,9 +41,10 @@ async def use_puppet(send_obj, server_id, sign_channel_id, member_id, index):
           else:
             await send_obj.send('為您切換至分身{}'.format(index))
         else:
-          await send_obj.send('你沒有這隻分身喔')
+          await send_obj.send('發生錯誤，你沒有編號{}的分身，請查看剩餘刀數表。'.format(index))
       else:
         await send_obj.send('該成員不在此戰隊中')
     else:
       pass #非指定頻道 不反應
+    cursor.close
     await Module.Kernel.DB_control.CloseConnection(connection, send_obj)
