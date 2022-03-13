@@ -221,29 +221,37 @@ try:
   @bot.command(aliases = ['add_puppet', 'ADD_PUPPET', 'ａｄｄ＿ｐｕｐｐｅｔ', 'ＡＤＤ＿ＰＵＰＰＥＴ', '增加分身'])
   #!增加分身
   async def command_add_puppet(ctx, *args):
-    if len(args) == 0:
-      await Module.General.add_puppet.add_puppet(
-        send_obj = ctx, 
-        server_id = ctx.guild.id, 
-        sign_channel_id = ctx.channel.id, 
-        member_id = ctx.author.id
-      )
+    if len(args) == 1:
+      if args[0].isdigit():
+        await Module.General.add_puppet.add_puppet(
+          send_obj = ctx, 
+          server_id = ctx.guild.id, 
+          sign_channel_id = ctx.channel.id, 
+          member_id = ctx.author.id,
+          index = int(args[0])
+        )
+      else:
+        await ctx.send('發生錯誤 [分身編號] 只能是正整數!')
     else:
-      await ctx.send('!增加分身 格式錯誤，應為 !增加分身')
+      await ctx.send('!增加分身 格式錯誤，應為 !增加分身 [分身編號]')
 
 
   @bot.command(aliases = ['del_puppet', 'DEL_PUPPET', 'ｄｅｌ＿ｐｕｐｐｅｔ', 'ＤＥＬ＿ＰＵＰＰＥＴ', '移除分身'])
   #!移除分身 (分身號碼最大的)
   async def command_del_puppet(ctx, *args):
-    if len(args) == 0:
-      await Module.General.del_puppet.del_puppet(
-        send_obj = ctx, 
-        server_id = ctx.guild.id, 
-        sign_channel_id = ctx.channel.id, 
-        member_id = ctx.author.id
-      )
+    if len(args) == 1:
+      if args[0].isdigit():
+        await Module.General.del_puppet.del_puppet(
+          send_obj = ctx, 
+          server_id = ctx.guild.id, 
+          sign_channel_id = ctx.channel.id, 
+          member_id = ctx.author.id,
+          index = int(args[0])
+        )
+      else:
+        await ctx.send('發生錯誤 [分身編號] 只能是正整數!')
     else:
-      await ctx.send('!移除分身 格式錯誤，應為 !移除分身')
+      await ctx.send('!移除分身 格式錯誤，應為 !移除分身 [分身編號]')
 
 
   @bot.command(aliases = ['use', 'USE', 'ｕｓｅ', 'ＵＳＥ', '切換分身', '切换分身'])

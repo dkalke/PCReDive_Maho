@@ -13,13 +13,11 @@ async def use_sl(send_obj, server_id, sign_channel_id, member_id):
     data = (server_id, sign_channel_id)
     cursor.execute(sql, data) # 認證身分
     row = cursor.fetchone()
-    cursor.close
     if row:
       group_serial = row[0]
 
       # 檢查使否屬於該戰隊
-      cursor = connection.cursor(prepared=True)
-      sql = "select last_sl_time from princess_connect.members WHERE server_id = ? and group_serial = ? and member_id = ? limit 0,1"
+      sql = "select last_sl_time from princess_connect.members WHERE server_id = ? and group_serial = ? and member_id = ? and now_using = '1' limit 0,1"
       data = (server_id, group_serial, member_id)
       cursor.execute(sql, data)
       row = cursor.fetchone()
@@ -27,8 +25,7 @@ async def use_sl(send_obj, server_id, sign_channel_id, member_id):
         # 修改SL時間
         closest_end_time = Module.Kernel.get_closest_end_time.get_closest_end_time(datetime.datetime.now())
         if row[0] < closest_end_time:
-          cursor = connection.cursor(prepared=True)
-          sql = "update princess_connect.members SET last_sl_time=? WHERE server_id = ? and group_serial = ? and member_id = ?"
+          sql = "update princess_connect.members SET last_sl_time=? WHERE server_id = ? and group_serial = ? and member_id = ? and now_using = '1'"
           data = (closest_end_time, server_id, group_serial, member_id)
           cursor.execute(sql, data)
           connection.commit()
@@ -40,5 +37,6 @@ async def use_sl(send_obj, server_id, sign_channel_id, member_id):
         await send_obj.send('您不屬於第' + str(group_serial) + '戰隊喔!')
     else:
       await send_obj.send('這裡不是報刀頻道喔，請在所屬戰隊報刀頻道使用!')
+    cursor.close
     await Module.Kernel.DB_control.CloseConnection(connection, send_obj)
   
