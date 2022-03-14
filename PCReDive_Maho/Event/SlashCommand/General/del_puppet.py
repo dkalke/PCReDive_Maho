@@ -6,7 +6,7 @@ import Module.General.del_puppet
 
 @Module.Kernel.Discord_client.slash.slash( 
              name="del_puppet" ,
-             description="移除一個分身(分身編號最大的)",
+             description="移除一個分身。",
              options=[
                create_option(
                  name="分身編號",
