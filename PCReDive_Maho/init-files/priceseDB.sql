@@ -34,6 +34,7 @@ CREATE TABLE IF NOT EXISTS `group` (
   `knife_pool_message_id` bigint(20) DEFAULT NULL,
   `info_message_id` bigint(20) DEFAULT NULL,
   `controller_role_id` bigint(20) DEFAULT NULL,
+  `successful_role_id` bigint(20) DEFAULT NULL,
   `boss_change_1` datetime NOT NULL DEFAULT current_timestamp(),
   `boss_change_2` datetime NOT NULL DEFAULT current_timestamp(),
   `boss_change_3` datetime NOT NULL DEFAULT current_timestamp(),
@@ -54,7 +55,7 @@ CREATE TABLE IF NOT EXISTS `keep_knifes` (
   `member_id` bigint(20) unsigned NOT NULL DEFAULT 0,
   `comment` varchar(150) NOT NULL DEFAULT '',
   PRIMARY KEY (`serial_number`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=319 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=327 DEFAULT CHARSET=utf8mb4;
 
 -- 取消選取資料匯出。
 
@@ -74,7 +75,7 @@ CREATE TABLE IF NOT EXISTS `knifes` (
   `real_damage` int(10) unsigned NOT NULL DEFAULT 0,
   `estimated_damage` int(10) unsigned NOT NULL DEFAULT 0,
   PRIMARY KEY (`serial_number`)
-) ENGINE=InnoDB AUTO_INCREMENT=5441 DEFAULT CHARSET=utf8mb4 COMMENT='每刀資料\r\nsockpuppet固定為0，跟隨本尊(報刀不區分本尊分身，此處留下是為了外鍵)';
+) ENGINE=InnoDB AUTO_INCREMENT=5453 DEFAULT CHARSET=utf8mb4 COMMENT='每刀資料\r\nsockpuppet固定為0，跟隨本尊(報刀不區分本尊分身，此處留下是為了外鍵)';
 
 -- 取消選取資料匯出。
 
@@ -104,7 +105,7 @@ CREATE TABLE IF NOT EXISTS `members` (
   PRIMARY KEY (`serial_number`),
   KEY `FK_members_group` (`server_id`,`group_serial`),
   CONSTRAINT `FK_members_group` FOREIGN KEY (`server_id`, `group_serial`) REFERENCES `group` (`server_id`, `group_serial`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=38 DEFAULT CHARSET=utf8mb4;
 
 -- 取消選取資料匯出。
 
