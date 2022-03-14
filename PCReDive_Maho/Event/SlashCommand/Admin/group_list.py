@@ -20,7 +20,7 @@ async def group_list(ctx):
       if connection2:
         # 列出所有戰隊
         cursor = connection.cursor(prepared=True)
-        sql = "SELECT server_id, group_serial, controller_role_id, table_channel_id, sign_channel_id, week_offset_1, week_offset_2, week_offset_3, week_offset_4, week_offset_5,info_channel_id FROM princess_connect.group WHERE server_id = ? order by group_serial"
+        sql = "SELECT server_id, group_serial, controller_role_id, table_channel_id, sign_channel_id, week_offset_1, week_offset_2, week_offset_3, week_offset_4, week_offset_5,info_channel_id, fighting_role_id FROM princess_connect.group WHERE server_id = ? order by group_serial"
         data = (ctx.guild.id, )
         cursor.execute(sql, data)
         row = cursor.fetchone()
@@ -36,6 +36,7 @@ async def group_list(ctx):
           sign_channel_id = row[4]
           week_offsets = [row[5], row[6], row[7], row[8], row[9]]
           info_channel_id = row[10]
+          fighting_role_id = row[11]
           
 
           # 提前週目設定
@@ -96,6 +97,18 @@ async def group_list(ctx):
           else:
             pass
 
+          # 找出戰鬥中身分組
+          fighting_role_msg = ''
+          if not fighting_role_id == None:
+            try:
+              role = ctx.guild.get_role(fighting_role_id)
+              fighting_role_msg = role.name
+            except:
+              print("!戰隊列表查無身分組")
+              fighting_role_msg = '[N/A]'
+          else:
+            pass
+
           # 找出戰隊隊長
           captain_msg = ''
           cursor2 = connection2.cursor(prepared=True)
@@ -121,6 +134,11 @@ async def group_list(ctx):
             msg_send = msg_send + '控刀手身分組:尚未指派!\n'
           else:
             msg_send = msg_send + '控刀手身分組:'+ controller_role_msg +'\n'
+
+          if fighting_role_msg == '':
+            msg_send = msg_send + '戰鬥中身分組:尚未指派!\n'
+          else:
+            msg_send = msg_send + '戰鬥中身分組:'+ fighting_role_msg +'\n'
 
           msg_send = msg_send + '提前週目數:' + week_offset_msg + '\n'
 

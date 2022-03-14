@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS `group` (
   `knife_pool_message_id` bigint(20) DEFAULT NULL,
   `info_message_id` bigint(20) DEFAULT NULL,
   `controller_role_id` bigint(20) DEFAULT NULL,
-  `successful_role_id` bigint(20) DEFAULT NULL,
+  `fighting_role_id` bigint(20) DEFAULT NULL,
   `boss_change_1` datetime NOT NULL DEFAULT current_timestamp(),
   `boss_change_2` datetime NOT NULL DEFAULT current_timestamp(),
   `boss_change_3` datetime NOT NULL DEFAULT current_timestamp(),

@@ -22,6 +22,7 @@ import Event.SlashCommand.Captain.set_info_channel_here
 import Event.SlashCommand.Captain.add_member
 import Event.SlashCommand.Captain.delete_member
 import Event.SlashCommand.Captain.force_set_status
+import Event.SlashCommand.Captain.set_fighting_role_id
 
 
 import Event.SlashCommand.Controller.delete_keep_knife
