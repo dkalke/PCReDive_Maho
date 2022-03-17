@@ -32,7 +32,7 @@ async def info_update(message ,server_id, group_serial):
 
           day_name = ''
           if start_time < Module.Kernel.define_value.BATTLE_DAY[0]:
-            day_name = '(尚未開戰)'
+            day_name = '(戰間期) - 系統時程\n刀表清除:\n{}\n戰隊戰開始:\n{}\n'.format(str(Module.Kernel.define_value.BATTLE_DAY[0] -  datetime.timedelta(days = 2) - datetime.timedelta(hours = 5)), str(Module.Kernel.define_value.BATTLE_DAY[0]))
           elif start_time == Module.Kernel.define_value.BATTLE_DAY[0]:
             day_name = '戰隊戰第1天'
           elif start_time == Module.Kernel.define_value.BATTLE_DAY[1]:
@@ -56,8 +56,10 @@ async def info_update(message ,server_id, group_serial):
           data = (start_time, server_id, group_serial)
           cursor.execute(sql, data)
           row = cursor.fetchone()
-          msg = ''
-          count = 1
+          fighting_member_msg = ''
+          competed_member_msg = ''
+          member_index = 1
+          competed_member_count = 0
           normal_total = 0 # 已出正刀數量合計
           reversed_total = 0 # 已出補償刀數量合計
           while row:
@@ -91,23 +93,39 @@ async def info_update(message ,server_id, group_serial):
             else:
               period = '錯誤'
 
-           
-            normal_total += normal
-            reversed_total += reserved
-            msg = msg + '（{}）　{}　{}正{}補　{}　{}-{}\n'.format(Module.Kernel.half_string_to_full.half_string_to_full('{:>02d}'.format(count)), period, Module.Kernel.half_string_to_full.half_string_to_full(str(normal)), Module.Kernel.half_string_to_full.half_string_to_full(str(reserved)),Module.Kernel.half_string_to_full.half_string_to_full(have_sl), Module.Kernel.half_string_to_full.half_string_to_full(str(sockpuppet)), member_name) 
 
-            count = count + 1
+            if normal == 0 and reserved == 0:
+              competed_member_count += 1
+              competed_member_msg = competed_member_msg + '（{}）　{}-{}\n'.format(Module.Kernel.half_string_to_full.half_string_to_full('{:>02d}'.format(member_index)), Module.Kernel.half_string_to_full.half_string_to_full(str(sockpuppet)), member_name) 
+            else:
+              normal_total += normal
+              reversed_total += reserved
+              fighting_member_msg = fighting_member_msg + '（{}）　{}　{}正{}補　{}　{}-{}\n'.format(Module.Kernel.half_string_to_full.half_string_to_full('{:>02d}'.format(member_index)), period, Module.Kernel.half_string_to_full.half_string_to_full(str(normal)), Module.Kernel.half_string_to_full.half_string_to_full(str(reserved)),Module.Kernel.half_string_to_full.half_string_to_full(have_sl), Module.Kernel.half_string_to_full.half_string_to_full(str(sockpuppet)), member_name) 
+
+            member_index = member_index + 1
             row = cursor.fetchone()
 
           cursor.close
 
-          if msg == '':
-            msg = '尚無成員資訊!'
-          else:
-            msg = '（序號）　偏好　剩餘刀數　Ｒ　名稱\n-------------------------------------------\n' + msg + '-------------------------------------------\n'
-            msg = msg + '（總計）　　　　{}正{}補'.format(Module.Kernel.half_string_to_full.half_string_to_full(str(normal_total)), Module.Kernel.half_string_to_full.half_string_to_full(str(reversed_total)))
+          if competed_member_msg == '':
+            if member_index - 1 == 0:
+              competed_member_msg += '尚無成員資訊!\n'
+            else:
+              competed_member_msg += '尚無出刀完成成員!\n'
+          competed_member_msg = '（序號）　名稱\n-------------------------------------------\n' + competed_member_msg + '-------------------------------------------\n'
+          competed_member_msg += '（總計）　{}人完刀{}人出刀中\n\n'.format(Module.Kernel.half_string_to_full.half_string_to_full(str(competed_member_count)), Module.Kernel.half_string_to_full.half_string_to_full(str(member_index -1 - competed_member_count)))
 
-          embed_msg.add_field(name='\u200b', value=msg , inline=False)
+          if fighting_member_msg == '':
+            if member_index - 1 == 0:
+              fighting_member_msg += '尚無成員資訊!\n'
+            else:
+              fighting_member_msg += '本日成員全數出刀完成!\n'
+          fighting_member_msg = '（序號）　偏好　剩餘刀數　Ｒ　名稱\n-------------------------------------------\n' + fighting_member_msg + '-------------------------------------------\n'
+          fighting_member_msg = fighting_member_msg + '（總計）　　　　{}正{}補'.format(Module.Kernel.half_string_to_full.half_string_to_full(str(normal_total)), Module.Kernel.half_string_to_full.half_string_to_full(str(reversed_total)))
+
+          embed_msg.add_field(name='成功人士', value=competed_member_msg , inline=False)
+          embed_msg.add_field(name='\u200b', value='\u200b' , inline=False)
+          embed_msg.add_field(name='出刀進行中', value=fighting_member_msg , inline=False)
 
           # 取得訊息物件
           try:
