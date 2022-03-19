@@ -15,14 +15,14 @@ async def proposal_knife(send_obj, server_id, sign_channel_id, member_id, period
 
       # 檢查使否屬於該戰隊
       cursor = connection.cursor(prepared=True)
-      sql = "select * from princess_connect.members WHERE server_id = ? and group_serial = ? and member_id = ? limit 0,1"
+      sql = "select * from princess_connect.members WHERE server_id = ? and group_serial = ? and member_id = ? and now_using = '1' limit 0,1"
       data = (server_id, group_serial, member_id)
       cursor.execute(sql, data)
       row = cursor.fetchone()
       if row:
         # 修改出刀偏好
         cursor = connection.cursor(prepared=True)
-        sql = "update princess_connect.members SET period=? WHERE server_id = ? and group_serial = ? and member_id = ?"
+        sql = "update princess_connect.members SET period=? WHERE server_id = ? and group_serial = ? and member_id = ? and now_using = '1'"
         data = (period, server_id, group_serial, member_id)
         cursor.execute(sql, data)
         connection.commit()
