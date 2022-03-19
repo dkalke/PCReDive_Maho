@@ -8,6 +8,7 @@ import Module.Kernel.auto_clear
 import Module.Kernel.define_value
 import Module.Kernel.TopGG
 import Module.Kernel.Name_manager
+import Module.Kernel.auto_update
 
 # 機器人上線事件
 @Module.Kernel.Discord_client.bot.event
@@ -19,6 +20,7 @@ async def on_ready():
   Module.Kernel.Name_manager.clear_list.start() # 定期重置成員暱稱雜湊表(6小時)
   sched = apscheduler.schedulers.asyncio.AsyncIOScheduler(timezone='Asia/Taipei')  
   task_manager(sched) # 初次啟動及每月月初執行，取得開戰日期(當月倒數第5日)、清除日期(當月倒數第7日)、下次執行時間(次月第1日)
+  sched.add_job(Module.Kernel.auto_update.auto_update, 'cron', year='*', month='*', day='*', hour=5, minute=0, second=10, args=[]) # 每日5點更新刀表與剩餘刀數表
   sched.start()
   
 def task_manager(sched):
