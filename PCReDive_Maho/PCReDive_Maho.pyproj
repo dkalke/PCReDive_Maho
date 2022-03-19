@@ -41,6 +41,7 @@
     <Compile Include="Module\General\del_puppet.py" />
     <Compile Include="Module\General\timeline_shifter.py" />
     <Compile Include="Module\General\use_sl.py" />
+    <Compile Include="Module\Kernel\check_add_or_del_role.py" />
     <Compile Include="Module\Kernel\Discord_client.py" />
     <Compile Include="Event\Command.py" />
     <Compile Include="Module\Kernel\auto_update.py" />

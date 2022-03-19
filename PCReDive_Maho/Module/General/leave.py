@@ -9,12 +9,13 @@ async def leave(send_obj, server_id, sign_channel_id, member_id):
   if connection:
     # 尋找該頻道所屬戰隊
     cursor = connection.cursor(prepared=True)
-    sql = "SELECT group_serial FROM princess_connect.group WHERE server_id = ? and sign_channel_id = ?"
+    sql = "SELECT group_serial, fighting_role_id FROM princess_connect.group WHERE server_id = ? and sign_channel_id = ?"   
     data = (server_id, sign_channel_id)
     cursor.execute(sql, data)
     row = cursor.fetchone()
     if row:
       group_serial = row[0]
+      fighting_role_id = row[1]
       # 檢查是否已經是該戰隊成員
       sql = "SELECT 1 FROM princess_connect.members WHERE server_id = ? and group_serial=? and member_id = ? and sockpuppet = '0'"
       data = (server_id, group_serial, member_id)
@@ -28,6 +29,12 @@ async def leave(send_obj, server_id, sign_channel_id, member_id):
         cursor.execute(sql, data)
         
         connection.commit() # 資料庫存檔
+
+        # 移除身分組
+        role = send_obj.guild.get_role(fighting_role_id)
+        if role:
+          await send_obj.author.remove_roles(role)
+        
         await send_obj.send( nick_name + ' 已退出第' + str(group_serial) + '戰隊。')
         await Module.Kernel.info_update.info_update(send_obj ,server_id, group_serial)
       else:

@@ -54,7 +54,7 @@ async def IsController(message, command, connection, server_id):
 
 def IsExistGroup(message, connection, server_id, group_serial):
   cursor = connection.cursor(prepared=True)
-  sql = "SELECT * FROM princess_connect.group WHERE server_id = ? and group_serial = ? limit 0, 1"
+  sql = "SELECT fighting_role_id FROM princess_connect.group WHERE server_id = ? and group_serial = ? limit 0, 1"
   data = (server_id, group_serial)
   cursor.execute(sql, data)
   row = cursor.fetchone()

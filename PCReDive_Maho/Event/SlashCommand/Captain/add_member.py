@@ -43,8 +43,18 @@ async def add_captain(ctx, member):
           sql = "INSERT INTO princess_connect.members (server_id, group_serial, member_id, period, last_sl_time) VALUES (?, ?, ?, ?, ?)"
           data = (ctx.guild.id, group_serial, member.id, Module.Kernel.define_value.Period.UNKNOW.value, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")) # 預設三刀
           cursor.execute(sql, data)
-        
           connection.commit() # 資料庫存檔
+
+          # 加入身分組
+          sql = "SELECT fighting_role_id FROM princess_connect.group WHERE server_id=? and group_serial=? LIMIT 0, 1"
+          data = (ctx.guild.id, group_serial)
+          cursor.execute(sql, data)
+          row = cursor.fetchone()
+          if row:            
+            role = ctx.guild.get_role(row[0])
+            if role:
+              await member.add_roles(role)
+
           await Module.Kernel.info_update.info_update(ctx ,ctx.guild.id, group_serial)
           await ctx.send( member.name + ' 已新增為第' + str(group_serial) + '戰隊成員。')
         else:

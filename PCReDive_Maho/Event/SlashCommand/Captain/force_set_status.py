@@ -46,22 +46,31 @@ async def force_set_status(ctx, index, normal, reversed):
     if row:
       group_serial = row[0]
       if await Module.Kernel.Authentication.IsSignChannel(ctx,connection,group_serial):
-        start_time = Module.Kernel.get_closest_end_time.get_closest_end_time(datetime.datetime.now()) - datetime.timedelta(days = 1)
+        base_date = Module.Kernel.get_closest_end_time.get_closest_end_time(datetime.datetime.now()) - datetime.timedelta(days = 1)
         # 寫入資料庫
         cursor = connection.cursor(prepared=True)
-        sql = "SELECT a.serial_number \
+        sql = "SELECT a.serial_number, a.member_id \
         FROM princess_connect.members a\
         LEFT JOIN princess_connect.knife_summary b ON a.serial_number = b.serial_number and day = ?\
         WHERE server_id = ?  and group_serial = ? LIMIT ?, 1"
-        data = (start_time, ctx.guild.id, group_serial, index - 1)
+        data = (base_date, ctx.guild.id, group_serial, index - 1)
         cursor.execute(sql, data)
         row = cursor.fetchone()
         if row:
+          member_id = row[1]
           sql = "INSERT INTO princess_connect.knife_summary VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE normal = ?, reserved = ?"
-          data = (row[0], start_time, normal, reversed, normal, reversed)
+          data = (row[0], base_date, normal, reversed, normal, reversed)
           cursor.execute(sql, data)
-          
           connection.commit()
+
+          # 設定身分組
+          sql = "SELECT fighting_role_id FROM princess_connect.group WHERE server_id=? and group_serial=? LIMIT 0, 1"
+          data = (ctx.guild.id, group_serial)
+          cursor.execute(sql, data)
+          row = cursor.fetchone()
+          if row:            
+            await Module.Kernel.check_add_or_del_role.check_add_or_del_role(ctx, cursor, ctx.guild.id, group_serial, member_id, base_date, row[0]) # 設定身分組
+          
           await ctx.send('已強制更新序號:{}，正刀剩餘:{}，補償剩餘:{}!'.format(index, normal, reversed))
           await Module.Kernel.info_update.info_update(ctx ,ctx.guild.id, group_serial)
         else:

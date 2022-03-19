@@ -48,8 +48,20 @@ async def delete_member(ctx, index):
             sql = "Delete from princess_connect.members where server_id=? and member_id=? and group_serial=?"
             data = (ctx.guild.id, member_id, group_serial)
             cursor.execute(sql, data)
-            
             connection.commit() # 資料庫存檔
+
+            member = ctx.author.guild.get_member(member_id)
+            if member:
+              # 移除身分組
+              sql = "SELECT fighting_role_id FROM princess_connect.group WHERE server_id=? and group_serial=? LIMIT 0, 1"
+              data = (ctx.guild.id, group_serial)
+              cursor.execute(sql, data)
+              row = cursor.fetchone()
+              if row:            
+                role = ctx.guild.get_role(row[0])
+                if role:
+                  await member.remove_roles(role)
+
             nick_name = await Module.Kernel.Name_manager.get_nick_name(ctx.guild.id, member_id)
             await Module.Kernel.info_update.info_update(ctx ,ctx.guild.id, group_serial)
             await ctx.send( nick_name + ' 已從第' + str(group_serial) + '戰隊移除。')

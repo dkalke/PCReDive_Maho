@@ -34,6 +34,7 @@ async def add_captain(ctx, group_serial, member):
       if connection:
         # 尋找戰隊有無存在
         row = Module.Kernel.Authentication.IsExistGroup(ctx,connection, ctx.guild.id, group_serial)
+        fighting_role_id = row[0]
         cursor = connection.cursor(prepared=True)
         if row: 
           user_db_id = None
@@ -63,6 +64,12 @@ async def add_captain(ctx, group_serial, member):
             cursor.execute(sql, data)
             cursor.close
             connection.commit() # 資料庫存檔
+
+            # 加入身分組
+            role = ctx.guild.get_role(fighting_role_id)
+            if role:
+              await member.add_roles(role)
+
             await ctx.send( member.name + ' 已新增為第' + str(group_serial) + '戰隊隊長。')
             await Module.Kernel.info_update.info_update(ctx ,ctx.guild.id, group_serial)
           else:
