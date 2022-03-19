@@ -14,9 +14,9 @@ import Module.General.prefer_time
                      option_type=4,
                      required=True,
                      choices=[
-                         create_choice(name="不定??-??", value=Module.Kernel.define_value.Period.UNKNOW.value),create_choice(name="日班08-16", value=Module.Kernel.define_value.Period.DAY.value),
-                         create_choice(name="晚班16-24", value=Module.Kernel.define_value.Period.NIGHT.value),create_choice(name="夜班00-08", value=Module.Kernel.define_value.Period.GRAVEYARD.value),
-                         create_choice(name="全日00-24", value=Module.Kernel.define_value.Period.ALL.value)
+                         create_choice(name="不定??-??", value=Module.Kernel.define_value.Period.UNKNOW.value),     create_choice(name="清晨05-08", value=Module.Kernel.define_value.Period.EARLY_MORNING.value),
+                         create_choice(name="日班08-16", value=Module.Kernel.define_value.Period.DAY.value),        create_choice(name="晚班16-24", value=Module.Kernel.define_value.Period.NIGHT.value),
+                         create_choice(name="深夜00-05", value=Module.Kernel.define_value.Period.LAST_NIGHT.value), create_choice(name="全日00-24", value=Module.Kernel.define_value.Period.ALL.value)
                      ]
                  )
              ],

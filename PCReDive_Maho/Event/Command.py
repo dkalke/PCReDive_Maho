@@ -177,15 +177,17 @@ try:
   async def command_pt(ctx, *args):
     if len(args) == 1:
       period = args[0]
-      if period== "0" or period== "u" or period== "不定" or period== "不定??-??": # ??-??
+      if period== "0" or period== "u" or period== "不定" or period== "不定??-??":
         period = Module.Kernel.define_value.Period.UNKNOW.value
-      elif period== "1" or period== "d" or period== "日班" or period== "日班08-16": # 08-16
+      elif period== "1" or period== "e" or period== "清晨" or period== "清晨05-08":
+        period = Module.Kernel.define_value.Period.EARLY_MORNING.value
+      elif period== "2" or period== "d" or period== "日班" or period== "日班08-16":
         period = Module.Kernel.define_value.Period.DAY.value
-      elif period== "2" or period== "n" or period== "晚班" or period== "晚班16-24": # 16-24
+      elif period== "3" or period== "n" or period== "晚班" or period== "晚班16-24":
         period = Module.Kernel.define_value.Period.NIGHT.value
-      elif period== "3" or period== "g" or period== "夜班" or period== "夜班00-08": # 00-08
-        period = Module.Kernel.define_value.Period.GRAVEYARD.value
-      elif period== "4" or period== "a" or period== "全日" or period== "全日00-24": # 00-24
+      elif period== "4" or period== "l" or period== "深夜" or period== "深夜00-05":
+        period = Module.Kernel.define_value.Period.LAST_NIGHT.value
+      elif period== "5" or period== "a" or period== "全日" or period== "全日00-24":
         period = Module.Kernel.define_value.Period.ALL.value
       else:
         period = -1 # ERROR

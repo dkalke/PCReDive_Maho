@@ -82,12 +82,14 @@ async def info_update(message ,server_id, group_serial):
               reserved = row[6]
             if period == Module.Kernel.define_value.Period.UNKNOW.value:
               period = '不定'
+            elif period == Module.Kernel.define_value.Period.EARLY_MORNING.value:
+              period = '清晨'
             elif period == Module.Kernel.define_value.Period.DAY.value:
               period = '早班'
             elif period == Module.Kernel.define_value.Period.NIGHT.value:
               period = '晚班'
-            elif period == Module.Kernel.define_value.Period.GRAVEYARD.value:
-              period = '夜班'
+            elif period == Module.Kernel.define_value.Period.LAST_NIGHT.value:
+              period = '深夜'
             elif period == Module.Kernel.define_value.Period.ALL.value:
               period = '全日'
             else:

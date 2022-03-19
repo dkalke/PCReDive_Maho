@@ -5,10 +5,11 @@ MAX_DAMAGE = 1000000000
 
 class Period(Enum):
   UNKNOW = 0 # 未定
-  DAY = 1 # 08-16
-  NIGHT = 2 # 16-24
-  GRAVEYARD = 3 # 00-08
-  ALL = 4 # 00-24
+  EARLY_MORNING = 1 # 05-08
+  DAY = 2 # 08-16
+  NIGHT = 3 # 16-24
+  LAST_NIGHT = 4 # 00-05
+  ALL = 5 # 00-24
 
 
 class Policy(Enum):
