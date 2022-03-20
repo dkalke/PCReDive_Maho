@@ -19,7 +19,6 @@ async def auto_update():
       if not guild == None:
         message_obj = None  # 取得報刀頻道
         try:
-          sign_channel_obj = guild.get_channel(sign_channel_id) # 錯誤訊息都會發到報刀頻道
           role = guild.get_role(fighting_role_id)
           if role:
             # 取得戰隊中所有成員，並加上出刀中身分組
@@ -36,8 +35,8 @@ async def auto_update():
           else:
             pass
 
-          await Module.Kernel.Update.Update(sign_channel_obj, server_id, group_serial) # 更新刀表
-          await Module.Kernel.info_update.info_update(sign_channel_obj ,server_id, group_serial) # 更新資訊表
+          await Module.Kernel.Update.Update(None, server_id, group_serial) # 更新刀表
+          await Module.Kernel.info_update.info_update(None ,server_id, group_serial) # 更新資訊表
 
         except Exception as e:
           print(e)

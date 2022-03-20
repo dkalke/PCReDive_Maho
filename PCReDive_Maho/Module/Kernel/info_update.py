@@ -8,11 +8,11 @@ import Module.Kernel.define_value
 import Module.Kernel.get_closest_end_time
 import Module.Kernel.half_string_to_full
 
-async def info_update(message ,server_id, group_serial):
+async def info_update(send_obj ,server_id, group_serial):
   # 取得資訊訊息物件
-  connection2 = await Module.Kernel.DB_control.OpenConnection(message)
+  connection2 = await Module.Kernel.DB_control.OpenConnection(send_obj)
   if connection2.is_connected():
-    connection = await Module.Kernel.DB_control.OpenConnection(message)
+    connection = await Module.Kernel.DB_control.OpenConnection(send_obj)
     if connection.is_connected():
       cursor = connection.cursor(prepared=True)
       sql = "SELECT info_channel_id, info_message_id FROM princess_connect.group WHERE server_id = ? and group_serial = ? LIMIT 0, 1"
@@ -136,13 +136,13 @@ async def info_update(message ,server_id, group_serial):
             message_obj = await channel.fetch_message(info_message_id)
             await message_obj.edit(embed=embed_msg)
           except:
-            await message.channel.send(content='資訊訊息已被移除，請重新設定資訊頻道!')
+            await send_obj.send(content='資訊訊息已被移除，請重新設定資訊頻道!')
         else:
-          await message.channel.send(content='請戰隊隊長設定資訊頻道!')
+          await send_obj.send(content='請戰隊隊長設定資訊頻道!')
 
       else:
-        await message.channel.send(content='查無戰隊資料!')
+        await send_obj.send(content='查無戰隊資料!')
 
-      await Module.Kernel.DB_control.CloseConnection(connection, message)
+      await Module.Kernel.DB_control.CloseConnection(connection, send_obj)
 
-    await Module.Kernel.DB_control.CloseConnection(connection2, message)
+    await Module.Kernel.DB_control.CloseConnection(connection2, send_obj)
