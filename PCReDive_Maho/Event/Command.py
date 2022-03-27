@@ -37,7 +37,6 @@ try:
   async def command_p(ctx, *args): 
     if len(args) == 3:
       if args[0].isdigit() and args[1].isdigit():
-        comment = args[2]
         await Module.General.proposal_knife.proposal_knife(
           send_obj = ctx, 
           server_id = ctx.guild.id, 
@@ -45,7 +44,7 @@ try:
           member_id = ctx.author.id, 
           week = int(args[0]), 
           boss = int(args[1]), 
-          comment = args[1]
+          comment = args[2]
         )
       else:
         await ctx.send('[週目] [王] [預估傷害]請使用阿拉伯數字!')
