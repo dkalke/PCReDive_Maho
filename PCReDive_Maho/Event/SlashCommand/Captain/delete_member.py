@@ -38,7 +38,8 @@ async def delete_member(ctx, index):
           sql = "SELECT a.serial_number, a.member_id, a.period, a.sockpuppet, a.last_sl_time, b.normal, b.reserved \
           FROM princess_connect.members a \
           LEFT JOIN princess_connect.knife_summary b ON a.serial_number = b.serial_number and day = ?\
-          WHERE server_id = ?  and group_serial = ? limit ?,1"
+          WHERE server_id = ?  and group_serial = ?\
+          ORDER BY a.serial_number, a.sockpuppet limit ?,1"
           data = (Module.Kernel.get_closest_end_time.get_closest_end_time(datetime.datetime.now()) - datetime.timedelta(days=1), ctx.guild.id, group_serial, index-1)
           cursor.execute(sql, data)
           row = cursor.fetchone()

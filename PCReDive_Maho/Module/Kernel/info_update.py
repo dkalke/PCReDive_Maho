@@ -52,7 +52,8 @@ async def info_update(send_obj ,server_id, group_serial):
           sql = "SELECT a.serial_number, a.member_id, a.period, a.sockpuppet, a.last_sl_time, b.normal, b.reserved\
                   FROM princess_connect.members a\
                   LEFT JOIN princess_connect.knife_summary b ON a.serial_number = b.serial_number and day = ?\
-                  WHERE server_id = ?  and group_serial = ?"
+                  WHERE server_id = ?  and group_serial = ?\
+                  ORDER BY a.serial_number, a.sockpuppet"
           data = (start_time, server_id, group_serial)
           cursor.execute(sql, data)
           row = cursor.fetchone()

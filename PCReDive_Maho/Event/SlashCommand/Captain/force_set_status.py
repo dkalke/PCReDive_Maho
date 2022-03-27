@@ -52,7 +52,8 @@ async def force_set_status(ctx, index, normal, reversed):
         sql = "SELECT a.serial_number, a.member_id \
         FROM princess_connect.members a\
         LEFT JOIN princess_connect.knife_summary b ON a.serial_number = b.serial_number and day = ?\
-        WHERE server_id = ?  and group_serial = ? LIMIT ?, 1"
+        WHERE server_id = ?  and group_serial = ?\
+        ORDER BY a.serial_number, a.sockpuppet  LIMIT ?, 1"
         data = (base_date, ctx.guild.id, group_serial, index - 1)
         cursor.execute(sql, data)
         row = cursor.fetchone()
