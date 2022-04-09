@@ -42,6 +42,7 @@ async def UpdateEmbed(connection, send_obj, server_id, group_serial): # 更新�
 
     if table_message_id:
       embed_msg = Embed(title='第' + str(group_serial) + '戰隊刀表', color=0xD98B99)
+      lenth_counter = 0 # 為避免超出系統限制，單一區段僅能有1024字元，整體embed僅能有6000字元
       # 刀表部分，從當前週目開始印
       for i in range(now_week, now_week + week_offset + 1):
         week_stage = Module.Kernel.week_stage.week_stage(i)
@@ -71,9 +72,9 @@ async def UpdateEmbed(connection, send_obj, server_id, group_serial): # 更新�
               done_time = row[3]
               if done_time:
                 comment = '實際傷害:' + format(row[4],',')
-                knife_status = ":ballot_box_with_check: "
+                knife_status = "V "
               else:
-                knife_status = ":negative_squared_cross_mark: "
+                knife_status = "X "
 
               kinfe_msg = kinfe_msg + '　{' +str(index) + '} ' + knife_status + nick_name + '\n　　' + comment + '\n'
               estimated_sum_damage = estimated_sum_damage + row[5]
@@ -82,8 +83,16 @@ async def UpdateEmbed(connection, send_obj, server_id, group_serial): # 更新�
             cursor.close()
             title_msg = '**'+ str(j) + '**王(**' + str(Module.Kernel.define_value.BOSS_HP[week_stage][j-1] - estimated_sum_damage) + '**/**' + str(Module.Kernel.define_value.BOSS_HP[week_stage][j-1]) +'**)\n'
           week_msg = week_msg + title_msg + kinfe_msg
-        embed_msg.add_field(name='\u200b', value='-   -   -   -   -   -   -   -   ', inline=False)
-        embed_msg.add_field(name='第' + str(i) + '週目', value=week_msg , inline=False)
+        lenth_counter += len(week_msg)
+        if lenth_counter < 5500:
+          embed_msg.add_field(name='\u200b', value='-   -   -   -   -   -   -   -   ', inline=False)
+          if len(week_msg) <= 950:
+            embed_msg.add_field(name='第' + str(i) + '週目', value=week_msg , inline=False)
+          else:
+            embed_msg.add_field(name='第' + str(i) + '週目', value=week_msg[0:950] + '/n 超出1024字元，無法顯示。' , inline=False)
+        else:
+          embed_msg.add_field(name='第' + str(i) + '週目', value='刀表超出6000字元，已暫緩顯示' , inline=False)
+          break
             
   
           
@@ -93,7 +102,7 @@ async def UpdateEmbed(connection, send_obj, server_id, group_serial): # 更新�
         message_obj = await channel.fetch_message(table_message_id)
         await message_obj.edit(embed=embed_msg)
       except:
-        await send_obj.send(content='刀表訊息已被移除，請重新設定刀表頻道!')
+        await send_obj.send(content='更新刀表時發生錯誤，請檢查有無設定刀表頻道，或連繫作者檢查!')
 
       # 保留刀部分
       # 從一王印到五王
