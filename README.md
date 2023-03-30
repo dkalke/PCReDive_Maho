@@ -22,9 +22,10 @@ TOPGG :  https://top.gg/bot/806421470368104449
    　  
 
 ## 特別感謝
-[Fredrick9122](https://github.com/Fredrick9122) 協助code編寫  
-[hsuCasper](https://github.com/hsuCasper) 協助撰寫說明文件  
-[yungpingxu](https://github.com/YungPingXu) 提供[手動軸時移功能](https://github.com/YungPingXu/pcr-bot)  
+[Fredrick9122](https://github.com/Fredrick9122) : 協助code編寫  
+[hsuCasper](https://github.com/hsuCasper) : 協助撰寫說明文件  
+[yungpingxu](https://github.com/YungPingXu) : [手動軸時移功能](https://github.com/YungPingXu/pcr-bot)  
+[IanDesuyo](https://github.com/IanDesuyo) : [補償計算功能](https://github.com/IanDesuyo/AIKyaru/blob/6ffdb105f44aa6dd0822ff9393ba706131393010/cogs/clan/cbre.py)
 　      
 　    
 ## 部屬須知
