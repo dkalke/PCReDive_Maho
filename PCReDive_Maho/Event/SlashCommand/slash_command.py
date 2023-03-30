@@ -46,6 +46,7 @@ import Event.SlashCommand.General.add_puppet
 import Event.SlashCommand.General.del_puppet
 import Event.SlashCommand.General.use_puppet
 import Event.SlashCommand.General.help
+import Event.SlashCommand.General.calculate_damage
 
 import Event.SlashCommand.General.set_personal_status
 import Event.SlashCommand.General.join
