@@ -338,19 +338,18 @@ try:
   @bot.command(aliases = ['cbre', 'CBRE', 'ｃｂｒｅ', 'ＣＢＲＥ', '補償計算', '补偿计算'])
   #!補償計算功能(the author is IanDesuyo, this version is modified)
   async def command_cbre(ctx, *args):
-    if len(args) == 4:
-      if args[0].isdigit() and args[1].isdigit() and args[2].isdigit() and args[3].isdigit():
+    if len(args) == 3:
+      if args[0].isdigit() and args[1].isdigit() and args[2].isdigit():
         await Module.General.calculate_damage.calculate_damage(
           send_obj = ctx, 
           remaining = int(args[0]), 
           damage1 = int(args[1]), 
-          damage2 = int(args[2]),
-          second = int(args[3])
+          damage2 = int(args[2])
         )
       else:
-        await ctx.send('發生錯誤 [剩餘血量] [第一刀傷害] [第二刀傷害] [第二刀剩餘秒數] 只能是正整數!')
+        await ctx.send('發生錯誤 [剩餘血量] [第一刀傷害] [第二刀傷害] 只能是正整數!')
     else:
-      await ctx.send('!補償計算 格式錯誤，應為 !補償計算 [剩餘血量] [第一刀傷害] [第二刀傷害] [第二刀剩餘秒數]')
+      await ctx.send('!補償計算 格式錯誤，應為 !補償計算 [剩餘血量] [第一刀傷害] [第二刀傷害]')
 
 
   @bot.command(aliases = ['h', 'H', 'ｈ', 'Ｈ', '幫助', '帮助'])

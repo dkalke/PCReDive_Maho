@@ -1,6 +1,7 @@
 ﻿from discord import Embed
+import math
 
-async def calculate_damage(send_obj, remaining, damage1, damage2, second):
+async def calculate_damage(send_obj, remaining, damage1, damage2):
   if remaining == 0 or damage1 == 0 or damage2 == 0:
     await send_obj.send('血量和傷害不可為0。')
   elif (damage1 + damage2) < remaining:
@@ -8,7 +9,7 @@ async def calculate_damage(send_obj, remaining, damage1, damage2, second):
   elif remaining < damage1:
     await send_obj.send('一刀就能殺掉了...')
   else:
-    retime = 90 - (remaining - damage1) / (damage2 / (90 - second)) + 20
+    retime = math.ceil(90 - (remaining - damage1) / (damage2 / 90) + 20)
     if retime > 90:
       retime = 90
     elif retime == 20:

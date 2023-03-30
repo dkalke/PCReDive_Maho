@@ -23,23 +23,16 @@ import Module.General.calculate_damage
                      description="第二刀傷害(萬)。僅能輸入數字。",
                      option_type=4,
                      required=True,
-                 ),
-                 create_option(
-                     name="第二刀剩餘秒數",
-                     description="第二刀剩餘秒數，僅能輸入數字。",
-                     option_type=4,
-                     required=True,
                  )
              ],
-             connector={"剩餘血量": "remaining","第一刀傷害": "damage1","第二刀傷害": "damage2","第二刀剩餘秒數": "second"}
+             connector={"剩餘血量": "remaining","第一刀傷害": "damage1","第二刀傷害": "damage2"}
              )
-async def calculate_damage(ctx, remaining, damage1, damage2, second):
+async def calculate_damage(ctx, remaining, damage1, damage2):
   await Module.General.calculate_damage.calculate_damage(
     send_obj = ctx, 
     remaining = remaining, 
     damage1 = damage1, 
-    damage2 = damage2,
-    second = second
+    damage2 = damage2
   )
 
 
